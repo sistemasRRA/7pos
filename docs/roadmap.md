@@ -14,7 +14,8 @@
 Phase 1 as specified is large for one developer, so it is split:
 
 **1a · Core POS**
-1. ⬜ Move to PostgreSQL and organize Core by business area ([ADR 0005](decisions/0005-postgresql-for-phase-1.md))
+1. ✅ Move to PostgreSQL and add the missing foreign keys ([ADR 0005](decisions/0005-postgresql-for-phase-1.md))
+   ⬜ Organize Core by business area (`Catalog/`, `Tickets/`, `Cash/`, `Guests/`)
 2. ⬜ Users and PIN login
 3. ⬜ Catalog with price lists per zone
 4. ⬜ Guests: search by phone and register
@@ -30,8 +31,7 @@ Phase 1 as specified is large for one developer, so it is split:
 Done so far: solution structure, entities, pricing calculator with tests, demo catalog page, generated database diagram, documentation.
 
 ## Known issues
-- Several ID columns are not real foreign keys yet: `Ticket.BranchId/CashierId/ShiftId`, `Shift.BranchId/UserId`, `Attendance.*`, `AuditLog.*`, `GarmentModifier.ModifierId`. See [data rules §6](data-rules.md#6-let-the-database-protect-you).
-- SQLite stores money and dates as text. This is resolved by the PostgreSQL move.
+None open.
 
 ## Open questions for the client
 1. **Taxes:** prices include IVA? 16% everywhere, or 8% in the border zone? Do guests need CFDI invoices (RFC, tax regime fields)?

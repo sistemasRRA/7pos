@@ -74,7 +74,7 @@ The desktop shell is needed for what a browser cannot do: work fully offline, re
 | Language | C# / .NET 8 | Required by the client brief; shared with the mobile app ([ADR 0003](decisions/0003-blazor-for-ui.md)) |
 | UI | Blazor | Same language as the logic; runs in browser and desktop |
 | Data access | EF Core 8 | Tables from C# classes, migrations, LINQ queries |
-| Database | SQLite today; PostgreSQL proposed for Phase 1 ([ADR 0005](decisions/0005-postgresql-for-phase-1.md)) | |
+| Database | PostgreSQL (central, Phase 1); SQLite returns for the offline branch app in Phase 2 | Concurrency, real types, Cloud SQL on GCP ([ADR 0005](decisions/0005-postgresql-for-phase-1.md)) |
 | Tests | xUnit | |
 
 ## Folder conventions inside Core

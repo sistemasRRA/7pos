@@ -8,9 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Local SQLite database (a single file, no server).
-builder.Services.AddDbContextFactory<PosDbContext>(o =>
-    o.UseSqlite(builder.Configuration.GetConnectionString("Pos")));
+// Central PostgreSQL database. The connection string lives in appsettings.Development.json
+// for local work; in production it comes from an environment variable (ConnectionStrings__Pos).
+var connectionString = builder.Configuration.GetConnectionString("Pos")
+    ?? throw new InvalidOperationException("Missing connection string 'Pos'.");
+builder.Services.AddDbContextFactory<PosDbContext>(o => PosDatabase.Configure(o, connectionString));
 
 var app = builder.Build();
 
