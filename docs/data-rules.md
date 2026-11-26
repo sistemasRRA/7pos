@@ -32,6 +32,8 @@ If something must be true, make the database enforce it:
 - Required values → non-nullable property or `required`
 - References to another table → a **real foreign key**
 
+All relationships use `DeleteBehavior.Restrict` (set globally in `PosDbContext`): the database refuses to delete a row that others point to.
+
 EF Core only creates a foreign key when the entity has a navigation property (`public Branch? Branch { get; set; }`) or the relationship is configured in `OnModelCreating`. A bare `Guid BranchId` is **not** a foreign key. Check [database.md](database.md) after each migration: a reference without `FK` is a bug.
 
 ## 7. Dates are UTC
@@ -46,6 +48,12 @@ The database stores `"Cash"`, not `0`, so it stays readable and reordering an en
 
 Every entity inherits `SyncEntity` (`Id`, `LastModifiedUtc`, `SyncStatus`, `IsActive`). `PosDbContext` stamps `LastModifiedUtc` and sets `SyncStatus = Pending` on every save. Do not set them by hand. They become essential in Phase 2 (offline branches).
 
-## 10. Changing the schema
+## 10. Names: PascalCase in C#, snake_case in the database
+
+The database uses PostgreSQL's snake_case convention, applied automatically: the `BalanceDue` property on `Ticket` is the `balance_due` column of the `tickets` table. Never name tables or columns by hand. When writing SQL (DBeaver, reports), use the snake_case names without quotes. See [ADR 0008](decisions/0008-snake-case-database-names.md).
+
+The connection and these conventions are configured in **one place**, `PosDatabase.Configure`. The web app, the tests and `dotnet ef` all use it. Never call `UseNpgsql` anywhere else.
+
+## 11. Changing the schema
 
 Change the C# entity, then create a migration. Never alter the database by hand. Read the generated migration before committing. See [CONTRIBUTING](../CONTRIBUTING.md#database-changes).

@@ -38,6 +38,35 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<ProductModifier>().HasIndex(x => new { x.ProductId, x.ModifierId }).IsUnique();
         b.Entity<Payment>().HasIndex(x => x.ShiftId);
         b.Entity<Modifier>().Property(x => x.ChargeValue).HasPrecision(12, 4);
+
+        ConfigureForeignKeys(b);
+
+        // Business data is never deleted (see docs/data-rules.md §2), so the database
+        // refuses to delete any row that other rows still point to.
+        foreach (var fk in b.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            fk.DeleteBehavior = DeleteBehavior.Restrict;
+    }
+
+    /// <summary>
+    /// Relationships whose entity has only the ID column and no navigation property.
+    /// Without this, EF Core would not create a real foreign key for them.
+    /// </summary>
+    private static void ConfigureForeignKeys(ModelBuilder b)
+    {
+        b.Entity<Attendance>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
+        b.Entity<Attendance>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);
+
+        b.Entity<Shift>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);
+        b.Entity<Shift>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
+
+        b.Entity<AuditLog>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
+        b.Entity<AuditLog>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);
+
+        b.Entity<Ticket>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);
+        b.Entity<Ticket>().HasOne<User>().WithMany().HasForeignKey(x => x.CashierId);
+        b.Entity<Ticket>().HasOne<Shift>().WithMany().HasForeignKey(x => x.ShiftId);
+
+        b.Entity<GarmentModifier>().HasOne<Modifier>().WithMany().HasForeignKey(x => x.ModifierId);
     }
 
     /// <summary>Automatically flags every change as pending sync.</summary>

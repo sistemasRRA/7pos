@@ -10,6 +10,7 @@ Development happens on **Windows with WSL 2 (Ubuntu)**. The code lives inside WS
 |---|---|---|
 | git | Source control | `git --version` |
 | .NET 8 SDK | Build and run | `dotnet --version` → `8.x` |
+| PostgreSQL 14+ | Database | `psql --version` |
 | Python 3 | Diagram script | `python3 --version` |
 | VS Code + WSL extension | Editor | Open the folder with `code .` from WSL |
 
@@ -18,12 +19,24 @@ Install the .NET 8 SDK following Microsoft's instructions for Ubuntu: https://le
 ## 2. Recommended VS Code extensions
 
 - **C# Dev Kit** (`ms-dotnettools.csdevkit`): IntelliSense, debugging, tests
-- **SQLite Viewer** (`qwtel.sqlite-viewer`): click a `.db` file to browse its tables
 - **Markdown Preview Mermaid Support** (`bierner.markdown-mermaid`): renders the diagrams in `docs/`
 
-Optional: **DBeaver** (free, install on Windows) to browse data, run SQL and auto-generate ER diagrams. From Windows, the database file is at `\\wsl$\Ubuntu\home\<you>\7pos\src\SevenPos.Web\7pos.db`.
+Recommended: **DBeaver** (free, install on Windows) to browse data, run SQL and auto-generate ER diagrams. Connect to `localhost:5432`, database `sevenpos`, user `sevenpos`, password `sevenpos_dev` (WSL forwards the port to Windows).
 
-## 3. First run
+## 3. Database (once per machine)
+
+Install PostgreSQL if needed (`sudo apt install postgresql`), then create the development user and database:
+
+```bash
+sudo -u postgres psql -c "CREATE ROLE sevenpos WITH LOGIN PASSWORD 'sevenpos_dev' CREATEDB;"
+sudo -u postgres psql -c "CREATE DATABASE sevenpos OWNER sevenpos;"
+```
+
+- `CREATEDB` lets the tests create and drop throwaway databases.
+- This password is for local development only. It lives in `src/SevenPos.Web/appsettings.Development.json`. Real environments pass the connection string through the `ConnectionStrings__Pos` environment variable.
+- The app creates the tables itself (migrations run on startup).
+
+## 4. First run
 
 ```bash
 git clone <repo-url> 7pos && cd 7pos
@@ -32,11 +45,15 @@ dotnet test                              # all tests should pass
 dotnet run --project src/SevenPos.Web    # http://localhost:5175
 ```
 
-On first run the app creates `src/SevenPos.Web/7pos.db`, applies all migrations and loads sample data (branch "Sucursal Demo", user Admin / PIN 1234, a small catalog).
+On first run the app applies all migrations and loads sample data: branch "Sucursal Demo", user Admin with PIN 1234, and a small catalog.
 
-To start over with a clean database, stop the app, delete `src/SevenPos.Web/7pos.db*`, and run it again.
+To start over with a clean database:
 
-## 4. Next steps
+```bash
+sudo -u postgres psql -c "DROP DATABASE sevenpos;" -c "CREATE DATABASE sevenpos OWNER sevenpos;"
+```
+
+## 5. Next steps
 
 1. Read [architecture](architecture.md) (10 minutes).
 2. Read [data rules](data-rules.md) before touching entities.

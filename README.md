@@ -6,7 +6,7 @@ Point of sale and back office for a chain of dry cleaners and laundries in Mexic
 
 ## Quick start
 
-Requirements: .NET 8 SDK and git. See [docs/getting-started.md](docs/getting-started.md) for full setup.
+Requirements: .NET 8 SDK, git and PostgreSQL 14+ (with the `sevenpos` user, see getting started). See [docs/getting-started.md](docs/getting-started.md) for full setup.
 
 ```bash
 dotnet tool restore                      # install project tools (once)

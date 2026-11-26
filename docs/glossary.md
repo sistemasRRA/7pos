@@ -1,6 +1,6 @@
 # Glossary
 
-The client documents are in Spanish; the code is in English. Use this table to translate. **When you introduce a new concept, add it here in the same commit.**
+The client documents are in Spanish; the code is in English. Use this table to translate. In the database, names are the snake_case form of the code name (`GuestAddress` → table `guest_addresses`). **When you introduce a new concept, add it here in the same commit.**
 
 ## Entities
 

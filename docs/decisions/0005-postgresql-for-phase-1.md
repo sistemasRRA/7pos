@@ -1,12 +1,12 @@
 # 0005 · PostgreSQL as the Phase 1 database
 
-- **Status:** Proposed. The project still runs on SQLite.
+- **Status:** Accepted (implemented 2026-11-26)
 - **Date:** 2026-11-26
 
 ## Context
 ER revision 2 defines Phase 1 as a web app on **one central database** shared by all branches. SQLite is a single file with one writer at a time and almost no real types (money and dates are stored as text). The web admin runs on GCP. PostgreSQL 14 is already installed in the development environment.
 
-## Decision (proposed)
+## Decision
 Use PostgreSQL for the central database from Phase 1. Keep SQLite for the offline branch database in Phase 2, with the same EF Core entities.
 
 ## Alternatives considered

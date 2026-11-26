@@ -20,6 +20,7 @@ Statuses: **Proposed** → **Accepted** → (optionally) **Superseded by NNNN**.
 | [0002](0002-code-english-ui-spanish.md) | Code in English, UI in Spanish | Accepted |
 | [0003](0003-blazor-for-ui.md) | Blazor (C#) for the UI instead of React | Accepted |
 | [0004](0004-shared-ui-multiple-hosts.md) | Shared UI library with multiple hosts | Accepted |
-| [0005](0005-postgresql-for-phase-1.md) | PostgreSQL as the Phase 1 database | Proposed |
+| [0005](0005-postgresql-for-phase-1.md) | PostgreSQL as the Phase 1 database | Accepted |
 | [0006](0006-specs-as-guide.md) | Client specs are a guide; deviations are recorded | Accepted |
 | [0007](0007-store-facts-derive-totals.md) | Store facts, derive totals | Accepted |
+| [0008](0008-snake-case-database-names.md) | snake_case names in the database | Accepted |
