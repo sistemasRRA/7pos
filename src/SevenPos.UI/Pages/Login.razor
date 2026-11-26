@@ -1,0 +1,88 @@
+@page "/login"
+@layout BlankLayout
+@inject LoginService Auth
+@inject PosSession Session
+@inject NavigationManager Navigation
+@inject TimeProvider Clock
+
+<div class="login">
+    <h1>7Pos</h1>
+
+    @if (_users is null)
+    {
+        <p>Cargando…</p>
+    }
+    else if (_users.Count == 0)
+    {
+        <p class="hint">No hay usuarios activos en esta sucursal.</p>
+    }
+    else if (_selected is null)
+    {
+        <p class="hint">¿Quién eres?</p>
+        <div class="users">
+            @foreach (var user in _users)
+            {
+                <button type="button" @onclick="() => Select(user)">@user.Name</button>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="hint">Hola, <strong>@_selected.Name</strong>. Ingresa tu PIN.</p>
+        <PinPad Message="@_message" Disabled="_busy" OnSubmit="SubmitAsync" />
+        <button type="button" class="link" @onclick="() => Select(null)">Cambiar de usuario</button>
+    }
+</div>
+
+@code {
+    private List<User>? _users;
+    private User? _selected;
+    private string? _message;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Session.IsSignedIn)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+        var branch = await Auth.GetTerminalBranchAsync();
+        _users = branch is null ? [] : await Auth.GetUsersAsync(branch.Id);
+    }
+
+    private void Select(User? user)
+    {
+        _selected = user;
+        _message = null;
+    }
+
+    private async Task SubmitAsync(string pin)
+    {
+        _busy = true;
+        var result = await Auth.LoginAsync(_selected!.Id, pin);
+        _busy = false;
+
+        if (result.Succeeded)
+        {
+            Session.SignIn(result.User!);
+            Navigation.NavigateTo("/");
+            return;
+        }
+        _message = MessageFor(result);
+    }
+
+    // Business decisions live in LoginService; this only turns the result into Spanish text.
+    private string MessageFor(LoginResult result) => result.Failure switch
+    {
+        LoginFailure.WrongPin => result.RemainingAttempts == 1
+            ? "PIN incorrecto. Te queda 1 intento."
+            : $"PIN incorrecto. Te quedan {result.RemainingAttempts} intentos.",
+        LoginFailure.UserLocked => $"Usuario bloqueado por seguridad. Intenta de nuevo en {MinutesUntil(result.LockedUntilUtc!.Value)} min.",
+        LoginFailure.UserInactive => "Este usuario está inactivo. Consulta a tu gerente.",
+        _ => "No se pudo iniciar sesión.",
+    };
+
+    private int MinutesUntil(DateTime utc) =>
+        Math.Max(1, (int)Math.Ceiling((utc - Clock.GetUtcNow().UtcDateTime).TotalMinutes));
+}

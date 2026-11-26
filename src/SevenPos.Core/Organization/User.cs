@@ -9,4 +9,9 @@ public class User : SyncEntity
     public UserRole Role { get; set; } = UserRole.Cashier;
     public Guid BranchId { get; set; }
     public Branch? Branch { get; set; }
+
+    /// <summary>Wrong PINs in a row. Reset to 0 on a successful login.</summary>
+    public int FailedPinAttempts { get; set; }
+    /// <summary>While set and in the future, the user cannot log in.</summary>
+    public DateTime? LockedUntilUtc { get; set; }
 }

@@ -1,0 +1,6 @@
+.login { display: grid; gap: 1.2rem; justify-items: center; width: min(100%, 420px); padding: 2rem; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px #10223a1a; }
+h1 { margin: 0; color: #1a75a8; }
+.hint { margin: 0; color: #4a6079; text-align: center; }
+.users { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; width: 100%; }
+.users button { min-height: 3.5rem; font-size: 1.1rem; border: 1px solid #ccd; border-radius: 10px; background: #f4f9fd; cursor: pointer; }
+.link { background: none; border: none; color: #1a75a8; text-decoration: underline; cursor: pointer; }

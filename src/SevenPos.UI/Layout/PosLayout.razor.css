@@ -1,0 +1,4 @@
+.pos-header { display: flex; align-items: center; gap: 1rem; padding: .6rem 1.2rem; background: #1a75a8; color: #fff; }
+.pos-header .user { margin-left: auto; }
+.pos-header button { background: transparent; color: #fff; border: 1px solid #ffffff88; border-radius: 6px; padding: .3rem .8rem; cursor: pointer; }
+.pos-main { padding: 1rem 1.2rem; }

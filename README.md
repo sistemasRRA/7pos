@@ -14,7 +14,7 @@ dotnet test                              # run the tests
 dotnet run --project src/SevenPos.Web    # open http://localhost:5175
 ```
 
-Sample data includes user **Admin** with PIN **1234** (the login screen is not built yet).
+Log in with the sample user **Admin**, PIN **1234**.
 
 ## Documentation
 

@@ -9,26 +9,18 @@ using SevenPos.Core.Tickets;
 
 namespace SevenPos.Core.Tests;
 
-/// <summary>
-/// Runs against a real local PostgreSQL. Each test gets its own throwaway database,
-/// so tests never see each other's data. Override the server with SEVENPOS_TEST_DB.
-/// </summary>
+/// <summary>Integration tests: the database itself must protect the data.</summary>
 public class DatabaseTests : IDisposable
 {
+    private readonly TestDatabase _database = new();
     private readonly PosDbContext _db;
 
-    public DatabaseTests()
-    {
-        var server = Environment.GetEnvironmentVariable("SEVENPOS_TEST_DB") ?? PosDatabase.LocalDevConnection;
-        var connection = new NpgsqlConnectionStringBuilder(server) { Database = $"sevenpos_test_{Guid.NewGuid():N}" };
-        _db = new PosDbContext(PosDatabase.CreateOptions(connection.ConnectionString));
-        _db.Database.Migrate();
-    }
+    public DatabaseTests() => _db = _database.CreateDbContext();
 
     public void Dispose()
     {
-        _db.Database.EnsureDeleted();
         _db.Dispose();
+        _database.Dispose();
     }
 
     [Fact]

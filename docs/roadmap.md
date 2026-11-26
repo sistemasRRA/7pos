@@ -16,7 +16,7 @@ Phase 1 as specified is large for one developer, so it is split:
 **1a · Core POS**
 1. ✅ Move to PostgreSQL and add the missing foreign keys ([ADR 0005](decisions/0005-postgresql-for-phase-1.md))
    ✅ Organize Core by business area (`Catalog/`, `Tickets/`, `Cash/`, `Guests/`, `Organization/`)
-2. ⬜ Users and PIN login
+2. ✅ Users and PIN login ([feature doc](features/pin-login.md))
 3. ⬜ Catalog with price lists per zone
 4. ⬜ Guests: search by phone and register
 5. ⬜ Ticket capture wizard (one row per garment)
