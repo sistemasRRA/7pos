@@ -1,11 +1,14 @@
 """Generate a Mermaid ER diagram (docs/database.md) from the real PostgreSQL database.
 
 Usage:  python3 tools/db_diagram.py
-Reads the schema with the `psql` client. Override the connection with SEVENPOS_DB
-(a libpq URI, e.g. postgresql://user:pass@host:5432/sevenpos).
+Reads the schema with the `psql` client, using the same local connection string as
+the app (dotnet user-secrets of SevenPos.Web). Override it with SEVENPOS_DB
+(a libpq URI, e.g. postgresql://user@host:5432/sevenpos).
 Run it again after every migration to keep the diagram up to date.
 """
+import json
 import os
+import re
 import subprocess
 import sys
 from collections import defaultdict
@@ -13,7 +16,31 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_PATH = ROOT / "docs/database.md"
-DB_URI = os.environ.get("SEVENPOS_DB", "postgresql://sevenpos:sevenpos_dev@localhost:5432/sevenpos")
+WEB_PROJECT = ROOT / "src/SevenPos.Web/SevenPos.Web.csproj"
+
+# ADO.NET connection string keys -> libpq environment variables
+LIBPQ_ENV = {"host": "PGHOST", "server": "PGHOST", "port": "PGPORT", "database": "PGDATABASE",
+             "username": "PGUSER", "user id": "PGUSER", "password": "PGPASSWORD"}
+
+
+def psql_connection() -> tuple[list[str], dict]:
+    """psql arguments and environment. The password goes in PGPASSWORD, never on the command line."""
+    if os.environ.get("SEVENPOS_DB"):
+        return [os.environ["SEVENPOS_DB"]], dict(os.environ)
+
+    match = re.search(r"<UserSecretsId>([^<]+)</UserSecretsId>", WEB_PROJECT.read_text())
+    secrets_file = Path.home() / ".microsoft/usersecrets" / (match.group(1) if match else "") / "secrets.json"
+    if not match or not secrets_file.exists():
+        sys.exit("No connection configured. Set it once with dotnet user-secrets (see docs/getting-started.md) "
+                 "or set SEVENPOS_DB.")
+    connection_string = json.loads(secrets_file.read_text(encoding="utf-8-sig")).get("ConnectionStrings:Pos", "")
+
+    env = dict(os.environ)
+    for part in connection_string.split(";"):
+        key, _, value = part.partition("=")
+        if key.strip().lower() in LIBPQ_ENV:
+            env[LIBPQ_ENV[key.strip().lower()]] = value.strip()
+    return [], env
 
 COLUMNS_SQL = """
 SELECT c.table_name, c.column_name, c.udt_name, c.is_nullable
@@ -45,9 +72,10 @@ SELECT t.relname, a.attname, 'FK', r.relname FROM pg_constraint c
 
 
 def query(sql: str) -> list[list[str]]:
+    args, env = psql_connection()
     result = subprocess.run(
-        ["psql", DB_URI, "-At", "-F", "\t", "-v", "ON_ERROR_STOP=1", "-c", sql],
-        capture_output=True, text=True)
+        ["psql", *args, "-At", "-F", "\t", "-v", "ON_ERROR_STOP=1", "-c", sql],
+        capture_output=True, text=True, env=env)
     if result.returncode != 0:
         sys.exit(f"Could not read the database:\n{result.stderr.strip()}\n"
                  "Is PostgreSQL running and has the app been started once (to apply migrations)?")

@@ -9,10 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Central PostgreSQL database. The connection string lives in appsettings.Development.json
-// for local work; in production it comes from an environment variable (ConnectionStrings__Pos).
+// Central PostgreSQL database. Locally the connection string comes from user secrets
+// (outside the repo, see docs/getting-started.md); in other environments from the
+// ConnectionStrings__Pos environment variable. It is never stored in the repository.
 var connectionString = builder.Configuration.GetConnectionString("Pos")
-    ?? throw new InvalidOperationException("Missing connection string 'Pos'.");
+    ?? throw new InvalidOperationException(
+        "Missing connection string 'Pos'. For local development run: " +
+        "dotnet user-secrets set \"ConnectionStrings:Pos\" \"Host=localhost;Port=5432;Database=sevenpos;Username=sevenpos;Password=<your password>\" --project src/SevenPos.Web");
 builder.Services.AddDbContextFactory<PosDbContext>(o => PosDatabase.Configure(o, connectionString));
 
 builder.Services.AddSingleton(TimeProvider.System);

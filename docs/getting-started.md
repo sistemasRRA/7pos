@@ -21,19 +21,28 @@ Install the .NET 8 SDK following Microsoft's instructions for Ubuntu: https://le
 - **C# Dev Kit** (`ms-dotnettools.csdevkit`): IntelliSense, debugging, tests
 - **Markdown Preview Mermaid Support** (`bierner.markdown-mermaid`): renders the diagrams in `docs/`
 
-Recommended: **DBeaver** (free, install on Windows) to browse data, run SQL and auto-generate ER diagrams. Connect to `localhost:5432`, database `sevenpos`, user `sevenpos`, password `sevenpos_dev` (WSL forwards the port to Windows).
+Recommended: **DBeaver** (free, install on Windows) to browse data, run SQL and auto-generate ER diagrams. Connect to `localhost:5432`, database `sevenpos`, user `sevenpos`, with the password you chose in step 3 (WSL forwards the port to Windows).
 
 ## 3. Database (once per machine)
 
-Install PostgreSQL if needed (`sudo apt install postgresql`), then create the development user and database:
+Install PostgreSQL if needed (`sudo apt install postgresql`). Pick a password for your local database user, then create the user and the database:
 
 ```bash
-sudo -u postgres psql -c "CREATE ROLE sevenpos WITH LOGIN PASSWORD 'sevenpos_dev' CREATEDB;"
+sudo -u postgres psql -c "CREATE ROLE sevenpos WITH LOGIN PASSWORD '<your password>' CREATEDB;"
 sudo -u postgres psql -c "CREATE DATABASE sevenpos OWNER sevenpos;"
 ```
 
+Then store the connection string **once** with .NET user secrets:
+
+```bash
+dotnet user-secrets set "ConnectionStrings:Pos" \
+  "Host=localhost;Port=5432;Database=sevenpos;Username=sevenpos;Password=<your password>" \
+  --project src/SevenPos.Web
+```
+
+- **Never put passwords in the repository.** User secrets live in `~/.microsoft/usersecrets/`, outside the project. The app, the tests and `tools/db_diagram.py` all read this one secret. Check it with `dotnet user-secrets list --project src/SevenPos.Web`.
 - `CREATEDB` lets the tests create and drop throwaway databases.
-- This password is for local development only. It lives in `src/SevenPos.Web/appsettings.Development.json`. Real environments pass the connection string through the `ConnectionStrings__Pos` environment variable.
+- Other environments (CI, servers) pass the connection string through the `ConnectionStrings__Pos` environment variable. Tests also accept `SEVENPOS_TEST_DB`.
 - The app creates the tables itself (migrations run on startup).
 
 ## 4. First run

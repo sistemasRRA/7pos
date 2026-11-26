@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 using SevenPos.Core.Data;
 
@@ -18,8 +19,7 @@ public sealed class TestDatabase : IDbContextFactory<PosDbContext>, IDisposable
 
     public TestDatabase()
     {
-        var server = new NpgsqlConnectionStringBuilder(
-            Environment.GetEnvironmentVariable("SEVENPOS_TEST_DB") ?? PosDatabase.LocalDevConnection);
+        var server = new NpgsqlConnectionStringBuilder(ServerConnectionString());
         _serverConnectionString = new NpgsqlConnectionStringBuilder(server.ConnectionString) { Database = "postgres" }.ConnectionString;
         _connectionString = new NpgsqlConnectionStringBuilder(server.ConnectionString) { Database = _name }.ConnectionString;
         _options = PosDatabase.CreateOptions(_connectionString);
@@ -29,6 +29,23 @@ public sealed class TestDatabase : IDbContextFactory<PosDbContext>, IDisposable
     }
 
     public PosDbContext CreateDbContext() => new(_options);
+
+    /// <summary>
+    /// The server to create test databases on: SEVENPOS_TEST_DB if set (e.g. in CI),
+    /// otherwise the developer's local connection string from user secrets, shared with
+    /// SevenPos.Web. The database name in it is ignored; each test gets its own.
+    /// </summary>
+    private static string ServerConnectionString()
+    {
+        var fromEnvironment = Environment.GetEnvironmentVariable("SEVENPOS_TEST_DB");
+        if (!string.IsNullOrWhiteSpace(fromEnvironment)) return fromEnvironment;
+
+        var secrets = new ConfigurationBuilder().AddUserSecrets<TestDatabase>(optional: true).Build();
+        return secrets.GetConnectionString("Pos") ?? throw new InvalidOperationException(
+            "No database configured for the tests. Set it once with: dotnet user-secrets set " +
+            "\"ConnectionStrings:Pos\" \"Host=localhost;Port=5432;Database=sevenpos;Username=sevenpos;Password=<your password>\" " +
+            "--project src/SevenPos.Web (or set SEVENPOS_TEST_DB).");
+    }
 
     /// <summary>
     /// Drops the database with a plain DROP DATABASE. EF Core's EnsureDeleted uses

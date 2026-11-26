@@ -52,7 +52,7 @@ Every entity inherits `SyncEntity` (`Id`, `LastModifiedUtc`, `SyncStatus`, `IsAc
 
 The database uses PostgreSQL's snake_case convention, applied automatically: the `BalanceDue` property on `Ticket` is the `balance_due` column of the `tickets` table. Never name tables or columns by hand. When writing SQL (DBeaver, reports), use the snake_case names without quotes. See [ADR 0008](decisions/0008-snake-case-database-names.md).
 
-The connection and these conventions are configured in **one place**, `PosDatabase.Configure`. The web app, the tests and `dotnet ef` all use it. Never call `UseNpgsql` anywhere else.
+The connection and these conventions are configured in **one place**, `PosDatabase.Configure`. The web app, the tests and `dotnet ef` all use it. Never call `UseNpgsql` anywhere else. Connection strings themselves never live in code or in the repository: see [ADR 0009](decisions/0009-dev-credentials-in-user-secrets.md).
 
 ## 11. Changing the schema
 
