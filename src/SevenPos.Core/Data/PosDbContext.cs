@@ -16,6 +16,8 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Modifier> Modifiers => Set<Modifier>();
     public DbSet<ProductModifier> ProductModifiers => Set<ProductModifier>();
+    public DbSet<PriceList> PriceLists => Set<PriceList>();
+    public DbSet<PriceListItem> PriceListItems => Set<PriceListItem>();
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<Garment> Garments => Set<Garment>();
     public DbSet<GarmentModifier> GarmentModifiers => Set<GarmentModifier>();
@@ -38,6 +40,9 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Garment>().HasIndex(x => x.Code).IsUnique();
         b.Entity<ProductModifier>().HasIndex(x => new { x.ProductId, x.ModifierId }).IsUnique();
         b.Entity<Payment>().HasIndex(x => x.ShiftId);
+        b.Entity<PriceList>().HasIndex(x => x.Name).IsUnique();
+        // One price per product per moment; also the index used to find the current price.
+        b.Entity<PriceListItem>().HasIndex(x => new { x.PriceListId, x.ProductId, x.EffectiveFromUtc }).IsUnique();
         b.Entity<Modifier>().Property(x => x.ChargeValue).HasPrecision(12, 4);
 
         ConfigureForeignKeys(b);
@@ -68,6 +73,8 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Ticket>().HasOne<Shift>().WithMany().HasForeignKey(x => x.ShiftId);
 
         b.Entity<GarmentModifier>().HasOne<Modifier>().WithMany().HasForeignKey(x => x.ModifierId);
+
+        b.Entity<PriceListItem>().HasOne<User>().WithMany().HasForeignKey(x => x.SetByUserId);
     }
 
     /// <summary>Automatically flags every change as pending sync.</summary>
