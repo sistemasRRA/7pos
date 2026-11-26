@@ -1,0 +1,27 @@
+@* Layout for every screen that needs a logged-in user. Without a session it sends the user to /login. *@
+@inherits LayoutComponentBase
+@inject PosSession Session
+@inject NavigationManager Navigation
+
+@if (Session.IsSignedIn)
+{
+    <header class="pos-header">
+        <strong>7Pos</strong>
+        <span class="user">@Session.CurrentUser!.Name</span>
+        <button type="button" @onclick="SignOut">Salir</button>
+    </header>
+    <main class="pos-main">@Body</main>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (!Session.IsSignedIn) Navigation.NavigateTo("/login");
+    }
+
+    private void SignOut()
+    {
+        Session.SignOut();
+        Navigation.NavigateTo("/login");
+    }
+}

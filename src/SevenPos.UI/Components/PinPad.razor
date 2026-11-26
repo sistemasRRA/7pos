@@ -1,0 +1,64 @@
+@* Reusable numeric keypad. Submits automatically when the PIN is complete.
+   Works with touch (buttons) and with the keyboard (digits, Backspace, Escape). *@
+
+<div class="pinpad" tabindex="0" @ref="_root" @onkeydown="OnKeyDown">
+    <div class="dots" aria-label="PIN">
+        @for (var i = 0; i < Length; i++)
+        {
+            <span class="dot @(i < _pin.Length ? "filled" : "")"></span>
+        }
+    </div>
+
+    <p class="message" role="alert">@Message</p>
+
+    <div class="keys">
+        @foreach (var digit in "123456789")
+        {
+            <button type="button" disabled="@Disabled" @onclick="() => PressAsync(digit)">@digit</button>
+        }
+        <button type="button" class="secondary" disabled="@Disabled" @onclick="Clear">Borrar</button>
+        <button type="button" disabled="@Disabled" @onclick="() => PressAsync('0')">0</button>
+        <button type="button" class="secondary" disabled="@Disabled" @onclick="Backspace" aria-label="Borrar un dígito">⌫</button>
+    </div>
+</div>
+
+@code {
+    /// <summary>Number of digits in the PIN.</summary>
+    [Parameter] public int Length { get; set; } = 4;
+    /// <summary>Text under the dots, e.g. an error.</summary>
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    /// <summary>Called with the full PIN once all digits are entered.</summary>
+    [Parameter] public EventCallback<string> OnSubmit { get; set; }
+
+    private string _pin = "";
+    private ElementReference _root;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await _root.FocusAsync();
+    }
+
+    private async Task PressAsync(char digit)
+    {
+        if (Disabled || _pin.Length >= Length) return;
+        _pin += digit;
+        if (_pin.Length == Length)
+        {
+            var pin = _pin;
+            _pin = "";
+            await OnSubmit.InvokeAsync(pin);
+        }
+    }
+
+    private void Backspace() => _pin = _pin.Length > 0 ? _pin[..^1] : "";
+
+    private void Clear() => _pin = "";
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key.Length == 1 && char.IsDigit(e.Key[0])) await PressAsync(e.Key[0]);
+        else if (e.Key == "Backspace") Backspace();
+        else if (e.Key == "Escape") Clear();
+    }
+}

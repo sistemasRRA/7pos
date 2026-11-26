@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SevenPos.Core.Data;
+using SevenPos.Core.Organization;
 using SevenPos.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,11 @@ builder.Services.AddRazorComponents()
 var connectionString = builder.Configuration.GetConnectionString("Pos")
     ?? throw new InvalidOperationException("Missing connection string 'Pos'.");
 builder.Services.AddDbContextFactory<PosDbContext>(o => PosDatabase.Configure(o, connectionString));
+
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<LoginService>();
+// Who is logged in. Scoped = one per browser connection (Blazor Server circuit).
+builder.Services.AddScoped<PosSession>();
 
 var app = builder.Build();
 

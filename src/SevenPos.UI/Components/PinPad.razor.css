@@ -1,0 +1,10 @@
+.pinpad { display: grid; gap: 1rem; justify-items: center; outline: none; }
+.dots { display: flex; gap: .8rem; }
+.dot { width: 1.1rem; height: 1.1rem; border-radius: 50%; border: 2px solid #1a75a8; }
+.dot.filled { background: #1a75a8; }
+.message { min-height: 1.4em; margin: 0; color: #b3261e; text-align: center; }
+.keys { display: grid; grid-template-columns: repeat(3, 5rem); gap: .6rem; }
+.keys button { height: 4rem; font-size: 1.5rem; border: 1px solid #ccd; border-radius: 10px; background: #fff; cursor: pointer; }
+.keys button:active { background: #eaf2fb; }
+.keys button.secondary { font-size: 1rem; color: #4a6079; }
+.keys button:disabled { opacity: .5; cursor: default; }
