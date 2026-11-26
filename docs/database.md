@@ -182,6 +182,8 @@ erDiagram
         timestamptz last_modified_utc
         text sync_status
         bool is_active
+        int4 failed_pin_attempts
+        timestamptz locked_until_utc "nullable"
     }
 
     branches ||--o{ attendances : "branch_id"

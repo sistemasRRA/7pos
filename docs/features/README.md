@@ -5,7 +5,7 @@ One file per business area, written **when the feature is built** (not before). 
 | Feature | Status |
 |---|---|
 | [Pricing](pricing.md) | Built (base price + modifiers) |
-| PIN login | Next |
+| [PIN login](pin-login.md) | Built |
 | Guests (search and register) | Planned |
 | Ticket capture wizard | Planned |
 | Payments and deposits | Planned |
