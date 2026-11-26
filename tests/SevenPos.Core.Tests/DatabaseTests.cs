@@ -77,8 +77,15 @@ public class DatabaseTests : IDisposable
     public async Task Branch_WithUsers_CannotBeDeleted()
     {
         await SeedData.LoadAsync(_db);
+
+        // Forget everything EF has in memory (the seeded users), so EF sends the
+        // DELETE and it is PostgreSQL itself that has to refuse it.
+        _db.ChangeTracker.Clear();
         _db.Branches.Remove(await _db.Branches.FirstAsync());
-        await Assert.ThrowsAsync<DbUpdateException>(() => _db.SaveChangesAsync());
+
+        var error = await Assert.ThrowsAsync<DbUpdateException>(() => _db.SaveChangesAsync());
+        var postgresError = Assert.IsType<PostgresException>(error.InnerException);
+        Assert.Equal(PostgresErrorCodes.ForeignKeyViolation, postgresError.SqlState); // 23503
     }
 
     [Fact]
