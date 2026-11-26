@@ -33,14 +33,31 @@ Done so far: solution structure, entities, pricing calculator with tests, demo c
 ## Known issues
 None open.
 
-## Open questions for the client
-1. **Taxes:** prices include IVA? 16% everywhere, or 8% in the border zone? Do guests need CFDI invoices (RFC, tax regime fields)?
-2. **Cash withdrawals:** the brief requires them in the shift close, but the ER has no table. Confirm the fields: reason, authorizer, signature.
-3. **Garment status history:** the production report (pieces per operator per day) needs who and when for each status change. Can we add the table?
-4. **Modifier order:** confirm that percentage modifiers (Express) apply on top of fixed ones.
-5. **Missing price:** if a product has no price in the branch's list, should the sale use the base price or be blocked?
-6. **ID types:** ER rev. 2 mixes integer and UUID keys, and the garment uses a text code as its key. We use UUIDs everywhere. Is that acceptable?
-7. **Several PCs per branch:** affects how folios are generated, especially offline in Phase 2.
-8. **Offline points and wallet (Phase 2):** can points be spent offline? If yes, how do we prevent double spending?
-9. **Hash chain scope** for the audit log and ledger: per branch, per guest, or global?
-10. **Phase 1 scope:** is splitting it into 1a / 1b / 1c acceptable?
+## Client questions
+
+Answers received are recorded in [specs](specs/README.md) with the client's original text.
+
+### Answered (2026-11-26) → [answers](specs/2026-11-26-client-answers.md)
+- **Taxes:** prices already include 16% IVA; the system only breaks it down ([ADR 0010](decisions/0010-prices-include-iva.md)).
+- **Missing price:** a product without a price in the branch's list is not sold. Only Marketing creates items and sets prices ([ADR 0011](decisions/0011-only-marketing-controls-catalog-and-prices.md)).
+- **Cash withdrawals:** shown in the shift close, which states how much cash to deposit the next day.
+- **Garment status history:** records ticket, guest and garment label per change. Detailed explanation pending.
+
+### Still open
+Blocking the **ticket wizard**:
+1. **Modifier order:** does Express (+50%) apply on top of fixed extras such as starch?
+2. **Manual discounts:** allowed with a supervisor PIN, or not at all?
+3. **IVA details:** confirm `IVA = Total − round(Total / 1.16, 2)`, per ticket; any 8% border-zone branch; are CFDI invoices needed?
+
+Blocking the **shift close** and **garment lifecycle**:
+4. **Deposit formula:** cash collected − withdrawals? Does the opening float stay in the drawer?
+5. **Withdrawal fields:** reason, who authorizes, signature or receipt?
+6. **Status history details:** who / when / from → to, location, per garment or per ticket, when to notify the customer.
+
+Not blocking yet:
+7. **Several PCs per branch:** affects folio generation, especially offline in Phase 2.
+8. **Automatic logout** after how many idle minutes? Manager unlock? PIN length? (see [PIN login](features/pin-login.md))
+9. **ID types:** ER rev. 2 mixes integer and UUID keys; we use UUIDs everywhere. Acceptable?
+10. **Offline points and wallet (Phase 2):** can points be spent offline? How do we prevent double spending?
+11. **Hash chain scope** for the audit log and ledger: per branch, per guest, or global?
+12. **Phase 1 scope:** is splitting it into 1a / 1b / 1c acceptable?

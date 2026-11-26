@@ -53,3 +53,7 @@ The client documents are in Spanish; the code is in English. Use this table to t
 | PROFECO | Mexican consumer protection agency; published promotion text is binding | |
 | LFPDPPP | Mexican personal data protection law; requires consent for marketing | |
 | CFDI | Mexican electronic invoice | |
+| Desglose de IVA | Showing the IVA contained in a price that already includes it (never adding it) | [ADR 0010](decisions/0010-prices-include-iva.md) |
+| Marcador | The garment's label ID, printed and scanned | `Garment.Code` |
+| Facilitador | The cashier's supervisor; receives reports of missing items | |
+| Depósito | Cash the branch deposits the day after the shift close | `Shift` (planned) |

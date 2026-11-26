@@ -25,3 +25,5 @@ Statuses: **Proposed** → **Accepted** → (optionally) **Superseded by NNNN**.
 | [0007](0007-store-facts-derive-totals.md) | Store facts, derive totals | Accepted |
 | [0008](0008-snake-case-database-names.md) | snake_case names in the database | Accepted |
 | [0009](0009-dev-credentials-in-user-secrets.md) | Development credentials in user secrets | Accepted |
+| [0010](0010-prices-include-iva.md) | Prices include IVA; the system only breaks it down | Accepted |
+| [0011](0011-only-marketing-controls-catalog-and-prices.md) | Only Marketing controls the catalog and prices | Accepted |

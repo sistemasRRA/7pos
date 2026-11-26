@@ -28,6 +28,9 @@ Express has `SortOrder = 100` so it always applies last, on top of every other e
 ## Coming next (ER revision 2)
 The full evaluation order is: list price from the zone's price list, then modifiers, item promotions, ticket promotions, coupon, points redemption, and manual discount (supervisor PIN). Only the first two steps exist today.
 
+## Decided
+- A product without a price in the branch's price list is not sold. Only Marketing sets prices ([ADR 0011](../decisions/0011-only-marketing-controls-catalog-and-prices.md)).
+- All prices include IVA. Tickets break it down from the total and never add it ([ADR 0010](../decisions/0010-prices-include-iva.md)).
+
 ## Open questions
-- If a product has no price in the branch's price list, is the base price used, or is the sale blocked?
-- Is IVA included in the displayed prices? (Assumed yes. Not modeled yet.)
+- Does Express (+50%) apply on top of fixed extras? The current `SortOrder` assumes yes.
