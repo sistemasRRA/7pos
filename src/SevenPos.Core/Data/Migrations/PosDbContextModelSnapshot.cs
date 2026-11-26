@@ -362,6 +362,12 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("date")
                         .HasColumnName("birth_date");
 
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc")
+                        .HasDefaultValueSql("now()");
+
                     b.Property<string>("Email")
                         .HasColumnType("text")
                         .HasColumnName("email");
@@ -382,6 +388,14 @@ namespace SevenPos.Core.Data.Migrations
                     b.Property<DateTime?>("LastVisitUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_visit_utc");
+
+                    b.Property<bool>("MarketingConsent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("marketing_consent");
+
+                    b.Property<DateTime?>("MarketingConsentAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("marketing_consent_at_utc");
 
                     b.Property<string>("Phone")
                         .IsRequired()

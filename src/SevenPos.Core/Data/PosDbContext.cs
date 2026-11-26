@@ -31,6 +31,8 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder b)
     {
         b.Entity<Guest>().HasIndex(x => x.Phone).IsUnique();
+        // Rows created before this column existed get the migration time, not year 1.
+        b.Entity<Guest>().Property(x => x.CreatedAtUtc).HasDefaultValueSql("now()");
         b.Entity<Ticket>().HasIndex(x => new { x.BranchId, x.Folio }).IsUnique();
         b.Entity<Ticket>().HasIndex(x => x.PublicOrderId).IsUnique();
         b.Entity<Garment>().HasIndex(x => x.Code).IsUnique();
