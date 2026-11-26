@@ -24,7 +24,7 @@ This repository currently contains the **7Pos branch POS**, Phase 1.
                │ calls
 ┌──────────────▼──────────────┐
 │  Business logic             │  Prices, validations, totals, shift close.
-│  (SevenPos.Core/Services)   │  Written once, tested, reused by every app.
+│  (SevenPos.Core/<area>)     │  Written once, tested, reused by every app.
 └──────────────┬──────────────┘
                │ reads / writes
 ┌──────────────▼──────────────┐
@@ -79,4 +79,20 @@ The desktop shell is needed for what a browser cannot do: work fully offline, re
 
 ## Folder conventions inside Core
 
-Today Core is organized by type (`Entities/`, `Data/`, `Services/`). As features grow it should move to **one folder per business area** (`Catalog/`, `Tickets/`, `Cash/`, `Guests/`), each holding its entities and services. This "modular monolith" keeps each area easy to find and change, and makes it easy to split later if ever needed.
+Core is organized by **business area**, not by type of file. Each area holds its entities **and** its services, one type per file:
+
+```
+SevenPos.Core/
+├── Common/        SyncEntity (base class with the sync fields)
+├── Organization/  Branch, User, Attendance, AuditLog, PinHasher
+├── Catalog/       Category, Product, Modifier, ProductModifier, PriceCalculator
+├── Guests/        Guest, GuestAddress
+├── Tickets/       Ticket, Garment, GarmentModifier
+├── Cash/          Shift, Payment, CashWithdrawal
+├── Data/          PosDbContext, PosDatabase, SeedData, Migrations
+└── GlobalUsings.cs  imports every area's namespace once for the whole project
+```
+
+The namespace matches the folder (`SevenPos.Core.Tickets`). When you work on shift closing, everything you need is in `Cash/`. This "modular monolith" keeps each area easy to find and change, and makes it easy to split out later if that is ever needed.
+
+A new business area gets its own folder plus a line in `GlobalUsings.cs`.

@@ -1,6 +1,5 @@
-using SevenPos.Core.Entities;
 
-namespace SevenPos.Core.Services;
+namespace SevenPos.Core.Catalog;
 
 public record AppliedCharge(Modifier Modifier, decimal Amount);
 public record PriceResult(decimal BasePrice, IReadOnlyList<AppliedCharge> Charges, decimal Total);

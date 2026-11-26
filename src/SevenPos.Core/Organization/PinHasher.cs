@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace SevenPos.Core.Services;
+namespace SevenPos.Core.Organization;
 
 /// <summary>PINs are never stored in plain text.</summary>
 public static class PinHasher

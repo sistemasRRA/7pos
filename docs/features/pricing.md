@@ -21,7 +21,7 @@ Express has `SortOrder = 100` so it always applies last, on top of every other e
 - Two percentage modifiers: the second applies on top of the first (compounding). Give them distinct `SortOrder` values on purpose.
 
 ## Code
-- Rule: [`PriceCalculator`](../../src/SevenPos.Core/Services/PriceCalculator.cs)
+- Rule: [`PriceCalculator`](../../src/SevenPos.Core/Catalog/PriceCalculator.cs)
 - Tests: [`PriceCalculatorTests`](../../tests/SevenPos.Core.Tests/PriceCalculatorTests.cs)
 - Demo screen: [`Catalog.razor`](../../src/SevenPos.UI/Pages/Catalog.razor)
 

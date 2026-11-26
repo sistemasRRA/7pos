@@ -1,5 +1,4 @@
-using SevenPos.Core.Entities;
-using SevenPos.Core.Services;
+using SevenPos.Core.Catalog;
 
 namespace SevenPos.Core.Tests;
 

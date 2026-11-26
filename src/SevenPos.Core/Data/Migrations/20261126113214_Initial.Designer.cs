@@ -25,7 +25,7 @@ namespace SevenPos.Core.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Attendance", b =>
+            modelBuilder.Entity("SevenPos.Core.Organization.Attendance", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,7 +74,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("attendances", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.AuditLog", b =>
+            modelBuilder.Entity("SevenPos.Core.Organization.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -131,7 +131,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("audit_logs", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Branch", b =>
+            modelBuilder.Entity("SevenPos.Core.Organization.Branch", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,7 +166,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("branches", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.CashWithdrawal", b =>
+            modelBuilder.Entity("SevenPos.Core.Cash.CashWithdrawal", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -213,7 +213,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("cash_withdrawals", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Category", b =>
+            modelBuilder.Entity("SevenPos.Core.Catalog.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -244,7 +244,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("categories", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Garment", b =>
+            modelBuilder.Entity("SevenPos.Core.Tickets.Garment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -315,7 +315,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("garments", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.GarmentModifier", b =>
+            modelBuilder.Entity("SevenPos.Core.Tickets.GarmentModifier", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -360,7 +360,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("garment_modifiers", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Guest", b =>
+            modelBuilder.Entity("SevenPos.Core.Guests.Guest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -412,7 +412,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("guests", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.GuestAddress", b =>
+            modelBuilder.Entity("SevenPos.Core.Guests.GuestAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -468,7 +468,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("guest_addresses", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Modifier", b =>
+            modelBuilder.Entity("SevenPos.Core.Catalog.Modifier", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -513,7 +513,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("modifiers", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Payment", b =>
+            modelBuilder.Entity("SevenPos.Core.Cash.Payment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -572,7 +572,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("payments", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Product", b =>
+            modelBuilder.Entity("SevenPos.Core.Catalog.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -615,7 +615,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("products", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.ProductModifier", b =>
+            modelBuilder.Entity("SevenPos.Core.Catalog.ProductModifier", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -656,7 +656,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("product_modifiers", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Shift", b =>
+            modelBuilder.Entity("SevenPos.Core.Cash.Shift", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -719,7 +719,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("shifts", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Ticket", b =>
+            modelBuilder.Entity("SevenPos.Core.Tickets.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -829,7 +829,7 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("tickets", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.User", b =>
+            modelBuilder.Entity("SevenPos.Core.Organization.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -877,16 +877,16 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Attendance", b =>
+            modelBuilder.Entity("SevenPos.Core.Organization.Attendance", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Branch", null)
+                    b.HasOne("SevenPos.Core.Organization.Branch", null)
                         .WithMany()
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_attendances_branches_branch_id");
 
-                    b.HasOne("SevenPos.Core.Entities.User", null)
+                    b.HasOne("SevenPos.Core.Organization.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -894,25 +894,25 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_attendances_users_user_id");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.AuditLog", b =>
+            modelBuilder.Entity("SevenPos.Core.Organization.AuditLog", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Branch", null)
+                    b.HasOne("SevenPos.Core.Organization.Branch", null)
                         .WithMany()
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_audit_logs_branches_branch_id");
 
-                    b.HasOne("SevenPos.Core.Entities.User", null)
+                    b.HasOne("SevenPos.Core.Organization.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_audit_logs_users_user_id");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.CashWithdrawal", b =>
+            modelBuilder.Entity("SevenPos.Core.Cash.CashWithdrawal", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Shift", null)
+                    b.HasOne("SevenPos.Core.Cash.Shift", null)
                         .WithMany("Withdrawals")
                         .HasForeignKey("ShiftId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -920,16 +920,16 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_cash_withdrawals_shifts_shift_id");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Garment", b =>
+            modelBuilder.Entity("SevenPos.Core.Tickets.Garment", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Product", "Product")
+                    b.HasOne("SevenPos.Core.Catalog.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_garments_products_product_id");
 
-                    b.HasOne("SevenPos.Core.Entities.Ticket", null)
+                    b.HasOne("SevenPos.Core.Tickets.Ticket", null)
                         .WithMany("Garments")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -939,16 +939,16 @@ namespace SevenPos.Core.Data.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.GarmentModifier", b =>
+            modelBuilder.Entity("SevenPos.Core.Tickets.GarmentModifier", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Garment", null)
+                    b.HasOne("SevenPos.Core.Tickets.Garment", null)
                         .WithMany("Modifiers")
                         .HasForeignKey("GarmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_garment_modifiers_garments_garment_id");
 
-                    b.HasOne("SevenPos.Core.Entities.Modifier", null)
+                    b.HasOne("SevenPos.Core.Catalog.Modifier", null)
                         .WithMany()
                         .HasForeignKey("ModifierId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -956,9 +956,9 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_garment_modifiers_modifiers_modifier_id");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.GuestAddress", b =>
+            modelBuilder.Entity("SevenPos.Core.Guests.GuestAddress", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Guest", null)
+                    b.HasOne("SevenPos.Core.Guests.Guest", null)
                         .WithMany("Addresses")
                         .HasForeignKey("GuestId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -966,16 +966,16 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_guest_addresses_guests_guest_id");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Payment", b =>
+            modelBuilder.Entity("SevenPos.Core.Cash.Payment", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Shift", null)
+                    b.HasOne("SevenPos.Core.Cash.Shift", null)
                         .WithMany("Payments")
                         .HasForeignKey("ShiftId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_payments_shifts_shift_id");
 
-                    b.HasOne("SevenPos.Core.Entities.Ticket", null)
+                    b.HasOne("SevenPos.Core.Tickets.Ticket", null)
                         .WithMany("Payments")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -983,9 +983,9 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_payments_tickets_ticket_id");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Product", b =>
+            modelBuilder.Entity("SevenPos.Core.Catalog.Product", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Category", "Category")
+                    b.HasOne("SevenPos.Core.Catalog.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -995,16 +995,16 @@ namespace SevenPos.Core.Data.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.ProductModifier", b =>
+            modelBuilder.Entity("SevenPos.Core.Catalog.ProductModifier", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Modifier", "Modifier")
+                    b.HasOne("SevenPos.Core.Catalog.Modifier", "Modifier")
                         .WithMany()
                         .HasForeignKey("ModifierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_product_modifiers_modifiers_modifier_id");
 
-                    b.HasOne("SevenPos.Core.Entities.Product", null)
+                    b.HasOne("SevenPos.Core.Catalog.Product", null)
                         .WithMany("Modifiers")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1014,16 +1014,16 @@ namespace SevenPos.Core.Data.Migrations
                     b.Navigation("Modifier");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Shift", b =>
+            modelBuilder.Entity("SevenPos.Core.Cash.Shift", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Branch", null)
+                    b.HasOne("SevenPos.Core.Organization.Branch", null)
                         .WithMany()
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_shifts_branches_branch_id");
 
-                    b.HasOne("SevenPos.Core.Entities.User", null)
+                    b.HasOne("SevenPos.Core.Organization.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1031,30 +1031,30 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_shifts_users_user_id");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Ticket", b =>
+            modelBuilder.Entity("SevenPos.Core.Tickets.Ticket", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Branch", null)
+                    b.HasOne("SevenPos.Core.Organization.Branch", null)
                         .WithMany()
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_tickets_branches_branch_id");
 
-                    b.HasOne("SevenPos.Core.Entities.User", null)
+                    b.HasOne("SevenPos.Core.Organization.User", null)
                         .WithMany()
                         .HasForeignKey("CashierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_tickets_users_cashier_id");
 
-                    b.HasOne("SevenPos.Core.Entities.Guest", "Guest")
+                    b.HasOne("SevenPos.Core.Guests.Guest", "Guest")
                         .WithMany()
                         .HasForeignKey("GuestId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_tickets_guests_guest_id");
 
-                    b.HasOne("SevenPos.Core.Entities.Shift", null)
+                    b.HasOne("SevenPos.Core.Cash.Shift", null)
                         .WithMany()
                         .HasForeignKey("ShiftId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1063,9 +1063,9 @@ namespace SevenPos.Core.Data.Migrations
                     b.Navigation("Guest");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.User", b =>
+            modelBuilder.Entity("SevenPos.Core.Organization.User", b =>
                 {
-                    b.HasOne("SevenPos.Core.Entities.Branch", "Branch")
+                    b.HasOne("SevenPos.Core.Organization.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1075,34 +1075,34 @@ namespace SevenPos.Core.Data.Migrations
                     b.Navigation("Branch");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Category", b =>
+            modelBuilder.Entity("SevenPos.Core.Catalog.Category", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Garment", b =>
+            modelBuilder.Entity("SevenPos.Core.Tickets.Garment", b =>
                 {
                     b.Navigation("Modifiers");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Guest", b =>
+            modelBuilder.Entity("SevenPos.Core.Guests.Guest", b =>
                 {
                     b.Navigation("Addresses");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Product", b =>
+            modelBuilder.Entity("SevenPos.Core.Catalog.Product", b =>
                 {
                     b.Navigation("Modifiers");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Shift", b =>
+            modelBuilder.Entity("SevenPos.Core.Cash.Shift", b =>
                 {
                     b.Navigation("Payments");
 
                     b.Navigation("Withdrawals");
                 });
 
-            modelBuilder.Entity("SevenPos.Core.Entities.Ticket", b =>
+            modelBuilder.Entity("SevenPos.Core.Tickets.Ticket", b =>
                 {
                     b.Navigation("Garments");
 
