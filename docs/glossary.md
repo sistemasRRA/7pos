@@ -44,7 +44,8 @@ The client documents are in Spanish; the code is in English. Use this table to t
 | Corte Z | End-of-day close | `Shift` |
 | Pulverizar | Splitting a ticket into one row per garment | `Garment` |
 | Canon | Subscription tier of a branch; decides which modules and products it gets | `SubscriptionTier` (planned) |
-| Matriz de precios | Price list for a zone of branches | `PriceList` (planned) |
+| Matriz de precios | Price list for a zone of branches | `PriceList`; each dated price is a `PriceListItem` |
+| MKT / Mercadotecnia | Marketing: the only role that manages items and prices | `UserRole.Marketing` |
 | Cobro incremental / modelo Starbucks | Base price + upsell modifiers, asked one by one | `PriceCalculator` |
 | Smart Loyalty | Points program | planned (Phase 1c) |
 | BOH (back-of-house) | Production area: washing, ironing, assembly | |

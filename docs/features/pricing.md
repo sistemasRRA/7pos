@@ -4,7 +4,7 @@
 Each garment starts from a **base price** and the cashier adds **modifiers** (paid extras) one at a time. This is the "Starbucks model" from the client brief: a small catalog (about 60 items), with revenue raised through upsells.
 
 ## Rules
-1. The price starts at `Product.BasePrice`.
+1. The price starts at the product's price in the branch's price list (see [price lists](price-lists.md)). `Product.BasePrice` is only a reference.
 2. Only the modifiers linked to the product (`ProductModifier`) are offered.
 3. Modifiers are applied in ascending `Modifier.SortOrder`, **regardless of the order the cashier selected them**.
 4. A `Fixed` modifier adds its `ChargeValue` in pesos.
@@ -17,7 +17,7 @@ Each garment starts from a **base price** and the cashier adds **modifiers** (pa
 Express has `SortOrder = 100` so it always applies last, on top of every other extra.
 
 ## Edge cases
-- No modifiers selected: the total is the base price.
+- No modifiers selected: the total is the list price.
 - Two percentage modifiers: the second applies on top of the first (compounding). Give them distinct `SortOrder` values on purpose.
 
 ## Code

@@ -36,6 +36,7 @@ erDiagram
         timestamptz last_modified_utc
         text sync_status
         bool is_active
+        uuid price_list_id FK "nullable"
     }
     cash_withdrawals {
         uuid id PK
@@ -125,6 +126,24 @@ erDiagram
         text sync_status
         bool is_active
     }
+    price_list_items {
+        uuid id PK
+        uuid price_list_id FK
+        uuid product_id FK
+        numeric price
+        timestamptz effective_from_utc
+        uuid set_by_user_id FK
+        timestamptz last_modified_utc
+        text sync_status
+        bool is_active
+    }
+    price_lists {
+        uuid id PK
+        text name UK
+        timestamptz last_modified_utc
+        text sync_status
+        bool is_active
+    }
     product_modifiers {
         uuid id PK
         uuid product_id FK
@@ -200,7 +219,10 @@ erDiagram
     guests ||--o{ tickets : "guest_id"
     modifiers ||--o{ garment_modifiers : "modifier_id"
     modifiers ||--o{ product_modifiers : "modifier_id"
+    price_lists |o--o{ branches : "price_list_id"
+    price_lists ||--o{ price_list_items : "price_list_id"
     products ||--o{ garments : "product_id"
+    products ||--o{ price_list_items : "product_id"
     products ||--o{ product_modifiers : "product_id"
     shifts ||--o{ cash_withdrawals : "shift_id"
     shifts ||--o{ payments : "shift_id"
@@ -209,6 +231,7 @@ erDiagram
     tickets ||--o{ payments : "ticket_id"
     users ||--o{ attendances : "user_id"
     users |o--o{ audit_logs : "user_id"
+    users ||--o{ price_list_items : "set_by_user_id"
     users ||--o{ shifts : "user_id"
     users ||--o{ tickets : "cashier_id"
 ```
