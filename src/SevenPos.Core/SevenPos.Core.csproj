@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Same id as SevenPos.Web: "dotnet ef" commands that connect use the developer's local connection string. -->
+    <UserSecretsId>cf71c958-3881-4798-8393-456f40ac3368</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +14,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
   </ItemGroup>
 

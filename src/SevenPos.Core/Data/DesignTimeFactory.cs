@@ -1,18 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 
 namespace SevenPos.Core.Data;
 
 /// <summary>
-/// Only used by the "dotnet ef" tool. Creating a migration does not connect to the
-/// database, so no credentials are needed; commands that do connect (such as
-/// "dotnet ef database update") read SEVENPOS_DB. The app applies migrations itself on startup.
+/// Only used by the "dotnet ef" tool. Some commands connect to the database
+/// (migrations remove, migrations list, database update), so it uses, in order:
+/// SEVENPOS_DB, then the developer's user secret shared with SevenPos.Web.
+/// Without either, "migrations add" still works because it never connects.
 /// </summary>
 public class DesignTimeFactory : IDesignTimeDbContextFactory<PosDbContext>
 {
     public PosDbContext CreateDbContext(string[] args)
     {
-        var connection = Environment.GetEnvironmentVariable("SEVENPOS_DB") ?? "Host=localhost;Database=sevenpos";
+        var secrets = new ConfigurationBuilder().AddUserSecrets<DesignTimeFactory>(optional: true).Build();
+        var connection = Environment.GetEnvironmentVariable("SEVENPOS_DB")
+            ?? secrets.GetConnectionString("Pos")
+            ?? "Host=localhost;Database=sevenpos";
         return new(PosDatabase.CreateOptions(connection));
     }
 }
