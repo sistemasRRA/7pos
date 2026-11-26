@@ -1,6 +1,6 @@
 @page "/login"
 @layout BlankLayout
-@inject LoginService Auth
+@inject LoginService LoginService
 @inject PosSession Session
 @inject NavigationManager Navigation
 @inject TimeProvider Clock
@@ -47,8 +47,8 @@
             Navigation.NavigateTo("/");
             return;
         }
-        var branch = await Auth.GetTerminalBranchAsync();
-        _users = branch is null ? [] : await Auth.GetUsersAsync(branch.Id);
+        var branch = await LoginService.GetTerminalBranchAsync();
+        _users = branch is null ? [] : await LoginService.GetUsersAsync(branch.Id);
     }
 
     private void Select(User? user)
@@ -60,7 +60,7 @@
     private async Task SubmitAsync(string pin)
     {
         _busy = true;
-        var result = await Auth.LoginAsync(_selected!.Id, pin);
+        var result = await LoginService.LoginAsync(_selected!.Id, pin);
         _busy = false;
 
         if (result.Succeeded)

@@ -18,7 +18,7 @@ Phase 1 as specified is large for one developer, so it is split:
    ✅ Organize Core by business area (`Catalog/`, `Tickets/`, `Cash/`, `Guests/`, `Organization/`)
 2. ✅ Users and PIN login ([feature doc](features/pin-login.md))
 3. ⬜ Catalog with price lists per zone
-4. ⬜ Guests: search by phone and register
+4. ✅ Guests: search by phone and register ([feature doc](features/guests.md))
 5. ⬜ Ticket capture wizard (one row per garment)
 6. ⬜ Payments: deposits and settlements
 7. ⬜ Shift open / close (Corte X/Z), cash withdrawals, blind count

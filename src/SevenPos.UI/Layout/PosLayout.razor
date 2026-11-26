@@ -7,6 +7,10 @@
 {
     <header class="pos-header">
         <strong>7Pos</strong>
+        <nav>
+            <NavLink href="" Match="NavLinkMatch.All">Catálogo</NavLink>
+            <NavLink href="guests">Clientes</NavLink>
+        </nav>
         <span class="user">@Session.CurrentUser!.Name</span>
         <button type="button" @onclick="SignOut">Salir</button>
     </header>

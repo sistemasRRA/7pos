@@ -6,7 +6,7 @@ The client documents are in Spanish; the code is in English. Use this table to t
 
 | Client term (Spanish) | Code | Notes |
 |---|---|---|
-| Invitado | `Guest` | The customer. Identified by WhatsApp phone, but the key is a UUID. |
+| Invitado | `Guest` | The customer. Identified by WhatsApp phone (10 digits, see `PhoneNumber`), but the key is a UUID. Consentimiento_Marketing → `MarketingConsent`. |
 | Direcciones_Invitado | `GuestAddress` | Colonia → `Neighborhood`. |
 | Sucursal | `Branch` | A store, owned or franchised. |
 | Usuario | `User` | Staff member. Logs in with a PIN. |

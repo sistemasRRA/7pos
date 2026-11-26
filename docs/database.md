@@ -99,6 +99,9 @@ erDiagram
         timestamptz last_modified_utc
         text sync_status
         bool is_active
+        timestamptz created_at_utc
+        bool marketing_consent
+        timestamptz marketing_consent_at_utc "nullable"
     }
     modifiers {
         uuid id PK

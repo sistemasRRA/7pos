@@ -1,0 +1,5 @@
+.guest-card { padding: 1.2rem; border: 1px solid #ccd; border-radius: 12px; background: #fff; }
+h2 { margin: 0 0 .8rem; font-size: 1.3rem; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1.2rem; margin: 0; }
+dt { color: #4a6079; }
+dd { margin: 0; }

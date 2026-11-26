@@ -1,0 +1,11 @@
+.guest-form { display: grid; gap: 1rem; max-width: 480px; }
+label { display: grid; gap: .3rem; font-weight: 500; }
+input[type=tel], input[type=text], input[type=email], input[type=date] { padding: .6rem .7rem; font-size: 1rem; border: 1px solid #ccd; border-radius: 8px; }
+.optional { color: #4a6079; font-weight: 400; }
+.error { color: #b3261e; font-weight: 400; font-size: .9rem; }
+.consent { display: flex; gap: .5rem; align-items: flex-start; font-weight: 400; }
+.actions { display: flex; gap: .6rem; justify-content: flex-end; }
+.primary { background: #1a75a8; color: #fff; border: 0; border-radius: 8px; padding: .7rem 1.2rem; font-size: 1rem; cursor: pointer; }
+.primary:disabled { opacity: .6; }
+.secondary { background: #fff; border: 1px solid #ccd; border-radius: 8px; padding: .7rem 1.2rem; font-size: 1rem; cursor: pointer; }
+.link { background: none; border: none; padding: 0; color: #1a75a8; text-decoration: underline; cursor: pointer; font: inherit; }
