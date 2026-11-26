@@ -44,11 +44,37 @@ Review the generated migration file before committing; it is the actual SQL chan
 
 `dotnet test` must pass before every commit. Every business rule gets a test. Name tests as sentences: `Percentage_IsRoundedToCents`.
 
-## Commits and branches
+## Branches
 
-- `main` must always build and pass its tests.
-- Work on a branch: `feature/pin-login`, `fix/shift-rounding`.
-- Commit messages in the imperative: "Add PIN login", "Fix express surcharge rounding".
+```
+main      released code; only receives merges from dev
+└── dev   integration branch; always builds and passes its tests
+    └── feature/…, fix/…, refactor/…   your work, created from the latest dev
+```
+
+1. Update dev first (`git switch dev && git pull`), then branch from it: `feature/pin-login`, `fix/shift-rounding`, `refactor/migrate-to-postgresql`. Use lowercase kebab-case.
+2. Open a **pull request into `dev`** when the work is ready. Use the template; it asks for what changed, why, and how it was tested.
+3. Merge only when the tests pass and the manual checks in the PR are done.
+4. Delete the branch after merging.
+
+## Commit messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org): `type(scope): summary`.
+
+| Type | For |
+|---|---|
+| `feat` | New behavior for users |
+| `fix` | Bug fix |
+| `refactor` | Code change with no behavior change |
+| `test` | Adding or fixing tests only |
+| `docs` | Documentation only |
+| `chore` | Tooling, dependencies, config |
+
+The scope is the business area or project: `organization`, `catalog`, `tickets`, `cash`, `ui`, `db`.
+
+- Summary: imperative, lowercase, no period, max ~70 characters: `feat(organization): add PIN lockout fields to User`
+- Body: **what** changed and **why**, as bullets. Mention migrations and anything a reviewer must know.
+- **One commit per logical section** (data model, rules + tests, UI, docs). Each commit must build and pass its tests on its own.
 
 ## Documentation
 
