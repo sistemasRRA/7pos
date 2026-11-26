@@ -1,4 +1,4 @@
-namespace SevenPos.Core.Entities;
+namespace SevenPos.Core.Common;
 
 public enum SyncStatus { Pending = 0, Synced = 1, Error = 2 }
 

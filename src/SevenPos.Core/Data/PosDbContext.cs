@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using SevenPos.Core.Entities;
 
 namespace SevenPos.Core.Data;
 

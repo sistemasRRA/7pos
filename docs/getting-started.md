@@ -58,7 +58,7 @@ sudo -u postgres psql -c "DROP DATABASE sevenpos;" -c "CREATE DATABASE sevenpos 
 1. Read [architecture](architecture.md) (10 minutes).
 2. Read [data rules](data-rules.md) before touching entities.
 3. Skim the [decisions](decisions/README.md) and the [glossary](glossary.md).
-4. Open `src/SevenPos.UI/Pages/Catalog.razor` and `src/SevenPos.Core/Services/PriceCalculator.cs` to see a full slice from screen to rule.
+4. Open `src/SevenPos.UI/Pages/Catalog.razor` and `src/SevenPos.Core/Catalog/PriceCalculator.cs` to see a full slice from screen to rule.
 
 ## Later: the Windows desktop app
 

@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SevenPos.Core.Data;
-using SevenPos.Core.Entities;
-using SevenPos.Core.Services;
+using SevenPos.Core.Catalog;
+using SevenPos.Core.Common;
+using SevenPos.Core.Guests;
+using SevenPos.Core.Organization;
+using SevenPos.Core.Tickets;
 
 namespace SevenPos.Core.Tests;
 

@@ -10,8 +10,8 @@
 
 | You are writing… | Put it in |
 |---|---|
-| A table / entity | `src/SevenPos.Core/Entities` |
-| A business rule (prices, validations, totals) | `src/SevenPos.Core/Services` — **never** inside a `.razor` file |
+| A table / entity | `src/SevenPos.Core/<Area>/` — e.g. `Tickets/Garment.cs`, one type per file |
+| A business rule (prices, validations, totals) | `src/SevenPos.Core/<Area>/` next to its entities, e.g. `Catalog/PriceCalculator.cs`. **Never** inside a `.razor` file |
 | A screen or reusable component | `src/SevenPos.UI/Pages` or `src/SevenPos.UI/Components` |
 | Startup and configuration | `src/SevenPos.Web/Program.cs` |
 | Tests | `tests/SevenPos.Core.Tests` |
