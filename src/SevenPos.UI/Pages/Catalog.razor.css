@@ -5,5 +5,9 @@ h2 { font-size: 1.1rem; margin: 1.2rem 0 .4rem; }
 .product.active { border-color: #1b6ec2; background: #eaf2fb; }
 .detail { position: sticky; top: 1rem; align-self: start; padding: 1rem; border: 1px solid #ccd; border-radius: 8px; }
 .modifier { display: block; padding: .3rem 0; }
-.total { font-size: 1.5rem; font-weight: bold; }
+
 .hint { color: #667; }
+.notice { padding: .8rem 1rem; border-radius: 8px; background: #fff4e5; color: #7a4a00; }
+.tax { display: grid; grid-template-columns: 1fr auto; gap: .2rem 1rem; margin: 1rem 0 0; padding-top: .8rem; border-top: 1px solid #ccd; }
+.tax dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.tax .total { font-size: 1.4rem; font-weight: bold; }

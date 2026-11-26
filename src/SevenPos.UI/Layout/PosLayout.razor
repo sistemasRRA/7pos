@@ -10,6 +10,10 @@
         <nav>
             <NavLink href="" Match="NavLinkMatch.All">Catálogo</NavLink>
             <NavLink href="guests">Clientes</NavLink>
+            @if (Session.CurrentUser?.Role == UserRole.Marketing)
+            {
+                <NavLink href="prices">Precios</NavLink>
+            }
         </nav>
         <span class="user">@Session.CurrentUser!.Name</span>
         <button type="button" @onclick="SignOut">Salir</button>
