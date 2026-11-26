@@ -24,3 +24,4 @@ Statuses: **Proposed** → **Accepted** → (optionally) **Superseded by NNNN**.
 | [0006](0006-specs-as-guide.md) | Client specs are a guide; deviations are recorded | Accepted |
 | [0007](0007-store-facts-derive-totals.md) | Store facts, derive totals | Accepted |
 | [0008](0008-snake-case-database-names.md) | snake_case names in the database | Accepted |
+| [0009](0009-dev-credentials-in-user-secrets.md) | Development credentials in user secrets | Accepted |
