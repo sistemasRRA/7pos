@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SevenPos.Core.Data;
+using SevenPos.Core.Guests;
 using SevenPos.Core.Organization;
 using SevenPos.Web.Components;
 
@@ -20,6 +21,7 @@ builder.Services.AddDbContextFactory<PosDbContext>(o => PosDatabase.Configure(o,
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<LoginService>();
+builder.Services.AddScoped<GuestService>();
 // Who is logged in. Scoped = one per browser connection (Blazor Server circuit).
 builder.Services.AddScoped<PosSession>();
 

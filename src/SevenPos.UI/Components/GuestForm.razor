@@ -1,0 +1,82 @@
+@* Registration form for a new guest. Validation rules live in GuestService;
+   this component only shows each error, in Spanish, under its field. *@
+@inject GuestService GuestService
+
+<form class="guest-form" @onsubmit="SubmitAsync">
+    <label>
+        Celular (WhatsApp)
+        <input type="tel" @bind="_phone" @ref="_phoneInput" placeholder="55 1234 5678" autocomplete="off" />
+        @if (Has(GuestError.InvalidPhone)) { <span class="error">Escribe un celular de 10 dígitos.</span> }
+        @if (_existing is not null)
+        {
+            <span class="error">
+                Este celular ya está registrado a nombre de <strong>@_existing.FullName</strong>.
+                <button type="button" class="link" @onclick="() => OnSelectExisting.InvokeAsync(_existing)">Usar este cliente</button>
+            </span>
+        }
+    </label>
+
+    <label>
+        Nombre completo
+        <input type="text" @bind="_name" autocomplete="off" />
+        @if (Has(GuestError.NameRequired)) { <span class="error">El nombre es obligatorio.</span> }
+    </label>
+
+    <label>
+        Correo <span class="optional">(opcional)</span>
+        <input type="email" @bind="_email" autocomplete="off" />
+        @if (Has(GuestError.InvalidEmail)) { <span class="error">Revisa el correo (ejemplo: nombre@correo.com).</span> }
+    </label>
+
+    <label>
+        Fecha de nacimiento <span class="optional">(opcional)</span>
+        <input type="date" @bind="_birthDate" />
+        @if (Has(GuestError.InvalidBirthDate)) { <span class="error">La fecha de nacimiento no es válida.</span> }
+    </label>
+
+    <label class="consent">
+        <input type="checkbox" @bind="_consent" />
+        El cliente acepta recibir promociones por WhatsApp y correo.
+    </label>
+
+    <div class="actions">
+        <button type="button" class="secondary" @onclick="OnCancel">Cancelar</button>
+        <button type="submit" class="primary" disabled="@_busy">Registrar cliente</button>
+    </div>
+</form>
+
+@code {
+    /// <summary>Pre-fills the phone, e.g. with what the cashier searched for.</summary>
+    [Parameter] public string? InitialPhone { get; set; }
+    [Parameter] public EventCallback<Guest> OnRegistered { get; set; }
+    /// <summary>The phone belongs to an existing guest and the cashier chose to use them.</summary>
+    [Parameter] public EventCallback<Guest> OnSelectExisting { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private string? _phone, _name, _email;
+    private DateOnly? _birthDate;
+    private bool _consent, _busy;
+    private IReadOnlyList<GuestError> _errors = [];
+    private Guest? _existing;
+    private ElementReference _phoneInput;
+
+    protected override void OnInitialized() => _phone = InitialPhone;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await _phoneInput.FocusAsync();
+    }
+
+    private bool Has(GuestError error) => _errors.Contains(error);
+
+    private async Task SubmitAsync()
+    {
+        _busy = true;
+        var result = await GuestService.RegisterAsync(new NewGuest(_phone, _name, _email, _birthDate, _consent));
+        _busy = false;
+
+        _errors = result.Errors;
+        _existing = result.ExistingGuest;
+        if (result.Succeeded) await OnRegistered.InvokeAsync(result.Guest!);
+    }
+}

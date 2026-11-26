@@ -1,0 +1,25 @@
+@* Read-only summary of a guest. *@
+
+<article class="guest-card">
+    <h2>@Guest.FullName</h2>
+    <dl>
+        <dt>Celular</dt>
+        <dd>@PhoneNumber.Format(Guest.Phone)</dd>
+
+        <dt>Correo</dt>
+        <dd>@(Guest.Email ?? "Sin correo")</dd>
+
+        <dt>Cumpleaños</dt>
+        <dd>@(Guest.BirthDate is { } birth ? Display.Date(birth) : "—")</dd>
+
+        <dt>Promociones</dt>
+        <dd>@(Guest.MarketingConsent && Guest.MarketingConsentAtUtc is { } since ? $"Acepta (desde {Display.Date(since)})" : "No acepta")</dd>
+
+        <dt>Cliente desde</dt>
+        <dd>@Display.Date(Guest.CreatedAtUtc)</dd>
+    </dl>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public Guest Guest { get; set; } = default!;
+}
