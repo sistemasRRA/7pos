@@ -32,7 +32,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<PosDbContext>>().CreateDbContext();
     db.Database.Migrate();
-    await SeedData.LoadAsync(db);
+    // Sample branch, users (Admin 1234, Mercadotecnia 5678) and catalog: never in production.
+    if (app.Environment.IsDevelopment()) await SeedData.LoadAsync(db);
 }
 
 // Configure the HTTP request pipeline.
