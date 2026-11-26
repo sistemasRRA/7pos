@@ -1,0 +1,81 @@
+@page "/"
+@inject IDbContextFactory<PosDbContext> DbFactory
+
+<h1>7Pos · Catálogo</h1>
+<p class="hint">Prueba del cálculo de precios: elige una prenda y sus modificadores.</p>
+
+@if (_categories is null)
+{
+    <p>Cargando…</p>
+}
+else
+{
+    <div class="columns">
+        <section>
+            @foreach (var category in _categories)
+            {
+                <h2>@category.Name</h2>
+                @foreach (var product in category.Products.OrderBy(p => p.Name))
+                {
+                    <button class="product @(product == _selected ? "active" : "")" @onclick="() => Select(product)">
+                        <span>@product.Name</span><span>@product.BasePrice.ToString("C")</span>
+                    </button>
+                }
+            }
+        </section>
+
+        <section class="detail">
+            @if (_selected is null)
+            {
+                <p class="hint">Selecciona una prenda.</p>
+            }
+            else
+            {
+                var price = CalculatePrice();
+                <h2>@_selected.Name</h2>
+                <p>Precio base: <strong>@_selected.BasePrice.ToString("C")</strong></p>
+                @foreach (var modifier in _selected.Modifiers.Select(x => x.Modifier!).OrderBy(m => m.SortOrder))
+                {
+                    <label class="modifier">
+                        <input type="checkbox" checked="@_chosen.Contains(modifier)" @onchange="() => Toggle(modifier)" />
+                        ¿@modifier.Name? (@ChargeLabel(modifier))
+                    </label>
+                }
+                <ul>
+                    @foreach (var charge in price.Charges)
+                    {
+                        <li>@charge.Modifier.Name: +@charge.Amount.ToString("C")</li>
+                    }
+                </ul>
+                <p class="total">Total: @price.Total.ToString("C")</p>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    private List<Category>? _categories;
+    private Product? _selected;
+    private readonly HashSet<Modifier> _chosen = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _categories = await db.Categories
+            .Where(c => c.IsActive)
+            .Include(c => c.Products).ThenInclude(p => p.Modifiers).ThenInclude(pm => pm.Modifier)
+            .OrderBy(c => c.Name)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    private void Select(Product product) { _selected = product; _chosen.Clear(); }
+
+    private void Toggle(Modifier modifier) { if (!_chosen.Remove(modifier)) _chosen.Add(modifier); }
+
+    private PriceResult CalculatePrice() => PriceCalculator.Calculate(_selected!.BasePrice, _chosen);
+
+    private static string ChargeLabel(Modifier m) => m.ChargeType == ChargeType.Fixed
+        ? "+" + m.ChargeValue.ToString("C")
+        : "+" + m.ChargeValue.ToString("0.##") + "%";
+}
