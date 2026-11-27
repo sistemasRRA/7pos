@@ -51,7 +51,7 @@ WHERE c.table_schema = 'public' AND t.table_type = 'BASE TABLE'
 ORDER BY c.table_name, c.ordinal_position
 """
 
-# (table, column, kind, referenced table) for primary keys, foreign keys and single-column unique indexes
+# (table, column, kind, referenced table) for primary keys, foreign keys and single-column unique indexes (not partial ones: "unique while open" is not a unique column)
 KEYS_SQL = """
 SELECT t.relname, a.attname, 'PK', '' FROM pg_index i
   JOIN pg_class t ON t.oid = i.indrelid JOIN pg_namespace n ON n.oid = t.relnamespace
@@ -61,7 +61,7 @@ UNION ALL
 SELECT t.relname, a.attname, 'UK', '' FROM pg_index i
   JOIN pg_class t ON t.oid = i.indrelid JOIN pg_namespace n ON n.oid = t.relnamespace
   JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = i.indkey[0]
-  WHERE i.indisunique AND NOT i.indisprimary AND i.indnatts = 1 AND n.nspname = 'public'
+  WHERE i.indisunique AND NOT i.indisprimary AND i.indnatts = 1 AND i.indpred IS NULL AND n.nspname = 'public'
 UNION ALL
 SELECT t.relname, a.attname, 'FK', r.relname FROM pg_constraint c
   JOIN pg_class t ON t.oid = c.conrelid JOIN pg_class r ON r.oid = c.confrelid
