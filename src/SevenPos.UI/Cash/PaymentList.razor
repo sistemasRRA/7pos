@@ -1,0 +1,33 @@
+@* A ticket's payments, oldest first, and what is still owed. *@
+
+<h2>Pagos</h2>
+@if (Payments.Count == 0)
+{
+    <p class="hint">Sin pagos todavía.</p>
+}
+else
+{
+    <table>
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Forma</th><th class="money">Monto</th></tr></thead>
+        <tbody>
+            @foreach (var payment in Payments)
+            {
+                <tr>
+                    <td>@Display.DateTime(payment.PaidAtUtc)</td>
+                    <td>@Display.PaymentType(payment.Type)</td>
+                    <td>@Display.Method(payment.Method)</td>
+                    <td class="money">@Display.Money(payment.Amount)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<p class="balance @(BalanceDue == 0 ? "paid" : "")">
+    @if (BalanceDue == 0) { <text>Pagado por completo</text> }
+    else { <text>Saldo pendiente: <strong>@Display.Money(BalanceDue)</strong></text> }
+</p>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<Payment> Payments { get; set; } = [];
+    [Parameter, EditorRequired] public decimal BalanceDue { get; set; }
+}

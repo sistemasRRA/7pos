@@ -28,6 +28,7 @@ builder.Services.AddScoped<GuestService>();
 builder.Services.AddScoped<PriceListService>();
 builder.Services.AddScoped<TicketService>();
 builder.Services.AddScoped<ShiftService>();
+builder.Services.AddScoped<PaymentService>();
 // Who is logged in. Scoped = one per browser connection (Blazor Server circuit).
 builder.Services.AddScoped<PosSession>();
 

@@ -1,0 +1,19 @@
+.payment { display: flex; flex-direction: column; gap: .7rem; max-width: 520px; margin: 1.2rem 0; padding: 1rem 1.2rem;
+           border: 1px solid #ccd; border-radius: 10px; }
+h2 { margin: 0; font-size: 1.1rem; }
+.notice { margin: 0; padding: .6rem .8rem; border-radius: 8px; background: #fff4e5; color: #7a4a00; }
+.error { margin: 0; padding: .6rem .8rem; border-radius: 8px; background: #fdecec; color: #8a1c1c; }
+.methods { display: flex; flex-wrap: wrap; gap: .5rem; }
+.method { padding: .7rem 1.1rem; font-size: 1.05rem; border: 1px solid #1a75a8; border-radius: 8px; background: #fff; cursor: pointer; }
+.method.chosen { background: #1a75a8; color: #fff; }
+.method:disabled { border-color: #ccd; color: #aab; cursor: default; }
+.fields { display: flex; flex-direction: column; gap: .6rem; }
+label { display: flex; flex-direction: column; gap: .3rem; font-weight: bold; }
+input { padding: .5rem .7rem; font-size: 1.1rem; border: 1px solid #ccd; border-radius: 8px; font-weight: normal; max-width: 220px; }
+.quick { display: flex; gap: 1rem; }
+.change { margin: 0; font-size: 1.3rem; color: #2f5a12; }
+.remaining { margin: 0; color: #445; }
+.choices { display: flex; gap: .6rem; }
+.primary { background: #1a75a8; color: #fff; border: 0; border-radius: 8px; padding: .7rem 1.2rem; font-size: 1rem; cursor: pointer; }
+.primary:disabled { background: #9bb8cc; cursor: default; }
+.link { background: none; border: 0; color: #1a75a8; text-decoration: underline; cursor: pointer; padding: 0; font-size: 1rem; }

@@ -2,6 +2,7 @@ using System.Globalization;
 using SevenPos.Core.Cash;
 using SevenPos.Core.Catalog;
 using SevenPos.Core.Common;
+using SevenPos.Core.Tickets;
 
 namespace SevenPos.UI;
 
@@ -44,5 +45,23 @@ public static class Display
         PaymentMethod.Wallet => "Wallet",
         PaymentMethod.PaymentLink => "Liga de pago",
         _ => method.ToString(),
+    };
+
+    public static string PaymentType(PaymentType type) => type switch
+    {
+        Core.Cash.PaymentType.Advance => "Anticipo",
+        Core.Cash.PaymentType.Settlement => "Liquidación",
+        _ => type.ToString(),
+    };
+
+    public static string Status(TicketStatus status) => status switch
+    {
+        TicketStatus.Received => "Recibido",
+        TicketStatus.InProcess => "En proceso",
+        TicketStatus.Ready => "Listo para entregar",
+        TicketStatus.OutForDelivery => "En reparto",
+        TicketStatus.Delivered => "Entregado",
+        TicketStatus.Cancelled => "Cancelado",
+        _ => status.ToString(),
     };
 }

@@ -11,19 +11,11 @@ h2 { font-size: 1.1rem; margin: 1.2rem 0 .4rem; }
 .guest-line { margin: 0 0 1rem; }
 .columns { display: grid; grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr); gap: 2rem; }
 
-.choices { display: flex; gap: .6rem; margin: .8rem 0; }
 
 .ticket { position: sticky; top: 1rem; align-self: start; padding: 1rem; border: 1px solid #ccd; border-radius: 8px; }
 
 .created { max-width: 720px; }
-.facts { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; }
-.facts dd { margin: 0; }
-.order-id { font-size: 1.4rem; font-weight: bold; letter-spacing: .1em; font-family: ui-monospace, monospace; }
-.labels { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-.labels th, .labels td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #eef; }
-.labels .money { text-align: right; font-variant-numeric: tabular-nums; }
-.code { font-family: ui-monospace, monospace; }
-.balance { font-size: 1.1rem; }
+.change { padding: .8rem 1rem; border-radius: 8px; background: #e7f5e1; color: #2f5a12; font-size: 1.4rem; }
 
 .primary { background: #1a75a8; color: #fff; border: 0; border-radius: 8px; padding: .7rem 1.2rem; font-size: 1rem; cursor: pointer; }
 .primary:disabled { background: #9bb8cc; cursor: default; }
