@@ -31,18 +31,29 @@ else
             }
         </select>
     </label>
+    <label class="list-picker">
+        Línea
+        <select @bind="_lineFilter">
+            <option value="">Todas</option>
+            @foreach (var line in (_rows ?? []).Select(r => r.Product.ServiceLine?.Name).Distinct())
+            {
+                <option value="@line">@line</option>
+            }
+        </select>
+    </label>
     <p class="hint">Precios con IVA incluido. Un cambio nunca borra el precio anterior: queda en el historial.</p>
 
     <div class="layout">
         <table>
             <thead>
-                <tr><th>Prenda</th><th>Categoría</th><th class="num">Precio actual</th><th>Próximo cambio</th><th></th></tr>
+                <tr><th>Prenda</th><th>Línea</th><th>Categoría</th><th class="num">Precio actual</th><th>Próximo cambio</th><th></th></tr>
             </thead>
             <tbody>
-                @foreach (var row in _rows ?? [])
+                @foreach (var row in (_rows ?? []).Where(r => string.IsNullOrEmpty(_lineFilter) || r.Product.ServiceLine?.Name == _lineFilter))
                 {
                     <tr class="@(row.Product.Id == _editing?.Product.Id ? "editing" : "")">
                         <td>@row.Product.Name</td>
+                        <td>@row.Product.ServiceLine?.Name</td>
                         <td>@row.Product.Category?.Name</td>
                         <td class="num">@(row.CurrentPrice is { } price ? Display.Money(price) : "Sin precio")</td>
                         <td>@(row.NextPrice is { } next ? $"{Display.Money(next)} desde {Display.DateTime(row.NextEffectiveFromUtc!.Value)}" : "—")</td>
@@ -55,7 +66,7 @@ else
         @if (_editing is not null)
         {
             <aside class="editor">
-                <h2>@_editing.Product.Name</h2>
+                <h2>@_editing.Product.Name <small>· @_editing.Product.ServiceLine?.Name</small></h2>
                 <form @onsubmit="SaveAsync">
                     <label>
                         Nuevo precio
@@ -95,6 +106,7 @@ else
 @code {
     private List<PriceList>? _lists;
     private Guid _listId;
+    private string? _lineFilter;
     private List<ListPrice>? _rows;
     private ListPrice? _editing;
     private List<PriceHistoryEntry>? _history;

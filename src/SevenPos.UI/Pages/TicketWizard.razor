@@ -35,7 +35,7 @@ else if (_created is not null)
                     <tr>
                         <td class="code">@garment.Code</td>
                         <td>@garment.Product!.Name</td>
-                        <td>@(garment.Modifiers.Count == 0 ? "—" : string.Join(", ", garment.Modifiers.Select(m => m.Modifier!.Name)))</td>
+                        <td>@(garment.Modifiers.Count == 0 ? "—" : string.Join(" · ", garment.Modifiers.Select(m => Display.Option(m.Modifier!))))</td>
                         <td class="money">@Display.Money(garment.PriceCharged)</td>
                     </tr>
                 }
@@ -79,57 +79,11 @@ else
                     @if (_current is null)
                     {
                         <p class="hint">Elige la prenda que recibes.</p>
-                        @foreach (var category in _catalog.GroupBy(e => e.Product.Category!.Name))
-                        {
-                            <h2>@category.Key</h2>
-                            @foreach (var entry in category)
-                            {
-                                <button type="button" class="product" @onclick="() => StartGarment(entry)">
-                                    <span>@entry.Product.Name</span><span>@Display.Money(entry.Price)</span>
-                                </button>
-                            }
-                        }
+                        <ProductPicker Catalog="_catalog" OnSelected="entry => _current = entry" />
                     }
                     else
                     {
-                        <div class="capture">
-                            <h2>@_current.Product.Name <span class="price">@Display.Money(_current.Price)</span></h2>
-
-                            @foreach (var (modifier, chosen) in _answers)
-                            {
-                                <p class="answer">@modifier.Name: <strong>@(chosen ? "Sí" : "No")</strong></p>
-                            }
-
-                            @if (CurrentQuestion is { } question)
-                            {
-                                <p class="question">¿@question.Name? <span class="charge">@ChargeLabel(question)</span></p>
-                                <div class="choices">
-                                    <button type="button" class="primary" @onclick="() => Answer(true)">Sí</button>
-                                    <button type="button" class="secondary" @onclick="() => Answer(false)">No</button>
-                                </div>
-                            }
-                            else
-                            {
-                                var price = PriceCalculator.Calculate(_current.Price, Chosen);
-                                <ul class="charges">
-                                    @foreach (var charge in price.Charges)
-                                    {
-                                        <li>@charge.Modifier.Name: +@Display.Money(charge.Amount)</li>
-                                    }
-                                </ul>
-                                <p>Precio por prenda: <strong>@Display.Money(price.Total)</strong></p>
-                                <div class="quantity">
-                                    <span>Cantidad</span>
-                                    <button type="button" class="secondary" @onclick="() => ChangeQuantity(-1)" disabled="@(_quantity <= 1)" aria-label="Una menos">−</button>
-                                    <strong>@_quantity</strong>
-                                    <button type="button" class="secondary" @onclick="() => ChangeQuantity(1)" disabled="@(_quantity >= MaxQuantity)" aria-label="Una más">+</button>
-                                </div>
-                                <div class="choices">
-                                    <button type="button" class="primary" @onclick="AddGarment">Agregar al ticket</button>
-                                </div>
-                            }
-                            <button type="button" class="link" @onclick="CancelGarment">Cancelar esta prenda</button>
-                        </div>
+                        <GarmentCapture Entry="_current" OnAdd="AddGarment" OnCancel="() => _current = null" />
                     }
                 </section>
 
@@ -170,25 +124,18 @@ else
 @code {
     private enum Step { Guest, Garments, Confirm }
 
-    private const int MaxQuantity = 50;
-
     private Step _step = Step.Guest;
     private Guest? _guest;
     private List<CatalogEntry>? _catalog;
     private readonly List<TicketLine> _lines = [];
 
-    // The garment being captured: its product, the modifiers to ask about, and the answers so far.
+    /// <summary>The garment being captured (GarmentCapture asks its questions).</summary>
     private CatalogEntry? _current;
-    private List<Modifier> _questions = [];
-    private readonly List<(Modifier Modifier, bool Chosen)> _answers = [];
-    private int _quantity = 1;
 
     private TicketError? _error;
     private bool _saving;
     private Ticket? _created;
 
-    private Modifier? CurrentQuestion => _answers.Count < _questions.Count ? _questions[_answers.Count] : null;
-    private List<Modifier> Chosen => _answers.Where(a => a.Chosen).Select(a => a.Modifier).ToList();
     private decimal LinesTotal => _lines.Sum(l => l.Total);
     private int Pieces => _lines.Sum(l => l.Quantity);
 
@@ -200,26 +147,11 @@ else
             _catalog = await PriceListService.GetBranchCatalogAsync(user.BranchId);
     }
 
-    private void StartGarment(CatalogEntry entry)
+    private void AddGarment(TicketLine line)
     {
-        _current = entry;
-        // Ask in the same order the extras are charged (Modifier.SortOrder).
-        _questions = entry.Product.Modifiers.Select(pm => pm.Modifier!).OrderBy(m => m.SortOrder).ToList();
-        _answers.Clear();
-        _quantity = 1;
-    }
-
-    private void Answer(bool chosen) => _answers.Add((CurrentQuestion!, chosen));
-
-    private void ChangeQuantity(int delta) => _quantity = Math.Clamp(_quantity + delta, 1, MaxQuantity);
-
-    private void AddGarment()
-    {
-        _lines.Add(new TicketLine(_current!, Chosen, _quantity));
+        _lines.Add(line);
         _current = null;
     }
-
-    private void CancelGarment() => _current = null;
 
     private void RemoveLine(TicketLine line) => _lines.Remove(line);
 
@@ -258,10 +190,6 @@ else
 
     private string StepClass(Step step) => step == _step ? "current" : step < _step ? "done" : "";
 
-    private static string ChargeLabel(Modifier m) => m.ChargeType == ChargeType.Fixed
-        ? "+" + Display.Money(m.ChargeValue)
-        : "+" + m.ChargeValue.ToString("0.##") + "%";
-
     private static string ErrorMessage(TicketError error) => error switch
     {
         TicketError.NotAllowed => "Tu usuario no puede capturar tickets.",
@@ -269,6 +197,7 @@ else
         TicketError.NoGarments => "Agrega al menos una prenda.",
         TicketError.ProductNotAvailable => "Una de las prendas ya no está disponible en esta sucursal. Regresa, quítala y vuelve a intentarlo.",
         TicketError.ModifierNotAllowed => "Uno de los servicios adicionales ya no está disponible. Regresa, quita esa prenda y vuelve a capturarla.",
+        TicketError.MoreThanOneOptionPerGroup => "Una prenda tiene dos opciones del mismo grupo. Regresa, quítala y vuelve a capturarla.",
         _ => "No se pudo crear el ticket.",
     };
 }

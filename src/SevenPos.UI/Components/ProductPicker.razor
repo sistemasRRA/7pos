@@ -1,0 +1,48 @@
+@* Choose a product of the branch catalog: one tab per service line, then by category, with a search box. *@
+
+<div class="lines" role="tablist">
+    @foreach (var line in _lines)
+    {
+        <button type="button" role="tab" aria-selected="@(line == _line)" class="tab @(line == _line ? "active" : "")" @onclick="() => _line = line">@line</button>
+    }
+</div>
+
+<input type="search" class="search" @bind="_search" @bind:event="oninput" placeholder="Buscar prenda" aria-label="Buscar prenda" autocomplete="off" />
+
+@{ var visible = Visible(); }
+@if (visible.Count == 0)
+{
+    <p class="hint">No hay prendas con «@_search» en @_line.</p>
+}
+@foreach (var category in visible.GroupBy(e => e.Product.Category!.Name))
+{
+    <h3>@category.Key</h3>
+    <div class="grid">
+        @foreach (var entry in category)
+        {
+            <button type="button" class="product" @onclick="() => OnSelected.InvokeAsync(entry)">
+                <span>@entry.Product.Name</span><span class="price">@Display.Money(entry.Price)</span>
+            </button>
+        }
+    </div>
+}
+
+@code {
+    /// <summary>The branch catalog, already sorted by line, category and name.</summary>
+    [Parameter, EditorRequired] public IReadOnlyList<CatalogEntry> Catalog { get; set; } = [];
+    [Parameter, EditorRequired] public EventCallback<CatalogEntry> OnSelected { get; set; }
+
+    private List<string> _lines = [];
+    private string? _line, _search;
+
+    protected override void OnParametersSet()
+    {
+        _lines = Catalog.Select(e => e.Product.ServiceLine!.Name).Distinct().ToList();
+        if (_line is null || !_lines.Contains(_line)) _line = _lines.FirstOrDefault();
+    }
+
+    private List<CatalogEntry> Visible() => Catalog
+        .Where(e => e.Product.ServiceLine!.Name == _line)
+        .Where(e => string.IsNullOrWhiteSpace(_search) || e.Product.Name.Contains(_search.Trim(), StringComparison.CurrentCultureIgnoreCase))
+        .ToList();
+}

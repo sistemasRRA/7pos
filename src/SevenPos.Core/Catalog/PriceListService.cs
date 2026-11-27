@@ -69,8 +69,9 @@ public class PriceListService(IDbContextFactory<PosDbContext> dbFactory, TimePro
             .ToDictionaryAsync(i => i.ProductId);
         var products = await db.Products
             .Where(p => p.IsActive)
+            .Include(p => p.ServiceLine)
             .Include(p => p.Category)
-            .OrderBy(p => p.Name)
+            .OrderBy(p => p.ServiceLine!.SortOrder).ThenBy(p => p.Name)
             .AsNoTracking()
             .ToListAsync();
 

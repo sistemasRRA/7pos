@@ -5,8 +5,8 @@
     {
         <li>
             <div class="what">
-                <span class="name">@line.Quantity × @line.Entry.Product.Name</span>
-                <span class="extras">@(line.Modifiers.Count == 0 ? "Sin servicios adicionales" : string.Join(", ", line.Modifiers.OrderBy(m => m.SortOrder).Select(m => m.Name)))</span>
+                <span class="name">@line.Quantity × @line.Entry.Product.Name <small>(@line.Entry.Product.ServiceLine?.Name)</small></span>
+                <span class="extras">@(line.Modifiers.Count == 0 ? "Sin servicios adicionales" : string.Join(" · ", line.UnitPrice.Charges.Select(c => Display.Option(c.Modifier))))</span>
             </div>
             <span class="money">@Display.Money(line.Total)</span>
             @if (OnRemove.HasDelegate)
