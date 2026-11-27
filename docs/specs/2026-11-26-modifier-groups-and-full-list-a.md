@@ -19,6 +19,13 @@ Answers to the follow-ups on modifier groups in the [second round](2026-11-26-mo
 3. **Groups apply only to the products they are assigned to.** Marketing decides which groups each product asks. The PDFs do not say which products get which groups, so the assignment has to come from Marketing (or a default, see below).
 4. The other questions (the $0 "Política de calidad" items, which branch uses which list, whether franchises may change the suggested price) are **on hold**.
 
+## Clarification: the list depends on the branch's area
+Relayed by the developer: the list (A, AA, B, C) changes the prices **according to the area where the branch is located**. So the system must know the area of each installation.
+
+This is how the model already works: each branch points to one price list (`Branch.PriceListId`, ER rev. 2 `Matriz_Precios_ID`), and the POS sells at the prices of the branch it runs in. A separate "area" table is not needed unless an area has other properties (a name such as "Polanco", its own promotions, an 8% border-zone IVA). Still to build:
+- A screen for Marketing to assign each branch its list (today only sample data does it).
+- Device registration (`DISPOSITIVOS`, ER rev. 2), so each installation knows its branch. Today the terminal uses the first active branch.
+
 ## Corrections to the second round
 The first copy of list A was incomplete:
 - List A **does** have SLEEPING, COBERTOR, COLCHA, CORTINA, EDREDON and CUBRE COLCHÓN, at **$235** (page 2).

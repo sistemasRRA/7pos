@@ -60,7 +60,7 @@ The client documents are in Spanish; the code is in English. Use this table to t
 | Número de orden | The code the customer receives (8 characters, no look-alikes) | `Ticket.PublicOrderId` |
 | Captura / wizard de captura | Creating a ticket at the counter, step by step | `TicketService`, `/tickets/new` |
 | Urgente / Exprés | Express service, +50% of the list price | a `Modifier` |
-| Lista A / AA / B / C | Marketing's 2026 price lists | `PriceList` |
+| Lista A / AA / B / C | The price tier of the area where the branch is located (Marketing's 2026 lists) | `PriceList`, chosen per branch with `Branch.PriceListId` |
 | Política de calidad | $0 items (paid with a service, repeated cleaning); use still to be explained | |
 | Facilitador | The cashier's supervisor; receives reports of missing items | |
 | Depósito | Cash the branch deposits the day after the shift close | `Shift` (planned) |
