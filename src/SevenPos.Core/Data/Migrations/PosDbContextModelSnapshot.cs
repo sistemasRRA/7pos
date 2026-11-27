@@ -682,6 +682,12 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("alert_emails");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("code");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -706,6 +712,10 @@ namespace SevenPos.Core.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_branches");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_branches_code");
 
                     b.HasIndex("PriceListId")
                         .HasDatabaseName("ix_branches_price_list_id");
@@ -792,6 +802,11 @@ namespace SevenPos.Core.Data.Migrations
                     b.Property<DateTime>("LastModifiedUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_modified_utc");
+
+                    b.Property<decimal>("ListPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("list_price");
 
                     b.Property<string>("Location")
                         .HasColumnType("text")
@@ -1190,12 +1205,14 @@ namespace SevenPos.Core.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_garment_modifiers_garments_garment_id");
 
-                    b.HasOne("SevenPos.Core.Catalog.Modifier", null)
+                    b.HasOne("SevenPos.Core.Catalog.Modifier", "Modifier")
                         .WithMany()
                         .HasForeignKey("ModifierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_garment_modifiers_modifiers_modifier_id");
+
+                    b.Navigation("Modifier");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Tickets.Ticket", b =>

@@ -11,7 +11,7 @@ public class LoginServiceTests : IDisposable
     private readonly TestDatabase _database = new();
     private readonly FakeTimeProvider _clock = new(new DateTimeOffset(2026, 11, 26, 15, 0, 0, TimeSpan.Zero));
     private readonly LoginService _login;
-    private readonly Branch _branch = new() { Name = "Sucursal Prueba" };
+    private readonly Branch _branch = new() { Name = "Sucursal Prueba", Code = "PRB" };
     private readonly User _cashier;
 
     public LoginServiceTests()
@@ -135,8 +135,8 @@ public class LoginServiceTests : IDisposable
         await using (var db = _database.CreateDbContext())
         {
             db.Branches.AddRange(
-                new Branch { Name = "Aaa cerrada", IsActive = false },
-                new Branch { Name = "Zzz" });
+                new Branch { Name = "Aaa cerrada", Code = "AAA", IsActive = false },
+                new Branch { Name = "Zzz", Code = "ZZZ" });
             await db.SaveChangesAsync();
         }
 
@@ -150,7 +150,7 @@ public class LoginServiceTests : IDisposable
     {
         await using (var db = _database.CreateDbContext())
         {
-            var otherBranch = new Branch { Name = "Otra" };
+            var otherBranch = new Branch { Name = "Otra", Code = "OTRA" };
             db.Branches.Add(otherBranch);
             db.Users.AddRange(
                 new User { Name = "Beto", PinHash = PinHasher.Hash("1111"), BranchId = _branch.Id },

@@ -21,7 +21,7 @@ public static class SeedData
     {
         if (await db.Branches.AnyAsync()) return;
 
-        var branch = new Branch { Name = "Sucursal Demo" };
+        var branch = new Branch { Name = "Sucursal Demo", Code = "DEMO" };
         db.Branches.Add(branch);
         db.Users.Add(new User
         {

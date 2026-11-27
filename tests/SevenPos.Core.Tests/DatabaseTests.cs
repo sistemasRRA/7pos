@@ -52,7 +52,7 @@ public class DatabaseTests : IDisposable
     public async Task SeedData_CompletesADatabaseFromAnOlderVersion()
     {
         // An older version seeded the branch and catalog, but had no price lists or Marketing role.
-        var branch = new Branch { Name = "Sucursal Demo" };
+        var branch = new Branch { Name = "Sucursal Demo", Code = "DEMO" };
         var category = new Category { Name = "Camisas" };
         _db.Branches.Add(branch);
         _db.Categories.Add(category);

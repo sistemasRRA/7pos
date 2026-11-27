@@ -32,6 +32,8 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder b)
     {
+        b.Entity<Branch>().HasIndex(x => x.Code).IsUnique();
+        b.Entity<Branch>().Property(x => x.Code).HasMaxLength(10);
         b.Entity<Guest>().HasIndex(x => x.Phone).IsUnique();
         // Rows created before this column existed get the migration time, not year 1.
         b.Entity<Guest>().Property(x => x.CreatedAtUtc).HasDefaultValueSql("now()");
@@ -71,8 +73,6 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Ticket>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);
         b.Entity<Ticket>().HasOne<User>().WithMany().HasForeignKey(x => x.CashierId);
         b.Entity<Ticket>().HasOne<Shift>().WithMany().HasForeignKey(x => x.ShiftId);
-
-        b.Entity<GarmentModifier>().HasOne<Modifier>().WithMany().HasForeignKey(x => x.ModifierId);
 
         b.Entity<PriceListItem>().HasOne<User>().WithMany().HasForeignKey(x => x.SetByUserId);
     }

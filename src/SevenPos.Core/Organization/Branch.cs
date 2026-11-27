@@ -4,6 +4,8 @@ namespace SevenPos.Core.Organization;
 public class Branch : SyncEntity
 {
     public required string Name { get; set; }
+    /// <summary>Short unique code printed on garment labels, e.g. "DEMO" in DEMO-20261126-000001-01.</summary>
+    public required string Code { get; set; }
     /// <summary>Up to 5 comma-separated emails for shift/alert reports.</summary>
     public string? AlertEmails { get; set; }
 

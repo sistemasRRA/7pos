@@ -24,9 +24,9 @@ public class PriceListServiceTests : IDisposable
     public PriceListServiceTests()
     {
         _prices = new PriceListService(_database, _clock);
-        _northBranch = new Branch { Name = "Norte 1", PriceListId = _north.Id };
-        _southBranch = new Branch { Name = "Sur 1", PriceListId = _south.Id };
-        _branchWithoutList = new Branch { Name = "Nueva" };
+        _northBranch = new Branch { Name = "Norte 1", Code = "N1", PriceListId = _north.Id };
+        _southBranch = new Branch { Name = "Sur 1", Code = "S1", PriceListId = _south.Id };
+        _branchWithoutList = new Branch { Name = "Nueva", Code = "NVA" };
         _shirt = new Product { Name = "Camisa", BasePrice = 50, CategoryId = _shirts.Id };
         _jeans = new Product { Name = "Jeans", BasePrice = 60, CategoryId = _shirts.Id };
         _oldCoat = new Product { Name = "Abrigo viejo", BasePrice = 90, CategoryId = _shirts.Id, IsActive = false };
