@@ -89,6 +89,12 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
         var branchCode = await db.Branches.Where(b => b.Id == cashier.BranchId).Select(b => b.Code).SingleAsync();
         var folio = (await db.Tickets.Where(t => t.BranchId == cashier.BranchId).MaxAsync(t => (int?)t.Folio) ?? 0) + 1;
 
+        // The shift whose drawer is open when the ticket is created (none yet: payments will require one).
+        var shiftId = await db.Shifts
+            .Where(s => s.BranchId == cashier.BranchId && s.ClosedAtUtc == null)
+            .Select(s => (Guid?)s.Id)
+            .SingleOrDefaultAsync();
+
         var ticket = new Ticket
         {
             Folio = folio,
@@ -96,6 +102,7 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
             BranchId = cashier.BranchId,
             GuestId = guest.Id,
             CashierId = cashier.Id,
+            ShiftId = shiftId,
             CreatedAtUtc = now,
             Garments = priced.Select((g, index) => new Garment
             {

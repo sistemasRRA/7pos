@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
+using SevenPos.Core.Cash;
 using SevenPos.Core.Catalog;
 using SevenPos.Core.Guests;
 using SevenPos.Core.Organization;
@@ -122,6 +123,29 @@ public class TicketServiceTests : IDisposable
         Assert.Equal(TicketStatus.Received, saved.Status);
         Assert.Equal(TicketOrigin.Counter, saved.Origin);
         Assert.Null(saved.ShiftId);
+    }
+
+    [Fact]
+    public async Task Create_BelongsToTheBranchsOpenShift()
+    {
+        var open = new Shift { BranchId = _branch.Id, UserId = _cashier.Id };
+        var closed = new Shift { BranchId = _branch.Id, UserId = _cashier.Id, ClosedAtUtc = Now };
+        var otherBranch = new Shift { BranchId = _otherBranch.Id, UserId = _otherCashier.Id };
+        await using (var db = _database.CreateDbContext())
+        {
+            db.Shifts.AddRange(open, closed, otherBranch);
+            await db.SaveChangesAsync();
+        }
+
+        var ticket = (await CreateAsync(Garment(_shirt))).Ticket!;
+
+        Assert.Equal(open.Id, ticket.ShiftId);
+    }
+
+    [Fact]
+    public async Task Create_WithoutAnOpenShift_HasNoShift()
+    {
+        Assert.Null((await CreateAsync(Garment(_shirt))).Ticket!.ShiftId);
     }
 
     [Fact]
