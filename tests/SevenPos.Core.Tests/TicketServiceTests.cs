@@ -444,6 +444,64 @@ public class TicketServiceTests : IDisposable
         Assert.Equal(0m, saved.BalanceDue);
     }
 
+    // ---------- Finding a ticket ----------
+
+    [Fact]
+    public async Task Find_ByOrderNumber_IgnoringCaseAndSpaces()
+    {
+        var ticket = (await CreateAsync(Garment(_shirt))).Ticket!;
+        await CreateAsync(Garment(_jeans));
+
+        var found = await _tickets.FindAsync(_branch.Id, $"  {ticket.PublicOrderId.ToLowerInvariant()} ");
+
+        Assert.Equal(ticket.Id, Assert.Single(found).Id);
+        Assert.Equal("Ana López", found[0].Guest!.FullName);
+    }
+
+    [Theory]
+    [InlineData("2")]
+    [InlineData("000002")]
+    public async Task Find_ByFolio(string query)
+    {
+        await CreateAsync(Garment(_shirt));
+        var second = (await CreateAsync(Garment(_jeans))).Ticket!;
+
+        Assert.Equal(second.Id, Assert.Single(await _tickets.FindAsync(_branch.Id, query)).Id);
+    }
+
+    [Fact]
+    public async Task Find_ByGuestPhone_ReturnsTheirTickets_NewestFirst()
+    {
+        var first = (await CreateAsync(Garment(_shirt))).Ticket!;
+        _clock.Advance(TimeSpan.FromHours(1));
+        var second = (await CreateAsync(Garment(_jeans))).Ticket!;
+
+        var found = await _tickets.FindAsync(_branch.Id, "55 1234 5678");
+
+        Assert.Equal([second.Id, first.Id], found.Select(t => t.Id));
+    }
+
+    [Fact]
+    public async Task Find_OnlyLooksInTheBranch()
+    {
+        var ticket = (await CreateAsync(Garment(_shirt))).Ticket!;
+
+        Assert.Empty(await _tickets.FindAsync(_otherBranch.Id, ticket.PublicOrderId));
+        Assert.Empty(await _tickets.FindAsync(_otherBranch.Id, "1"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("ZZZZZZZZ")]
+    [InlineData("99")]
+    public async Task Find_WithNoMatch_ReturnsNothing(string query)
+    {
+        await CreateAsync(Garment(_shirt));
+
+        Assert.Empty(await _tickets.FindAsync(_branch.Id, query));
+    }
+
     // ---------- Reading a ticket ----------
 
     [Fact]

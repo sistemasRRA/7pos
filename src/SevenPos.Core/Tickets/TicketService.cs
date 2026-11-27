@@ -178,6 +178,34 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
     }
 
     /// <summary>
+    /// The branch's tickets matching what the cashier typed: the order number (any case),
+    /// the folio (with or without leading zeros) or the guest's phone. Newest first, at most 20.
+    /// </summary>
+    public async Task<List<Ticket>> FindAsync(Guid branchId, string query)
+    {
+        query = query.Trim();
+        if (query.Length == 0) return [];
+
+        await using var db = await dbFactory.CreateDbContextAsync();
+        var tickets = db.Tickets.Where(t => t.BranchId == branchId);
+        var code = query.ToUpperInvariant();
+        if (PhoneNumber.TryNormalize(query, out var phone))
+            tickets = tickets.Where(t => t.Guest!.Phone == phone);
+        else if (int.TryParse(query, out var folio))
+            // An order number can be all digits too ("23456789"), so check both.
+            tickets = tickets.Where(t => t.Folio == folio || t.PublicOrderId == code);
+        else
+            tickets = tickets.Where(t => t.PublicOrderId == code);
+
+        return await tickets
+            .Include(t => t.Guest)
+            .OrderByDescending(t => t.CreatedAtUtc)
+            .Take(20)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// The label printed on each garment: [BRANCH]-[YYYYMMDD]-[FOLIO]-[SEQ], with the local
     /// date the ticket was created. E.g. DEMO-20261126-000042-03.
     /// </summary>
