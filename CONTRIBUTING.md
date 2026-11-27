@@ -3,7 +3,7 @@
 ## Language
 
 - **Code is English:** files, folders, classes, variables, database tables and columns, comments, test names, commit messages and docs.
-- **The UI is Spanish:** labels, messages, printed tickets, and catalog data such as "Camisa de vestir".
+- **The UI is Spanish:** labels, messages, printed tickets, and catalog data such as "CAMISA" or "Almidón: Rígido".
 - New business concept from the client specs? Pick an English name and **add it to the [glossary](docs/glossary.md)** in the same commit.
 
 ## Where code goes

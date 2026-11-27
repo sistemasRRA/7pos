@@ -106,6 +106,15 @@ erDiagram
         bool marketing_consent
         timestamptz marketing_consent_at_utc "nullable"
     }
+    modifier_groups {
+        uuid id PK
+        uuid service_line_id FK
+        text name
+        int4 sort_order
+        timestamptz last_modified_utc
+        text sync_status
+        bool is_active
+    }
     modifiers {
         uuid id PK
         text name
@@ -115,6 +124,7 @@ erDiagram
         timestamptz last_modified_utc
         text sync_status
         bool is_active
+        uuid modifier_group_id FK
     }
     payments {
         uuid id PK
@@ -159,6 +169,15 @@ erDiagram
         uuid category_id FK
         text name
         numeric base_price
+        timestamptz last_modified_utc
+        text sync_status
+        bool is_active
+        uuid service_line_id FK
+    }
+    service_lines {
+        uuid id PK
+        text name UK
+        int4 sort_order
         timestamptz last_modified_utc
         text sync_status
         bool is_active
@@ -219,6 +238,7 @@ erDiagram
     garments ||--o{ garment_modifiers : "garment_id"
     guests ||--o{ guest_addresses : "guest_id"
     guests ||--o{ tickets : "guest_id"
+    modifier_groups ||--o{ modifiers : "modifier_group_id"
     modifiers ||--o{ garment_modifiers : "modifier_id"
     modifiers ||--o{ product_modifiers : "modifier_id"
     price_lists |o--o{ branches : "price_list_id"
@@ -226,6 +246,8 @@ erDiagram
     products ||--o{ garments : "product_id"
     products ||--o{ price_list_items : "product_id"
     products ||--o{ product_modifiers : "product_id"
+    service_lines ||--o{ modifier_groups : "service_line_id"
+    service_lines ||--o{ products : "service_line_id"
     shifts ||--o{ cash_withdrawals : "shift_id"
     shifts ||--o{ payments : "shift_id"
     shifts |o--o{ tickets : "shift_id"

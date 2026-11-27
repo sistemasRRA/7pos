@@ -9,6 +9,7 @@ One file per business area, written **when the feature is built** (not before). 
 | [Guests](guests.md) (search and register) | Built |
 | [Price lists](price-lists.md) (per zone, IVA breakdown) | Built |
 | [Ticket capture wizard](ticket-wizard.md) | Built (no discounts or payment yet) |
+| [Real catalog](real-catalog.md) (service lines, groups step by step, 2026 lists, branch areas) | Built for Tintorería, Planchado, 7PLUS |
 | Payments and deposits | Planned |
 | Shift open / close (Corte X/Z) | Planned |
 | Garment lifecycle | Planned |

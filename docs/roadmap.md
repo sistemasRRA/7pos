@@ -20,7 +20,7 @@ Phase 1 as specified is large for one developer, so it is split:
 3. ✅ Catalog with price lists per zone ([feature doc](features/price-lists.md))
 4. ✅ Guests: search by phone and register ([feature doc](features/guests.md))
 5. ✅ Ticket capture wizard, one row per garment ([feature doc](features/ticket-wizard.md))
-   ⬜ Real catalog: service lines, modifier groups (one option per group, in step order) and the 2026 price lists ([answers](specs/2026-11-26-modifier-groups-and-full-list-a.md))
+   ✅ Real catalog: service lines, modifier groups step by step, the 2026 price lists, a list per branch area ([feature doc](features/real-catalog.md)). Sastrería, 7shoes and Lavandería wait for the client.
 6. ⬜ Payments: deposits and settlements
 7. ⬜ Shift open / close (Corte X/Z), cash withdrawals, blind count
 8. ⬜ Garment lifecycle with status history

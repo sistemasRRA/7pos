@@ -25,7 +25,7 @@ Marketing sets the price of every product per **price list** ("Lista Norte", "Li
 - `Product.BasePrice` is now only a **reference** (ER rev. 2). The POS always sells at the list price.
 - Modifiers (Almidón, Express…) still have one global price. Prices per list for modifiers can come later if Marketing needs them.
 - Two price changes for the same product at the exact same instant would violate the unique index. This is practically impossible from the screen.
-- Sample data: development databases get a "Lista General" with every product at its base price, assigned to every branch, and a Marketing user "Mercadotecnia" with PIN 5678. Sample data is **never** loaded in production.
+- Sample data: development databases load Marketing's 2026 lists (A, AA, B, C) and put every branch on Lista A, plus a Marketing user "Mercadotecnia" with PIN 5678 ([real catalog](real-catalog.md)). Sample data is **never** loaded in production.
 
 ## Code
 - Rules: [`PriceListService`](../../src/SevenPos.Core/Catalog/PriceListService.cs), [`TaxCalculator`](../../src/SevenPos.Core/Catalog/TaxCalculator.cs)
@@ -34,7 +34,7 @@ Marketing sets the price of every product per **price list** ("Lista Norte", "Li
 - Screens: [`Catalog.razor`](../../src/SevenPos.UI/Pages/Catalog.razor) (branch prices with IVA), [`Prices.razor`](../../src/SevenPos.UI/Pages/Prices.razor) (Marketing)
 
 ## Not built yet
-- Creating or renaming price lists and assigning branches to lists. Today this needs the database or sample data.
+- Creating or renaming price lists. Assigning a branch its list is built: Precios → Sucursales ([real catalog](real-catalog.md)).
 - Creating and deactivating products (Marketing only, per ADR 0011).
 
 ## Open questions

@@ -85,8 +85,9 @@ Core is organized by **business area**, not by type of file. Each area holds its
 SevenPos.Core/
 ├── Common/        SyncEntity (base class with the sync fields), BusinessTime (Mexico City time)
 ├── Organization/  Branch, User, Attendance, AuditLog, PinHasher
-├── Catalog/       Category, Product, Modifier, ProductModifier, PriceList, PriceListItem,
-│                  PriceCalculator, TaxCalculator, PriceListService
+├── Catalog/       ServiceLine, Category, Product, ModifierGroup, Modifier, ProductModifier,
+│                  PriceList, PriceListItem, PriceCalculator, TaxCalculator,
+│                  PriceListService, CatalogImporter
 ├── Guests/        Guest, GuestAddress, PhoneNumber, GuestService
 ├── Tickets/       Ticket, Garment, GarmentModifier, TicketService
 ├── Cash/          Shift, Payment, CashWithdrawal

@@ -54,7 +54,7 @@ dotnet test                              # all tests should pass
 dotnet run --project src/SevenPos.Web    # http://localhost:5175
 ```
 
-On first run the app applies all migrations and loads sample data: branch "Sucursal Demo", user Admin with PIN 1234, and a small catalog.
+On first run the app applies all migrations and loads sample data: branch "Sucursal Demo" (on Lista A), users Admin (PIN 1234) and Mercadotecnia (PIN 5678), and Marketing's 2026 catalog for Tintorería, Planchado and 7PLUS.
 
 To start over with a clean database:
 
@@ -67,7 +67,7 @@ sudo -u postgres psql -c "DROP DATABASE sevenpos;" -c "CREATE DATABASE sevenpos 
 1. Read [architecture](architecture.md) (10 minutes).
 2. Read [data rules](data-rules.md) before touching entities.
 3. Skim the [decisions](decisions/README.md) and the [glossary](glossary.md).
-4. Log in as Admin / 1234 and try three wrong PINs to see the lockout. Then open **Clientes**, register a guest and search for them by the last 4 digits of their phone. Log in as Mercadotecnia / 5678, open **Precios** and change a price; the catalog shows it with its IVA breakdown. Finally, log in as Admin again and open **Nuevo ticket**: choose a guest, add a few garments with extras and create the ticket.
+4. Log in as Admin / 1234 and try three wrong PINs to see the lockout. Then open **Clientes**, register a guest and search for them by the last 4 digits of their phone. Log in as Mercadotecnia / 5678, open **Precios** and change a price; the catalog shows it with its IVA breakdown. In **Precios → Sucursales**, move the branch to Lista AA and see the Tintorería prices change. Finally, log in as Admin again and open **Nuevo ticket**: choose a guest, pick EDREDON in Tintorería, answer the questions (Tamaño: Matrimonial, …) and create the ticket.
 5. Open `src/SevenPos.UI/Pages/Catalog.razor` and `src/SevenPos.Core/Catalog/PriceCalculator.cs` to see a full slice from screen to rule.
 
 ## Later: the Windows desktop app

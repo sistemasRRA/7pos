@@ -29,3 +29,4 @@ Statuses: **Proposed** → **Accepted** → (optionally) **Superseded by NNNN**.
 | [0011](0011-only-marketing-controls-catalog-and-prices.md) | Only Marketing controls the catalog and prices | Accepted |
 | [0012](0012-percentage-modifiers-on-list-price.md) | Percentage modifiers apply to the list price | Accepted |
 | [0013](0013-no-manual-discounts.md) | No manual discounts | Accepted |
+| [0014](0014-service-lines-and-modifier-groups.md) | Service lines and modifier groups | Accepted |

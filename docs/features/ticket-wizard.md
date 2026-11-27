@@ -31,7 +31,7 @@ At the counter, the cashier creates a ticket for a customer in three steps: **Cl
 
 ## Screen
 - `/tickets/new`, header link "Nuevo ticket" (hidden for Marketing).
-- In Prendas, after choosing a garment, the wizard asks each of its extras in charge order (¿Almidón? Sí / No), then the quantity. "3 × Camisa con almidón" becomes 3 garment rows with 3 labels.
+- In Prendas, the cashier picks the service line and the garment, then answers each of its modifier groups in step order (1 Tamaño, 2 Textil…), one option or "Ninguno" each, then the quantity ([real catalog](real-catalog.md)). "3 × CAMISA, Almidón Medio" becomes 3 garment rows with 3 labels.
 - The result screen shows the folio, the public order number, each label code and the balance due.
 
 ## Edge cases

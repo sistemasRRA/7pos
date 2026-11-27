@@ -12,8 +12,10 @@ The client documents are in Spanish; the code is in English. Use this table to t
 | Usuario | `User` | Staff member. Logs in with a PIN. |
 | Familia | `Category` | Group of products (Camisas, Blancos, Tenis). |
 | Producto | `Product` | A garment type with a base price. |
-| Modificador | `Modifier` | Paid extra on a garment (Almidón, Express). `ChargeType`: `Fixed` ($) or `Percentage` (% of the list price, ADR 0012). |
-| Producto_Modificador_Rel | `ProductModifier` | Which modifiers a product allows. |
+| Modificador | `Modifier` | One option of a group (Tamaño → Mediano). `ChargeType`: `Fixed` ($) or `Percentage` (% of the list price, ADR 0012). |
+| Producto_Modificador_Rel | `ProductModifier` | Which modifier options a product offers. |
+| Proceso / línea de servicio | `ServiceLine` | Tintorería, Planchado, Sastrería, 7shoes, 7PLUS, Lavandería. Each product belongs to one. |
+| Grupo (Tamaño, Textil, Almidón…) | `ModifierGroup` | A question of the wizard. `SortOrder` = the step number (1–8) on the lists. One option per group. |
 | Tickets_Cabecera | `Ticket` | An order. Folio_Interno → `Folio`; Order_ID_Publico → `PublicOrderId`; Saldo_Pendiente → `BalanceDue`. |
 | Ticket_Items_Pulverizado | `Garment` | One row per physical garment. Item_Pulverizado_ID → `Code` (`BRANCH-YYYYMMDD-FOLIO-SEQ`); Precio_Lista → `ListPrice`; Precio_Cobrado → `PriceCharged`; Ubicacion_Fisica → `Location`. |
 | Ticket_Items_Modificadores | `GarmentModifier` | Extras sold on that exact garment. Cargo_Aplicado → `ChargeApplied`. |
@@ -60,7 +62,8 @@ The client documents are in Spanish; the code is in English. Use this table to t
 | Número de orden | The code the customer receives (8 characters, no look-alikes) | `Ticket.PublicOrderId` |
 | Captura / wizard de captura | Creating a ticket at the counter, step by step | `TicketService`, `/tickets/new` |
 | Urgente / Exprés | Express service, +50% of the list price | a `Modifier` |
-| Lista A / AA / B / C | The price tier of the area where the branch is located (Marketing's 2026 lists) | `PriceList`, chosen per branch with `Branch.PriceListId` |
+| Lista A / AA / B / C | The price tier of the area where the branch is located (Marketing's 2026 lists) | `PriceList`, chosen per branch with `Branch.PriceListId` (Precios → Sucursales) |
+| Precio sugerido | The list price in Marketing's lists | `PriceListItem.Price` |
 | Política de calidad | $0 items (paid with a service, repeated cleaning); use still to be explained | |
 | Facilitador | The cashier's supervisor; receives reports of missing items | |
 | Depósito | Cash the branch deposits the day after the shift close | `Shift` (planned) |
