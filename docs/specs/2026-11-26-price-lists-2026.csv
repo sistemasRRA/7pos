@@ -1,60 +1,195 @@
-group,product,list_a,list_aa,list_b,list_c
-Política de calidad,PRENDA PAGO CON SERVICIO,0,0,0,0
-Política de calidad,REPETICION DE LIMPIEZA PRENDA,0,0,0,0
-Especiales y misceláneo,SERVILLETA,89,99,79,69
-Hogar y decoración,CARPETA,89,99,79,69
-Especiales y misceláneo,FILIPINA,89,99,79,69
-Ropa de cama y blancos,COJIN,89,99,79,69
-Ropa de vestir / Casual,BATA,89,99,79,69
-Ropa de vestir / Casual,BERMUDA,89,99,79,69
-Ropa de vestir / Casual,BLUSA,89,99,79,69
-Ropa de vestir / Casual,CAMISA,89,99,79,69
-Hogar y decoración,MANTEL,89,99,79,69
-Ropa de vestir / Casual,CHALECO,89,99,79,69
-Accesorios,CORBATA / FAJILLA / MOÑO,89,99,79,69
-Ropa de vestir / Casual,FALDA,89,99,79,69
-Ropa de vestir / Casual,OVEROL,89,99,79,69
-Ropa de vestir / Casual,PANTALON,89,99,79,69
-Ropa de cama y blancos,FUNDA DE ALMOHADA,89,99,79,69
-Toallas y baño,TOALLA DE MANO,89,99,79,69
-Accesorios,BUFANDA,89,99,79,69
-Accesorios,GUANTES,89,99,79,69
-Accesorios,MASCADA,89,99,79,69
-Accesorios,PASHMINA,89,99,79,69
-Ropa de vestir / Casual,PLAYERA,89,99,79,69
-Ropa de vestir / Casual,SACO,89,99,79,69
-Ropa de vestir / Casual,SUDADERA,89,99,79,69
-Ropa de vestir / Casual,SWEATER,89,99,79,69
-Ropa de vestir / Casual,PLAYERA DEPORTIVA,89,99,79,69
-Accesorios,MANDIL,89,99,79,69
-Ropa de vestir / Casual,FONDOS,89,99,79,69
-Ropa de vestir / Casual,MAMELUCO,89,99,79,69
-Ropa de vestir / Casual,VESTIDO,109,119,99,89
-Ropa de cama y blancos,ALMOHADA,139,149,129,119
-Especiales y misceláneo,PELUCHE,159,169,149,139
-Especiales y misceláneo,DISFRAZ,159,169,149,139
-Ropa de vestir / Casual,ABRIGO,159,169,149,139
-Ropa de vestir / Casual,CHAMARRA,159,169,149,139
-Ropa de vestir / Casual,GABARDINA,159,169,149,139
-Ropa de vestir / Casual,GUAYABERA,159,169,149,139
-Ropa de vestir / Casual,PALATZO,159,169,149,139
-Ropa de cama y blancos,SABANA JUEGO,159,169,149,139
-Hogar y decoración,FUNDA SOFA,159,169,149,139
-Ropa de cama y blancos,RESPALDO DE CAMA,159,169,149,139
-Ropa de cama y blancos,RODAPIÉ,159,169,149,139
-Ropa de cama y blancos,CUBRE CAMA,159,169,149,139
-Accesorios,CAPA,159,169,149,139
-Accesorios,GORRA,159,169,149,139
-Hogar y decoración,BANDERA,159,169,149,139
-Toallas y baño,TAPETE DE BAÑO,159,169,149,139
-Ropa de vestir / Casual,PANTS 2 PZAS,159,169,149,139
-Ropa de vestir / Casual,CONJUNTO,189,199,179,169
-Ropa de vestir / Casual,TRAJE,189,199,179,169
-Ropa de vestir / Casual,PIJAMA 2PZ,189,199,179,169
-Especiales y misceláneo,SLEEPING,,245,225,215
-Ropa de cama y blancos,COBERTOR,,245,225,215
-Ropa de cama y blancos,COLCHA,,245,225,215
-Hogar y decoración,CORTINA,,245,225,215
-Ropa de cama y blancos,EDREDON,,245,225,215
-Ropa de cama y blancos,CUBRE COLCHÓN,,245,225,215
-Especiales y misceláneo,ROPÓN DE BAUTIZO,489,499,479,469
+service,group,product,list_a,list_aa,list_b,list_c,notes
+Tintorería,Política de calidad,PRENDA PAGO CON SERVICIO,0,0,0,0,
+Tintorería,Política de calidad,REPETICION DE LIMPIEZA PRENDA,0,0,0,0,
+Tintorería,Especiales y misceláneo,SERVILLETA,89,99,79,69,
+Tintorería,Hogar y decoración,CARPETA,89,99,79,69,
+Tintorería,Especiales y misceláneo,FILIPINA,89,99,79,69,
+Tintorería,Ropa de cama y blancos,COJIN,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,BATA,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,BERMUDA,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,BLUSA,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,CAMISA,89,99,79,69,
+Tintorería,Hogar y decoración,MANTEL,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,CHALECO,89,99,79,69,
+Tintorería,Accesorios,CORBATA / FAJILLA / MOÑO,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,FALDA,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,OVEROL,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,PANTALON,89,99,79,69,
+Tintorería,Ropa de cama y blancos,FUNDA DE ALMOHADA,89,99,79,69,
+Tintorería,Toallas y baño,TOALLA DE MANO,89,99,79,69,
+Tintorería,Accesorios,BUFANDA,89,99,79,69,
+Tintorería,Accesorios,GUANTES,89,99,79,69,
+Tintorería,Accesorios,MASCADA,89,99,79,69,
+Tintorería,Accesorios,PASHMINA,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,PLAYERA,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,SACO,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,SUDADERA,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,SWEATER,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,PLAYERA DEPORTIVA,89,99,79,69,
+Tintorería,Accesorios,MANDIL,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,FONDOS,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,MAMELUCO,89,99,79,69,
+Tintorería,Ropa de vestir / Casual,VESTIDO,109,119,99,89,
+Tintorería,Ropa de cama y blancos,ALMOHADA,139,149,129,119,
+Tintorería,Especiales y misceláneo,PELUCHE,159,169,149,139,
+Tintorería,Especiales y misceláneo,DISFRAZ,159,169,149,139,
+Tintorería,Ropa de vestir / Casual,ABRIGO,159,169,149,139,
+Tintorería,Ropa de vestir / Casual,CHAMARRA,159,169,149,139,
+Tintorería,Ropa de vestir / Casual,GABARDINA,159,169,149,139,
+Tintorería,Ropa de vestir / Casual,GUAYABERA,159,169,149,139,
+Tintorería,Ropa de vestir / Casual,PALATZO,159,169,149,139,
+Tintorería,Ropa de cama y blancos,SABANA JUEGO,159,169,149,139,
+Tintorería,Hogar y decoración,FUNDA SOFA,159,169,149,139,
+Tintorería,Ropa de cama y blancos,RESPALDO DE CAMA,159,169,149,139,
+Tintorería,Ropa de cama y blancos,RODAPIÉ,159,169,149,139,
+Tintorería,Ropa de cama y blancos,CUBRE CAMA,159,169,149,139,
+Tintorería,Accesorios,CAPA,159,169,149,139,
+Tintorería,Accesorios,GORRA,159,169,149,139,
+Tintorería,Hogar y decoración,BANDERA,159,169,149,139,
+Tintorería,Toallas y baño,TAPETE DE BAÑO,159,169,149,139,
+Tintorería,Ropa de vestir / Casual,PANTS 2 PZAS,159,169,149,139,
+Tintorería,Ropa de vestir / Casual,CONJUNTO,189,199,179,169,
+Tintorería,Ropa de vestir / Casual,TRAJE,189,199,179,169,
+Tintorería,Ropa de vestir / Casual,PIJAMA 2PZ,189,199,179,169,
+Tintorería,Especiales y misceláneo,SLEEPING,235,245,225,215,
+Tintorería,Ropa de cama y blancos,COBERTOR,235,245,225,215,
+Tintorería,Ropa de cama y blancos,COLCHA,235,245,225,215,
+Tintorería,Hogar y decoración,CORTINA,235,245,225,215,
+Tintorería,Ropa de cama y blancos,EDREDON,235,245,225,215,
+Tintorería,Ropa de cama y blancos,CUBRE COLCHÓN,235,245,225,215,
+Tintorería,Especiales y misceláneo,ROPÓN DE BAUTIZO,489,499,479,469,
+Planchado,Especiales y misceláneo,SERVILLETA RESTAURANTERA,39,,,,
+Planchado,Ropa de vestir / Casual,ABRIGO,49,,,,
+Planchado,Especiales y misceláneo,DISFRAZ,49,,,,
+Planchado,Accesorios,FAJILLA SMOKING,49,,,,
+Planchado,Ropa de vestir / Casual,FONDOS,49,,,,
+Planchado,Ropa de vestir / Casual,MAMELUCO,49,,,,
+Planchado,Accesorios,MANDIL,49,,,,
+Planchado,Ropa de vestir / Casual,PIJAMA 2PZ,49,,,,
+Planchado,Ropa de vestir / Casual,BATA,49,,,,
+Planchado,Especiales y misceláneo,BATA DOCTOR,49,,,,
+Planchado,Ropa de vestir / Casual,BERMUDA,49,,,,
+Planchado,Hogar y decoración,FUNDA SOFA,49,,,,
+Planchado,Ropa de cama y blancos,RESPALDO DE CAMA,49,,,,
+Planchado,Ropa de vestir / Casual,BLUSA,49,,,,
+Planchado,Ropa de vestir / Casual,CAMISA,49,,,,
+Planchado,Hogar y decoración,CARPETA,49,,,,
+Planchado,Ropa de vestir / Casual,CHALECO,49,,,,
+Planchado,Ropa de vestir / Casual,CHAMARRA,49,,,,
+Planchado,Ropa de cama y blancos,COJIN,49,,,,
+Planchado,Hogar y decoración,CORTINA,49,,,,
+Planchado,Ropa de vestir / Casual,PLAYERA DEPORTIVA,49,,,,
+Planchado,Ropa de cama y blancos,EDREDON,49,,,,
+Planchado,Ropa de vestir / Casual,FALDA,49,,,,
+Planchado,Ropa de vestir / Casual,FALDA PANTALON,49,,,,
+Planchado,Especiales y misceláneo,FILIPINA,49,,,,
+Planchado,Ropa de vestir / Casual,GUAYABERA,49,,,,
+Planchado,Hogar y decoración,FUNDAS DE SILLAS,49,,,,
+Planchado,Hogar y decoración,MANTEL,49,,,,
+Planchado,Especiales y misceláneo,LISTONES,49,,,,
+Planchado,Accesorios,BUFANDA,49,,,,
+Planchado,Accesorios,CAPA,49,,,,
+Planchado,Accesorios,GORRA,49,,,,
+Planchado,Accesorios,GUANTES,49,,,,
+Planchado,Accesorios,MASCADA,49,,,,
+Planchado,Accesorios,PASHMINA,49,,,,
+Planchado,Ropa de vestir / Casual,PANTALON,49,,,,
+Planchado,Ropa de vestir / Casual,JEANS DE MEZCLILLA,49,,,,
+Planchado,Ropa de vestir / Casual,PANT´S,49,,,,
+Planchado,Ropa de vestir / Casual,PALATZO JUMPER,49,,,,
+Planchado,Ropa de vestir / Casual,PLAYERA,49,,,,
+Planchado,Ropa de vestir / Casual,POLO,49,,,,
+Planchado,Ropa de vestir / Casual,SACO,49,,,,
+Planchado,Ropa de vestir / Casual,SUDADERA,49,,,,listed twice: $49 and $79
+Planchado,Ropa de vestir / Casual,SWEATER,49,,,,
+Planchado,Ropa de vestir / Casual,SUDADERA,79,,,,listed twice: $49 and $79
+Planchado,Especiales y misceláneo,SOTANA,89,,,,
+Planchado,Especiales y misceláneo,TUNICA,89,,,,
+Planchado,Ropa de cama y blancos,SABANA JUEGO,89,,,,
+Planchado,Ropa de cama y blancos,RODAPIÉ,89,,,,
+Planchado,Ropa de vestir / Casual,ROMPEVIENTOS,89,,,,
+Planchado,Ropa de cama y blancos,COLCHA,89,,,,
+Planchado,Ropa de vestir / Casual,GABARDINA,89,,,,
+Planchado,Especiales y misceláneo,BANDERA,89,,,,
+Planchado,Ropa de vestir / Casual,PALATZO,89,,,,
+Planchado,Ropa de vestir / Casual,VESTIDO,89,,,,
+Planchado,Ropa de vestir / Casual,OVEROL,89,,,,
+Planchado,Ropa de cama y blancos,CUBRE COLCHÓN,109,,,,
+Planchado,Ropa de cama y blancos,CUBRE CAMA,119,,,,
+Planchado,Ropa de cama y blancos,COLCHONETA,119,,,,
+Planchado,Ropa de vestir / Casual,FALDA TABLEADA,119,,,,
+Planchado,Especiales y misceláneo,ROPÓN DE BAUTIZO,209,,,,
+Planchado,Especiales y misceláneo,VESTIDO XV AÑOS,389,,,,
+Planchado,Especiales y misceláneo,VESTIDO DE NOVIA,389,,,,
+Sastrería,Sastrería,COTIZAR SERVICIO,0,,,,price quoted per job
+Sastrería,Sastrería,COLOCAR BOTON,39,,,,
+Sastrería,Sastrería,COLOCAR BROCHES,39,,,,
+Sastrería,Sastrería,BOBINA 100,39,,,,
+Sastrería,Sastrería,ES ETIQUETADO DE PRENDA,49,,,,
+Sastrería,Sastrería,MEDIO DOBLADILLO,99,,,,
+Sastrería,Sastrería,DOBLADILLO,159,,,,
+Sastrería,Sastrería,CAMBIO DE CIERRE,159,,,,
+Sastrería,Sastrería,REPASO DE COSTURA,159,,,,
+Sastrería,Sastrería,COLOCAR BOTON (INCLUYE BOTON),159,,,,
+Sastrería,Sastrería,ES BORDADO BASICO 1 NOMBRE,159,,,,
+Sastrería,Sastrería,CAMBIO DE ELÁSTICO DE PUÑO,159,,,,"name cut off in the PDF (""…/PUÑ"")"
+Sastrería,Sastrería,COSER PARCHES O LOGOTIPOS,159,,,,
+Sastrería,Sastrería,ELIMINAR HACER PINZAS,159,,,,
+Sastrería,Sastrería,MANGA CORTA,159,,,,
+Sastrería,Sastrería,PEGADO DE ESCUDOS,159,,,,
+Sastrería,Sastrería,ES RECOSER,159,,,,
+Sastrería,Sastrería,CAMBIO DE PRESILLA,159,,,,
+Sastrería,Sastrería,LARGO DE MANGA,259,,,,
+Sastrería,Sastrería,CIERRE INVISIBLE,259,,,,
+Sastrería,Sastrería,AJUSTE DE TALLA,259,,,,
+Sastrería,Sastrería,CAMBIO DE HOMBRERAS,259,,,,
+Sastrería,Sastrería,RECORTE DE MANGAS,259,,,,
+Sastrería,Sastrería,CAMBIO DE ELÁSTICO,259,,,,
+Sastrería,Sastrería,HACER BOLSILLOS,259,,,,
+Sastrería,Sastrería,QUITAR BOLSAS,259,,,,
+Sastrería,Sastrería,HACER COJIN,259,,,,
+Sastrería,Sastrería,CODERAS A PRENDA,259,,,,
+Sastrería,Sastrería,COLOCAR BIES,259,,,,
+Sastrería,Sastrería,COLOCAR VELCRO,259,,,,
+Sastrería,Sastrería,ZURCIDO INVISIBLE POR CM.,299,,,,price per cm?
+Sastrería,Sastrería,REDUCCION SISA (PRENDA DELGADA),359,,,,name cut off in the PDF
+Sastrería,Sastrería,REMACHE JEANS,359,,,,
+Sastrería,Sastrería,VOLTEAR CUELLO,359,,,,
+Sastrería,Sastrería,BAJAR PRETINA,359,,,,
+Sastrería,Sastrería,ENTUVAR PIERNA,359,,,,
+Sastrería,Sastrería,VALENCIANA ESPAÑOLA,359,,,,
+Sastrería,Sastrería,TRANFORMAR SOLAPA,479,,,,
+Sastrería,Sastrería,CAMBIO DE FORRO,1189,,,,
+7shoes,Limpieza,TENIS JUNIOR (NIÑO),159,,,,
+7shoes,Limpieza,TENIS ESTANDAR,179,,,,
+7shoes,Limpieza,"DEPORTIVOS (SOCCER, FOOTBALL, ETC.)",239,,,,
+7shoes,Limpieza,BOTA TIPO TIMBERLAND,239,,,,
+7shoes,Limpieza,TENIS PREMIUM,799,,,,
+7shoes,Especiales,TENIS JUNIOR (NIÑO),0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Especiales,TENIS ESTANDAR,0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Especiales,"DEPORTIVOS (SOCCER, FOOTBALL, ETC.)",0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Especiales,BOTA TIPO TIMBERLAND,0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Especiales,TENIS PREMIUM,0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Restauración,TENIS JUNIOR (NIÑO),0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Restauración,TENIS ESTANDAR,0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Restauración,"DEPORTIVOS (SOCCER, FOOTBALL, ETC.)",0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Restauración,BOTA TIPO TIMBERLAND,0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7shoes,Restauración,TENIS PREMIUM,0,,,,"$0 in the PDF; priced by ""Servicios especiales"" / ""Cuidado específico""?"
+7PLUS,Accesorios,SOMBRERO,299,,,,
+7PLUS,Accesorios,BOLSO,459,,,,
+7PLUS,Hogar y decoración,TAPETE,459,,,,
+7PLUS,Accesorios,GUANTES PIEL / ANTE,799,,,,
+7PLUS,Especiales y misceláneo,VESTIDO XV AÑOS,799,,,,
+7PLUS,Ropa de vestir / Casual,FALDA PIEL / ANTE,799,,,,
+7PLUS,Ropa de vestir / Casual,SWEATER PIEL / GAMUZA,799,,,,
+7PLUS,Hogar y decoración,ALFOMBRA,1119,,,,
+7PLUS,Especiales y misceláneo,VESTIDO DE NOVIA,1119,,,,
+7PLUS,Ropa de vestir / Casual,CAMISA CUERO / ANTE,1199,,,,
+7PLUS,Ropa de vestir / Casual,ABRIGO PIEL / GAMUZA,1299,,,,
+7PLUS,Ropa de vestir / Casual,VESTIDO PIEL,1199,,,,
+7PLUS,Ropa de vestir / Casual,CHALECO PIEL / GAMUZA,1199,,,,
+7PLUS,Ropa de vestir / Casual,PANTALON PIEL / ANTE,1199,,,,
+7PLUS,Ropa de vestir / Casual,CHAMARRA PIEL / GAMUZA,1199,,,,
+7PLUS,Ropa de vestir / Casual,ZAPATO / BOTA,799,,,,
+7PLUS,Ropa de vestir / Casual,TEÑIDO,349,,,,
+Lavandería,Lavandería,KILO LAVANDERÍA,59,,,,"per kilo, minimum 3 kilos"

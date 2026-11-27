@@ -26,7 +26,7 @@ Nobody types a discount at the counter, not even with a supervisor PIN. A ticket
 What the PDFs show:
 - **Four lists:** A, AA, B and C. Each product has one price per list (e.g. CAMISA: A $89, AA $99, B $79, C $69).
 - **59 products in 7 groups:** Ropa de vestir / Casual, Ropa de cama y blancos, Accesorios, Especiales y misceláneo, Hogar y decoración, Toallas y baño, Política de calidad.
-- **Six products are not in list A:** SLEEPING, COBERTOR, COLCHA, CORTINA, EDREDON, CUBRE COLCHÓN.
+- ~~Six products are not in list A~~ *Correction: they are, at $235 (see the [third round](2026-11-26-modifier-groups-and-full-list-a.md)).*
 - **Two $0 products under "Política de calidad":** PRENDA PAGO CON SERVICIO and REPETICIÓN DE LIMPIEZA PRENDA.
 - **Every extra is a percentage**, organized in **groups with options**, numbered 1–8 in lists AA, B and C:
 
@@ -41,11 +41,11 @@ What the PDFs show:
   | 7 | Extra | Aplicaciones 30%, Prenda delicada 50% |
   | 8 | Urgente | Urgente 50% |
 
-- **List A has no Tamaño or Relleno.** The other percentages are the same in all four lists.
+- ~~List A has no Tamaño or Relleno~~ *Correction: it has them (third round).* The percentages are the same in all four lists.
 
 **What this changes in the model:** today a modifier is a single extra with a fixed or percentage charge, linked to products one by one. The lists need **modifier groups** where the cashier picks at most one option per group, products with a $0 price, and possibly extras that depend on the list. This is planned as the next feature ("real catalog").
 
-**Follow-ups for the client:**
+**Follow-ups for the client** (1–4 answered in the [third round](2026-11-26-modifier-groups-and-full-list-a.md); 5–7 on hold):
 1. **Order of the questions:** are the numbers 1–8 the order the wizard asks (Tamaño, Textil, Suciedad, Relleno, Espesor, Almidón, Extra, Urgente)?
 2. **One option per group?** E.g. can a garment be both "Aplicaciones" and "Prenda delicada" (Extra), or only one?
 3. **Which groups apply to which products?** Does a CORBATA get asked about Tamaño and Relleno, or only some groups per product or product group?

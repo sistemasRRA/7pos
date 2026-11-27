@@ -20,7 +20,7 @@ Phase 1 as specified is large for one developer, so it is split:
 3. ✅ Catalog with price lists per zone ([feature doc](features/price-lists.md))
 4. ✅ Guests: search by phone and register ([feature doc](features/guests.md))
 5. ✅ Ticket capture wizard, one row per garment ([feature doc](features/ticket-wizard.md))
-   ⬜ Real catalog: modifier groups (Tamaño, Textil, Almidón…) and the 2026 price lists A, AA, B, C ([client answers](specs/2026-11-26-modifiers-discounts-price-lists.md))
+   ⬜ Real catalog: service lines, modifier groups (one option per group, in step order) and the 2026 price lists ([answers](specs/2026-11-26-modifier-groups-and-full-list-a.md))
 6. ⬜ Payments: deposits and settlements
 7. ⬜ Shift open / close (Corte X/Z), cash withdrawals, blind count
 8. ⬜ Garment lifecycle with status history
@@ -49,9 +49,12 @@ Answers received are recorded in [specs](specs/README.md) with the client's orig
 - **Manual discounts:** not allowed; discounts come only from promotions ([ADR 0013](decisions/0013-no-manual-discounts.md)).
 - **Price lists:** Marketing's 2026 lists A, AA, B and C, with extras in groups. New follow-ups are in the answers file.
 
+### Answered (2026-11-26, third round) → [answers](specs/2026-11-26-modifier-groups-and-full-list-a.md)
+- **Modifier groups:** asked in step order (1–8), at most one option per group, only the groups assigned to each product.
+
 ### Still open
-Blocking the **real catalog** (see the [answers](specs/2026-11-26-modifiers-discounts-price-lists.md#3-the-2026-price-lists) for details):
-1. **Modifier groups:** question order, one option per group, which groups apply to which products, list A without Tamaño and Relleno, the $0 "Política de calidad" items, which branches use which list.
+On hold, needed for the **real catalog** (details in the [third round](specs/2026-11-26-modifier-groups-and-full-list-a.md#questions-found-in-the-full-list-on-hold)):
+1. **Catalog details:** which groups each product gets, the $0 "Política de calidad" and 7shoes items, Lavandería by the kilo, "Dificultad jr 205%", the duplicated SUDADERA, which branches use which list.
 
 Not blocking, but needed before going live:
 2. *(Answered: no manual discounts, see above.)*
