@@ -60,11 +60,18 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("sync_status");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id")
                         .HasName("pk_cash_withdrawals");
 
                     b.HasIndex("ShiftId")
                         .HasDatabaseName("ix_cash_withdrawals_shift_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_cash_withdrawals_user_id");
 
                     b.ToTable("cash_withdrawals", (string)null);
                 });
@@ -153,6 +160,10 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("closed_at_utc");
 
+                    b.Property<Guid?>("ClosedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("closed_by_user_id");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -182,11 +193,19 @@ namespace SevenPos.Core.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_shifts");
 
-                    b.HasIndex("BranchId")
-                        .HasDatabaseName("ix_shifts_branch_id");
+                    b.HasIndex("ClosedByUserId")
+                        .HasDatabaseName("ix_shifts_closed_by_user_id");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_shifts_user_id");
+
+                    b.HasIndex(new[] { "BranchId" }, "ix_shifts_branch_id")
+                        .HasDatabaseName("ix_shifts_branch_id");
+
+                    b.HasIndex(new[] { "BranchId" }, "ix_shifts_open_per_branch")
+                        .IsUnique()
+                        .HasDatabaseName("ix_shifts_open_per_branch")
+                        .HasFilter("closed_at_utc IS NULL");
 
                     b.ToTable("shifts", (string)null);
                 });
@@ -1116,6 +1135,13 @@ namespace SevenPos.Core.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_cash_withdrawals_shifts_shift_id");
+
+                    b.HasOne("SevenPos.Core.Organization.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_cash_withdrawals_users_user_id");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Cash.Payment", b =>
@@ -1143,6 +1169,12 @@ namespace SevenPos.Core.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_shifts_branches_branch_id");
+
+                    b.HasOne("SevenPos.Core.Organization.User", null)
+                        .WithMany()
+                        .HasForeignKey("ClosedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_shifts_users_closed_by_user_id");
 
                     b.HasOne("SevenPos.Core.Organization.User", null)
                         .WithMany()
@@ -1230,7 +1262,7 @@ namespace SevenPos.Core.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_product_modifiers_modifiers_modifier_id");
 
-                    b.HasOne("SevenPos.Core.Catalog.Product", null)
+                    b.HasOne("SevenPos.Core.Catalog.Product", "Product")
                         .WithMany("Modifiers")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1238,6 +1270,8 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_product_modifiers_products_product_id");
 
                     b.Navigation("Modifier");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Guests.GuestAddress", b =>

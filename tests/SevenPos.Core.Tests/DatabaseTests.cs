@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SevenPos.Core.Data;
+using SevenPos.Core.Cash;
 using SevenPos.Core.Catalog;
 using SevenPos.Core.Common;
 using SevenPos.Core.Guests;
@@ -118,6 +119,23 @@ public class DatabaseTests : IDisposable
         var error = await Assert.ThrowsAsync<DbUpdateException>(() => _db.SaveChangesAsync());
         var postgresError = Assert.IsType<PostgresException>(error.InnerException);
         Assert.Equal(PostgresErrorCodes.ForeignKeyViolation, postgresError.SqlState); // 23503
+    }
+
+    [Fact]
+    public async Task Branch_CannotHaveTwoOpenShifts_ButCanHaveManyClosedOnes()
+    {
+        await SeedAsync();
+        var user = await _db.Users.FirstAsync(u => u.Role == UserRole.Admin);
+        Shift NewShift(DateTime? closedAtUtc) => new() { BranchId = user.BranchId, UserId = user.Id, ClosedAtUtc = closedAtUtc };
+
+        _db.Shifts.AddRange(NewShift(DateTime.UtcNow), NewShift(DateTime.UtcNow), NewShift(null));
+        await _db.SaveChangesAsync();
+
+        _db.Shifts.Add(NewShift(null));
+        var error = await Assert.ThrowsAsync<DbUpdateException>(() => _db.SaveChangesAsync());
+        var postgresError = Assert.IsType<PostgresException>(error.InnerException);
+        Assert.Equal(PostgresErrorCodes.UniqueViolation, postgresError.SqlState); // 23505
+        Assert.Equal("ix_shifts_open_per_branch", postgresError.ConstraintName);
     }
 
     [Fact]

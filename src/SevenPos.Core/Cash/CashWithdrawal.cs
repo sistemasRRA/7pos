@@ -4,6 +4,8 @@ namespace SevenPos.Core.Cash;
 public class CashWithdrawal : SyncEntity
 {
     public Guid ShiftId { get; set; }
+    /// <summary>Who took the cash out.</summary>
+    public Guid UserId { get; set; }
     public decimal Amount { get; set; }
     public required string Reason { get; set; }
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
