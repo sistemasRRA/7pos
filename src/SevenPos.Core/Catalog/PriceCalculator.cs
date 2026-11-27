@@ -7,7 +7,8 @@ public record PriceResult(decimal BasePrice, IReadOnlyList<AppliedCharge> Charge
 /// Incremental pricing ("Starbucks model"): list price + modifiers.
 /// A percentage modifier is always a percentage of the list price, never of the
 /// price with other extras (ADR 0012), so charges simply add up and the order
-/// does not change the total. Charges are listed in Modifier.SortOrder.
+/// does not change the total. Charges are listed in the wizard's order: group step,
+/// then option order.
 /// E.g. Shirt $100 → Almidón 10% = +$10 → Urgente 50% = +$50 → $160.
 /// </summary>
 public static class PriceCalculator
@@ -15,7 +16,7 @@ public static class PriceCalculator
     public static PriceResult Calculate(decimal basePrice, IEnumerable<Modifier> modifiers)
     {
         var charges = modifiers
-            .OrderBy(m => m.SortOrder)
+            .OrderBy(m => m.Group?.SortOrder ?? 0).ThenBy(m => m.SortOrder)
             .Select(m => new AppliedCharge(m, m.ChargeType == ChargeType.Fixed
                 ? m.ChargeValue
                 : Round(basePrice * m.ChargeValue / 100m)))

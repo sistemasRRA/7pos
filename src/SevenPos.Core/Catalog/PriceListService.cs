@@ -35,13 +35,16 @@ public class PriceListService(IDbContextFactory<PosDbContext> dbFactory, TimePro
         var prices = await CurrentPricesAsync(db, priceListId.Value);
         var products = await db.Products
             .Where(p => p.IsActive && prices.Keys.Contains(p.Id))
+            .Include(p => p.ServiceLine)
             .Include(p => p.Category)
-            .Include(p => p.Modifiers.Where(pm => pm.IsActive && pm.Modifier!.IsActive)).ThenInclude(pm => pm.Modifier)
+            .Include(p => p.Modifiers.Where(pm => pm.IsActive && pm.Modifier!.IsActive && pm.Modifier.Group!.IsActive))
+                .ThenInclude(pm => pm.Modifier).ThenInclude(m => m!.Group)
             .AsNoTracking()
+            .AsSplitQuery()
             .ToListAsync();
 
         return products
-            .OrderBy(p => p.Category!.Name).ThenBy(p => p.Name)
+            .OrderBy(p => p.ServiceLine!.SortOrder).ThenBy(p => p.Category!.Name).ThenBy(p => p.Name)
             .Select(p => new CatalogEntry(p, prices[p.Id]))
             .ToList();
     }

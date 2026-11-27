@@ -39,6 +39,20 @@ public class PriceCalculatorTests
     }
 
     [Fact]
+    public void Charges_AreListedByGroupStep_ThenOptionOrder()
+    {
+        var size = new ModifierGroup { Name = "Tamaño", SortOrder = 1 };
+        var starch = new ModifierGroup { Name = "Almidón", SortOrder = 6 };
+        var medium = new Modifier { Group = size, Name = "Mediano", ChargeType = ChargeType.Percentage, ChargeValue = 15, SortOrder = 1 };
+        var light = new Modifier { Group = starch, Name = "Ligero", ChargeType = ChargeType.Percentage, ChargeValue = 5, SortOrder = 1 };
+
+        var r = PriceCalculator.Calculate(100, [light, medium]);
+
+        Assert.Equal(["Mediano", "Ligero"], r.Charges.Select(c => c.Modifier.Name));
+        Assert.Equal(120m, r.Total);
+    }
+
+    [Fact]
     public void NoModifiers_IsBasePrice()
     {
         Assert.Equal(65m, PriceCalculator.Calculate(65, []).Total);

@@ -11,7 +11,7 @@ public record NewGarment(Guid ProductId, IReadOnlyCollection<Guid> ModifierIds);
 
 public record NewTicket(Guid CashierId, Guid GuestId, IReadOnlyList<NewGarment> Garments);
 
-public enum TicketError { NotAllowed, GuestNotFound, NoGarments, ProductNotAvailable, ModifierNotAllowed }
+public enum TicketError { NotAllowed, GuestNotFound, NoGarments, ProductNotAvailable, ModifierNotAllowed, MoreThanOneOptionPerGroup }
 
 public record TicketCreation(Ticket? Ticket, TicketError? Error)
 {
@@ -80,6 +80,8 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
                 if (!offered.TryGetValue(modifierId, out var modifier)) return new(null, TicketError.ModifierNotAllowed);
                 chosen.Add(modifier);
             }
+            // Each group is one question (Tamaño, Almidón…): at most one answer.
+            if (chosen.GroupBy(m => m.ModifierGroupId).Any(g => g.Count() > 1)) return new(null, TicketError.MoreThanOneOptionPerGroup);
             priced.Add((entry.Product.Id, PriceCalculator.Calculate(entry.Price, chosen)));
         }
 
@@ -136,7 +138,7 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
         var ticket = await db.Tickets
             .Include(t => t.Guest)
             .Include(t => t.Garments).ThenInclude(g => g.Product)
-            .Include(t => t.Garments).ThenInclude(g => g.Modifiers).ThenInclude(m => m.Modifier)
+            .Include(t => t.Garments).ThenInclude(g => g.Modifiers).ThenInclude(m => m.Modifier).ThenInclude(m => m!.Group)
             .AsNoTracking()
             .AsSplitQuery()
             .SingleOrDefaultAsync(t => t.Id == ticketId);
@@ -144,7 +146,7 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
 
         ticket.Garments = ticket.Garments.OrderBy(g => g.Code).ToList();
         foreach (var garment in ticket.Garments)
-            garment.Modifiers = garment.Modifiers.OrderBy(m => m.Modifier!.SortOrder).ToList();
+            garment.Modifiers = garment.Modifiers.OrderBy(m => m.Modifier!.Group!.SortOrder).ThenBy(m => m.Modifier!.SortOrder).ToList();
         return ticket;
     }
 

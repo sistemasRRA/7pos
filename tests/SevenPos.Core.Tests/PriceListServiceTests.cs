@@ -165,6 +165,8 @@ public class PriceListServiceTests : IDisposable
 
         Assert.Equal(["Camisas/Camisa", "Pantalones/Jeans"], catalog.Select(e => $"{e.Product.Category!.Name}/{e.Product.Name}"));
         Assert.Equal("Almidón", catalog[0].Product.Modifiers.Single().Modifier!.Name);
+        Assert.Equal("Extras", catalog[0].Product.Modifiers.Single().Modifier!.Group!.Name);
+        Assert.Equal("Tintorería", catalog[0].Product.ServiceLine!.Name);
     }
 
     // ---------- What Marketing manages ----------

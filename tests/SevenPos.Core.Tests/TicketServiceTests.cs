@@ -22,7 +22,7 @@ public class TicketServiceTests : IDisposable
     private readonly ModifierGroup _starchGroup, _extraGroup, _urgentGroup;
     private readonly Category _shirts = new() { Name = "Camisas" };
     private readonly Product _shirt, _jeans, _unpriced, _oldCoat;
-    private readonly Modifier _starch, _express, _whiteSole;
+    private readonly Modifier _starch, _heavyStarch, _express, _whiteSole;
     private readonly User _cashier, _otherCashier, _marketing, _formerCashier;
     private readonly Guest _guest, _formerGuest;
 
@@ -38,9 +38,10 @@ public class TicketServiceTests : IDisposable
         _extraGroup = new ModifierGroup { ServiceLineId = _line.Id, Name = "Extra", SortOrder = 7 };
         _urgentGroup = new ModifierGroup { ServiceLineId = _line.Id, Name = "Urgente", SortOrder = 8 };
         _starch = new Modifier { ModifierGroupId = _starchGroup.Id, Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
+        _heavyStarch = new Modifier { ModifierGroupId = _starchGroup.Id, Name = "Rígido", ChargeType = ChargeType.Percentage, ChargeValue = 15, SortOrder = 3 };
         _whiteSole = new Modifier { ModifierGroupId = _extraGroup.Id, Name = "Suela blanca", ChargeType = ChargeType.Fixed, ChargeValue = 40, SortOrder = 3 };
         _express = new Modifier { ModifierGroupId = _urgentGroup.Id, Name = "Servicio Express", ChargeType = ChargeType.Percentage, ChargeValue = 50, SortOrder = 100 };
-        _shirt = NewProduct("Camisa", 50, _starch, _express);
+        _shirt = NewProduct("Camisa", 50, _starch, _heavyStarch, _express);
         _jeans = NewProduct("Jeans", 60, _express);
         _unpriced = NewProduct("Saco", 90);
         _oldCoat = NewProduct("Abrigo viejo", 90);
@@ -59,7 +60,7 @@ public class TicketServiceTests : IDisposable
         db.ServiceLines.Add(_line);
         db.ModifierGroups.AddRange(_starchGroup, _extraGroup, _urgentGroup);
         db.Categories.Add(_shirts);
-        db.Modifiers.AddRange(_starch, _whiteSole, _express);
+        db.Modifiers.AddRange(_starch, _heavyStarch, _whiteSole, _express);
         db.Products.AddRange(_shirt, _jeans, _unpriced, _oldCoat);
         db.Users.AddRange(_cashier, _otherCashier, _marketing, _formerCashier);
         db.Guests.AddRange(_guest, _formerGuest);
@@ -295,6 +296,13 @@ public class TicketServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Create_TwoOptionsOfTheSameGroup_IsRefused()
+    {
+        // Almidón is one question: the cashier picks one level, not two.
+        Assert.Equal(TicketError.MoreThanOneOptionPerGroup, (await CreateAsync(Garment(_shirt, _starch, _heavyStarch))).Error);
+    }
+
+    [Fact]
     public async Task Create_Refused_SavesNothing()
     {
         await CreateAsync(Garment(_shirt), Garment(_unpriced));
@@ -317,6 +325,7 @@ public class TicketServiceTests : IDisposable
         Assert.Equal("Ana López", ticket!.Guest!.FullName);
         Assert.Equal(["Jeans", "Camisa"], ticket.Garments.Select(g => g.Product!.Name));
         Assert.Equal(["Almidón"], ticket.Garments[1].Modifiers.Select(m => m.Modifier!.Name));
+        Assert.Equal("Almidón", ticket.Garments[1].Modifiers[0].Modifier!.Group!.Name);
     }
 
     [Fact]
