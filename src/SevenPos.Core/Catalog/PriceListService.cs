@@ -36,7 +36,7 @@ public class PriceListService(IDbContextFactory<PosDbContext> dbFactory, TimePro
         var products = await db.Products
             .Where(p => p.IsActive && prices.Keys.Contains(p.Id))
             .Include(p => p.Category)
-            .Include(p => p.Modifiers).ThenInclude(pm => pm.Modifier)
+            .Include(p => p.Modifiers.Where(pm => pm.IsActive && pm.Modifier!.IsActive)).ThenInclude(pm => pm.Modifier)
             .AsNoTracking()
             .ToListAsync();
 

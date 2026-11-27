@@ -119,6 +119,28 @@ public class PriceListServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task BranchCatalog_HidesInactiveModifiers()
+    {
+        await using (var db = _database.CreateDbContext())
+        {
+            var starch = new Modifier { Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
+            var oldExtra = new Modifier { Name = "Perfume", ChargeType = ChargeType.Fixed, ChargeValue = 5, SortOrder = 2, IsActive = false };
+            var removedLink = new Modifier { Name = "Doblado", ChargeType = ChargeType.Fixed, ChargeValue = 8, SortOrder = 3 };
+            db.Modifiers.AddRange(starch, oldExtra, removedLink);
+            db.ProductModifiers.AddRange(
+                new ProductModifier { ProductId = _shirt.Id, ModifierId = starch.Id },
+                new ProductModifier { ProductId = _shirt.Id, ModifierId = oldExtra.Id },
+                new ProductModifier { ProductId = _shirt.Id, ModifierId = removedLink.Id, IsActive = false });
+            await db.SaveChangesAsync();
+        }
+        AddPrice(_north, _shirt, 55, Now.AddDays(-1));
+
+        var shirt = (await _prices.GetBranchCatalogAsync(_northBranch.Id)).Single().Product;
+
+        Assert.Equal(["Almidón"], shirt.Modifiers.Select(pm => pm.Modifier!.Name));
+    }
+
+    [Fact]
     public async Task BranchCatalog_IncludesCategoryAndModifiers_SortedByCategoryThenName()
     {
         await using (var db = _database.CreateDbContext())
