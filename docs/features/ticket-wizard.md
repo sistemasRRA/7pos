@@ -38,7 +38,7 @@ At the counter, the cashier creates a ticket for a customer in three steps: **Cl
 - **A price changes while the cashier is capturing** (a scheduled price starts): the saved ticket uses the price at the moment it is created, and the result screen shows the saved prices.
 - **A product or extra is turned off meanwhile:** the ticket is refused with a message and the catalog reloads.
 - **Existing branches** got placeholder codes `S001`, `S002`… in the migration. Real codes must be set before labels are printed.
-- **No shift yet:** `ShiftId` stays empty until shift open/close (roadmap step 7).
+- **Shift:** the ticket belongs to the branch's open shift. Without an open shift `ShiftId` stays empty for now; payments will require one ([shifts](shifts.md)).
 - **Several PCs offline** (Phase 2) cannot use "highest folio + 1". Folio generation will need a decision then (roadmap question 7).
 
 ## Code

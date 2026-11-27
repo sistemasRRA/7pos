@@ -48,6 +48,7 @@ erDiagram
         timestamptz last_modified_utc
         text sync_status
         bool is_active
+        uuid user_id FK
     }
     categories {
         uuid id PK
@@ -194,6 +195,7 @@ erDiagram
         timestamptz last_modified_utc
         text sync_status
         bool is_active
+        uuid closed_by_user_id FK "nullable"
     }
     tickets {
         uuid id PK
@@ -255,7 +257,9 @@ erDiagram
     tickets ||--o{ payments : "ticket_id"
     users ||--o{ attendances : "user_id"
     users |o--o{ audit_logs : "user_id"
+    users ||--o{ cash_withdrawals : "user_id"
     users ||--o{ price_list_items : "set_by_user_id"
+    users |o--o{ shifts : "closed_by_user_id"
     users ||--o{ shifts : "user_id"
     users ||--o{ tickets : "cashier_id"
 ```
