@@ -42,8 +42,11 @@ The client documents are in Spanish; the code is in English. Use this table to t
 
 | Client term | Meaning | Code (when it exists) |
 |---|---|---|
-| Corte X | Mid-day shift report (shift change), does not close the day | `Shift` |
-| Corte Z | End-of-day close | `Shift` |
+| Corte X | Mid-shift report that does not close the drawer. Not built: what it shows is an open question ([shifts](features/shifts.md#open-questions-for-the-client)) | `Shift` (planned) |
+| Corte Z | Closing a shift: blind count, then expected vs counted cash. Also used at a shift change | `ShiftService.CloseAsync` |
+| Conteo ciego | The cash counted at the close **before** seeing the expected amount | `Shift.BlindCashCount` |
+| Efectivo esperado | Opening cash + cash payments − withdrawals | `ShiftSummary.ExpectedCash` |
+| Sobrante / Faltante | Counted cash above / below the expected cash | `Shift.CashDifference` (+ / −) |
 | Pulverizar | Splitting a ticket into one row per garment | `Garment` |
 | Canon | Subscription tier of a branch; decides which modules and products it gets | `SubscriptionTier` (planned) |
 | Matriz de precios | Price list for a zone of branches | `PriceList`; each dated price is a `PriceListItem` |

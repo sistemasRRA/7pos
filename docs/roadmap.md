@@ -21,8 +21,8 @@ Phase 1 as specified is large for one developer, so it is split:
 4. ✅ Guests: search by phone and register ([feature doc](features/guests.md))
 5. ✅ Ticket capture wizard, one row per garment ([feature doc](features/ticket-wizard.md))
    ✅ Real catalog: service lines, modifier groups step by step, the 2026 price lists, a list per branch area ([feature doc](features/real-catalog.md)). Sastrería, 7shoes and Lavandería wait for the client.
-6. ⬜ Payments: deposits and settlements
-7. ⬜ Shift open / close (Corte X/Z), cash withdrawals, blind count
+6. ✅ Shift open / close (Corte Z), cash withdrawals, blind count ([feature doc](features/shifts.md)). Built before payments so every payment belongs to a shift. Corte X and the deposit wait for the client.
+7. ⬜ Payments: advance (any amount from $0 to the total) and settlement at pickup; requires an open shift
 8. ⬜ Garment lifecycle with status history
 
 **1b · Promotions and coupons:** campaigns, rule-based promotions, coupons, ticket discounts.

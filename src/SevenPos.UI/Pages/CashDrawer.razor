@@ -1,0 +1,233 @@
+@page "/cash"
+@layout PosLayout
+@inject ShiftService ShiftService
+@inject PosSession Session
+
+@* The branch's cash drawer: open the shift, record withdrawals, close it (Corte Z) with a blind count.
+   Rules: docs/features/shifts.md. While the shift is open this page never shows the expected cash,
+   so the count at the close stays blind. *@
+
+<PageTitle>Caja · 7Pos</PageTitle>
+
+<h1>Caja</h1>
+
+@if (Session.CurrentUser?.Role == UserRole.Marketing)
+{
+    <p class="notice">Mercadotecnia no maneja la caja. Entra con un usuario de sucursal.</p>
+}
+else if (_closed is not null)
+{
+    <p class="success" role="status">Caja cerrada (Corte Z).</p>
+    <div class="report">
+        <dl class="facts">
+            <dt>Abrió</dt><dd>@_closed.OpenedBy · @Display.DateTime(_closed.Shift.OpenedAtUtc)</dd>
+            <dt>Cerró</dt><dd>@_closed.ClosedBy · @Display.DateTime(_closed.Shift.ClosedAtUtc!.Value)</dd>
+        </dl>
+
+        <table class="amounts">
+            <tbody>
+                <tr><th>Fondo inicial</th><td class="money">@Display.Money(_closed.Shift.OpeningCash)</td></tr>
+                <tr><th>+ Cobros en efectivo</th><td class="money">@Display.Money(_closed.CashPayments)</td></tr>
+                <tr><th>− Retiros</th><td class="money">@Display.Money(_closed.WithdrawalsTotal)</td></tr>
+                <tr class="total"><th>Efectivo esperado</th><td class="money">@Display.Money(_closed.ExpectedCash)</td></tr>
+                <tr><th>Efectivo contado</th><td class="money">@Display.Money(_closed.Shift.BlindCashCount!.Value)</td></tr>
+                <tr class="@DifferenceClass(_closed.Shift.CashDifference!.Value)">
+                    <th>@DifferenceLabel(_closed.Shift.CashDifference.Value)</th>
+                    <td class="money">@Display.Money(Math.Abs(_closed.Shift.CashDifference.Value))</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Cobros por forma de pago</h2>
+        @if (_closed.PaymentsByMethod.Count == 0)
+        {
+            <p class="hint">No hubo cobros en este turno.</p>
+        }
+        else
+        {
+            <table class="amounts">
+                <tbody>
+                    @foreach (var (method, total) in _closed.PaymentsByMethod.OrderBy(p => p.Key))
+                    {
+                        <tr><th>@Display.Method(method)</th><td class="money">@Display.Money(total)</td></tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        <Withdrawals Lines="_closed.Withdrawals" />
+
+        <button type="button" class="primary" @onclick="Done">Listo</button>
+    </div>
+}
+else if (_loading)
+{
+    <p>Cargando…</p>
+}
+else if (_open is null)
+{
+    <p class="hint">La caja está cerrada. Para cobrar y registrar retiros, abre la caja con el efectivo que tiene el cajón.</p>
+    <form class="panel" @onsubmit="OpenAsync">
+        <label>Fondo inicial
+            <input type="number" step="0.01" min="0" @bind="_openingCash" required />
+        </label>
+        @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+        <button type="submit" class="primary" disabled="@_saving">Abrir caja</button>
+    </form>
+}
+else
+{
+    <dl class="facts">
+        <dt>Abrió</dt><dd>@_open.OpenedBy · @Display.DateTime(_open.Shift.OpenedAtUtc)</dd>
+        <dt>Fondo inicial</dt><dd>@Display.Money(_open.Shift.OpeningCash)</dd>
+    </dl>
+
+    @if (_closing)
+    {
+        <form class="panel" @onsubmit="CloseAsync">
+            <h2>Cerrar caja (Corte Z)</h2>
+            <p>Cuenta todo el efectivo del cajón y escribe el total. Verás si sobra o falta <strong>después</strong> de cerrar.</p>
+            <label>Efectivo contado
+                <input type="number" step="0.01" min="0" @bind="_countedCash" required />
+            </label>
+            @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+            <div class="choices">
+                <button type="button" class="secondary" @onclick="CancelClose" disabled="@_saving">Cancelar</button>
+                <button type="submit" class="primary" disabled="@_saving">Cerrar caja</button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <Withdrawals Lines="_open.Withdrawals" />
+
+        <form class="panel" @onsubmit="WithdrawAsync">
+            <h2>Registrar retiro</h2>
+            <label>Monto
+                <input type="number" step="0.01" min="0.01" @bind="_withdrawAmount" required />
+            </label>
+            <label>Motivo
+                <input type="text" maxlength="200" placeholder="Ej. pago a proveedor de ganchos" @bind="_withdrawReason" required />
+            </label>
+            @if (_withdrawn) { <p class="success" role="status">Retiro registrado.</p> }
+            @if (_error is not null) { <p class="error" role="alert">@_error</p> }
+            <button type="submit" class="primary" disabled="@_saving">Registrar retiro</button>
+        </form>
+
+        <p><button type="button" class="secondary" @onclick="StartClose">Cerrar caja (Corte Z)</button></p>
+    }
+}
+
+@code {
+    private bool _loading = true;
+    private bool _saving;
+    private string? _error;
+
+    /// <summary>The open shift. Only its opening cash and withdrawals are shown, never the expected cash.</summary>
+    private ShiftSummary? _open;
+    private ShiftSummary? _closed;
+
+    private decimal? _openingCash;
+    private decimal? _withdrawAmount;
+    private string? _withdrawReason;
+    private bool _withdrawn;
+    private bool _closing;
+    private decimal? _countedCash;
+
+    private Guid UserId => Session.CurrentUser!.Id;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        if (Session.CurrentUser is { } user && user.Role != UserRole.Marketing)
+        {
+            var shift = await ShiftService.GetOpenShiftAsync(user.BranchId);
+            _open = shift is null ? null : await ShiftService.GetSummaryAsync(shift.Id);
+        }
+        _loading = false;
+    }
+
+    private async Task OpenAsync()
+    {
+        await SaveAsync(async () =>
+        {
+            var result = await ShiftService.OpenAsync(UserId, _openingCash ?? -1);
+            if (result.Error is { } error) return error;
+            _openingCash = null;
+            return null;
+        });
+    }
+
+    private async Task WithdrawAsync()
+    {
+        _withdrawn = false;
+        await SaveAsync(async () =>
+        {
+            var result = await ShiftService.WithdrawAsync(UserId, _withdrawAmount ?? 0, _withdrawReason ?? "");
+            if (result.Error is { } error) return error;
+            _withdrawAmount = null;
+            _withdrawReason = null;
+            _withdrawn = true;
+            return null;
+        });
+    }
+
+    private async Task CloseAsync()
+    {
+        await SaveAsync(async () =>
+        {
+            var result = await ShiftService.CloseAsync(UserId, _countedCash ?? -1);
+            if (result.Error is { } error) return error;
+            _closed = result.Summary;
+            _closing = false;
+            _countedCash = null;
+            return null;
+        });
+    }
+
+    /// <summary>Runs one action, shows its error if any, and reloads the drawer (another terminal may have changed it).</summary>
+    private async Task SaveAsync(Func<Task<ShiftError?>> action)
+    {
+        _saving = true;
+        _error = null;
+        var error = await action();
+        _error = error is null ? null : ErrorMessage(error.Value);
+        if (error is ShiftError.NoOpenShift or ShiftError.ShiftAlreadyOpen) _closing = false;
+        await LoadAsync();
+        _saving = false;
+    }
+
+    private void StartClose()
+    {
+        _error = null;
+        _withdrawn = false;
+        _closing = true;
+    }
+
+    private void CancelClose()
+    {
+        _error = null;
+        _closing = false;
+    }
+
+    private void Done() => _closed = null;
+
+    private static string DifferenceLabel(decimal difference) =>
+        difference > 0 ? "Sobrante" : difference < 0 ? "Faltante" : "Diferencia";
+
+    private static string DifferenceClass(decimal difference) =>
+        difference > 0 ? "over" : difference < 0 ? "short" : "even";
+
+    private static string ErrorMessage(ShiftError error) => error switch
+    {
+        ShiftError.NotAllowed => "Tu usuario no puede manejar la caja.",
+        ShiftError.InvalidAmount => "Escribe una cantidad válida.",
+        ShiftError.ShiftAlreadyOpen => "Alguien más ya abrió la caja de esta sucursal.",
+        ShiftError.NoOpenShift => "La caja ya está cerrada.",
+        ShiftError.ReasonRequired => "Escribe el motivo del retiro.",
+        ShiftError.NotEnoughCash => "El retiro es mayor que el efectivo que debe haber en la caja.",
+        _ => "No se pudo guardar.",
+    };
+}

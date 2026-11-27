@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SevenPos.Core.Cash;
 using SevenPos.Core.Catalog;
 using SevenPos.Core.Data;
 using SevenPos.Core.Guests;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<GuestService>();
 builder.Services.AddScoped<PriceListService>();
 builder.Services.AddScoped<TicketService>();
+builder.Services.AddScoped<ShiftService>();
 // Who is logged in. Scoped = one per browser connection (Blazor Server circuit).
 builder.Services.AddScoped<PosSession>();
 

@@ -1,0 +1,29 @@
+@* The cash withdrawals of a shift, oldest first. *@
+
+<h2>Retiros</h2>
+@if (Lines.Count == 0)
+{
+    <p class="hint">Sin retiros en este turno.</p>
+}
+else
+{
+    <table>
+        <thead><tr><th>Hora</th><th>Motivo</th><th>Quién</th><th class="money">Monto</th></tr></thead>
+        <tbody>
+            @foreach (var line in Lines)
+            {
+                <tr>
+                    <td>@Display.DateTime(line.CreatedAtUtc)</td>
+                    <td>@line.Reason</td>
+                    <td>@line.TakenBy</td>
+                    <td class="money">@Display.Money(line.Amount)</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot><tr><th colspan="3">Total</th><td class="money">@Display.Money(Lines.Sum(l => l.Amount))</td></tr></tfoot>
+    </table>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<WithdrawalLine> Lines { get; set; } = [];
+}

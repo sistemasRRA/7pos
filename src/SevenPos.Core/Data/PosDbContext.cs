@@ -48,6 +48,10 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Modifier>().HasIndex(x => new { x.ModifierGroupId, x.Name }).IsUnique();
         b.Entity<Product>().HasIndex(x => new { x.ServiceLineId, x.Name }).IsUnique();
         b.Entity<Payment>().HasIndex(x => x.ShiftId);
+        // Shifts by branch (reports), and the rule "one cash drawer per branch: at most one open shift".
+        b.Entity<Shift>().HasIndex(x => x.BranchId, "ix_shifts_branch_id").HasDatabaseName("ix_shifts_branch_id");
+        b.Entity<Shift>().HasIndex(x => x.BranchId, "ix_shifts_open_per_branch").HasDatabaseName("ix_shifts_open_per_branch")
+            .IsUnique().HasFilter("closed_at_utc IS NULL");
         b.Entity<PriceList>().HasIndex(x => x.Name).IsUnique();
         // One price per product per moment; also the index used to find the current price.
         b.Entity<PriceListItem>().HasIndex(x => new { x.PriceListId, x.ProductId, x.EffectiveFromUtc }).IsUnique();
@@ -72,6 +76,8 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
 
         b.Entity<Shift>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);
         b.Entity<Shift>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
+        b.Entity<Shift>().HasOne<User>().WithMany().HasForeignKey(x => x.ClosedByUserId);
+        b.Entity<CashWithdrawal>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
 
         b.Entity<AuditLog>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
         b.Entity<AuditLog>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);
