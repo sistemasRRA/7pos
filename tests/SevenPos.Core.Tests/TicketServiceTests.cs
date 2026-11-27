@@ -119,13 +119,13 @@ public class TicketServiceTests : IDisposable
     [Fact]
     public async Task Create_FreezesEachModifierCharge_InSortOrder()
     {
-        // $55 + Almidón $10 = $65, then Express +50% of $65 = $32.50 → $97.50.
-        // The request lists Express first on purpose: the order comes from SortOrder.
+        // $55 + Almidón $10 + Express 50% of the $55 list price = $27.50 → $92.50 (ADR 0012).
+        // The request lists Express first on purpose: charges are stored in SortOrder.
         var garment = (await CreateAsync(Garment(_shirt, _express, _starch))).Ticket!.Garments.Single();
 
-        Assert.Equal(97.50m, garment.PriceCharged);
+        Assert.Equal(92.50m, garment.PriceCharged);
         Assert.Equal(
-            [(_starch.Id, 10m), (_express.Id, 32.50m)],
+            [(_starch.Id, 10m), (_express.Id, 27.50m)],
             garment.Modifiers.Select(m => (m.ModifierId, m.ChargeApplied)));
     }
 

@@ -7,11 +7,11 @@ public class Modifier : SyncEntity
 {
     public required string Name { get; set; }
     public ChargeType ChargeType { get; set; }
-    /// <summary>Pesos if Fixed; 50 = 50% if Percentage.</summary>
+    /// <summary>Pesos if Fixed; 50 = 50% of the list price if Percentage (ADR 0012).</summary>
     public decimal ChargeValue { get; set; }
     /// <summary>
-    /// Order in which the wizard asks for it and applies it. It matters:
-    /// a percentage is calculated on the running subtotal at that step.
+    /// Order in which the wizard asks for it and lists it on the ticket.
+    /// It does not change the price: percentages are always of the list price.
     /// </summary>
     public int SortOrder { get; set; }
 }
