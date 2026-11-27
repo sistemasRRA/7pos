@@ -21,6 +21,7 @@ See [architecture](docs/architecture.md) for the reasoning.
 ### Razor conventions
 
 - Name injected services after their type: `@inject GuestService GuestService`. A shorter name such as `Guests` can clash with the page's own class name (`Guests.razor` → error CS0542).
+- Do not name a page after a type it uses. `NewTicket.razor` would compile to a class `NewTicket` and hide the `NewTicket` record from Core; the page is `TicketWizard.razor`.
 - Pages own their state and layout. Pieces a future screen will reuse (a form, a card, a keypad) go in `Components/` and talk to the page through `[Parameter]` values and `EventCallback`s.
 - Spanish text lives in the `.razor` file. The service returns codes (`GuestError.InvalidPhone`) and the component turns them into messages.
 

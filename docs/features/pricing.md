@@ -10,7 +10,7 @@ Each garment starts from a **base price** and the cashier adds **modifiers** (pa
 4. A `Fixed` modifier adds its `ChargeValue` in pesos.
 5. A `Percentage` modifier adds `ChargeValue`% of the **running subtotal at that step**. It therefore includes any fixed extras applied before it.
 6. Each percentage charge is rounded to cents (2 decimals, half away from zero).
-7. When the garment is sold, the price and each charge are copied to `Garment.PriceCharged` and `GarmentModifier.ChargeApplied`, and never recalculated (see [data rules](../data-rules.md#3-freeze-prices-at-the-moment-of-sale)).
+7. When the garment is sold ([ticket wizard](ticket-wizard.md)), the list price, the final price and each charge are copied to `Garment.ListPrice`, `Garment.PriceCharged` and `GarmentModifier.ChargeApplied`, and never recalculated (see [data rules](../data-rules.md#3-freeze-prices-at-the-moment-of-sale)).
 
 **Example (from the brief):** Camisa de vestir $50 → Almidón +$10 = $60 → Servicio Express +50% = **$90**.
 

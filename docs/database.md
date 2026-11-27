@@ -37,6 +37,7 @@ erDiagram
         text sync_status
         bool is_active
         uuid price_list_id FK "nullable"
+        varchar code UK
     }
     cash_withdrawals {
         uuid id PK
@@ -77,6 +78,7 @@ erDiagram
         timestamptz last_modified_utc
         text sync_status
         bool is_active
+        numeric list_price
     }
     guest_addresses {
         uuid id PK

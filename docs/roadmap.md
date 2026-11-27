@@ -19,7 +19,7 @@ Phase 1 as specified is large for one developer, so it is split:
 2. ✅ Users and PIN login ([feature doc](features/pin-login.md))
 3. ✅ Catalog with price lists per zone ([feature doc](features/price-lists.md))
 4. ✅ Guests: search by phone and register ([feature doc](features/guests.md))
-5. ⬜ Ticket capture wizard (one row per garment)
+5. ✅ Ticket capture wizard, one row per garment ([feature doc](features/ticket-wizard.md)). Manual discounts wait for the client.
 6. ⬜ Payments: deposits and settlements
 7. ⬜ Shift open / close (Corte X/Z), cash withdrawals, blind count
 8. ⬜ Garment lifecycle with status history

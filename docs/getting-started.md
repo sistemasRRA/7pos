@@ -67,7 +67,7 @@ sudo -u postgres psql -c "DROP DATABASE sevenpos;" -c "CREATE DATABASE sevenpos 
 1. Read [architecture](architecture.md) (10 minutes).
 2. Read [data rules](data-rules.md) before touching entities.
 3. Skim the [decisions](decisions/README.md) and the [glossary](glossary.md).
-4. Log in as Admin / 1234 and try three wrong PINs to see the lockout. Then open **Clientes**, register a guest and search for them by the last 4 digits of their phone. Log in as Mercadotecnia / 5678, open **Precios** and change a price; the catalog shows it with its IVA breakdown.
+4. Log in as Admin / 1234 and try three wrong PINs to see the lockout. Then open **Clientes**, register a guest and search for them by the last 4 digits of their phone. Log in as Mercadotecnia / 5678, open **Precios** and change a price; the catalog shows it with its IVA breakdown. Finally, log in as Admin again and open **Nuevo ticket**: choose a guest, add a few garments with extras and create the ticket.
 5. Open `src/SevenPos.UI/Pages/Catalog.razor` and `src/SevenPos.Core/Catalog/PriceCalculator.cs` to see a full slice from screen to rule.
 
 ## Later: the Windows desktop app

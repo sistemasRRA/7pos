@@ -8,14 +8,14 @@ The client documents are in Spanish; the code is in English. Use this table to t
 |---|---|---|
 | Invitado | `Guest` | The customer. Identified by WhatsApp phone (10 digits, see `PhoneNumber`), but the key is a UUID. Consentimiento_Marketing → `MarketingConsent`. |
 | Direcciones_Invitado | `GuestAddress` | Colonia → `Neighborhood`. |
-| Sucursal | `Branch` | A store, owned or franchised. |
+| Sucursal | `Branch` | A store, owned or franchised. `Code`: short code printed on garment labels. |
 | Usuario | `User` | Staff member. Logs in with a PIN. |
 | Familia | `Category` | Group of products (Camisas, Blancos, Tenis). |
 | Producto | `Product` | A garment type with a base price. |
 | Modificador | `Modifier` | Paid extra on a garment (Almidón, Express). `ChargeType`: `Fixed` ($) or `Percentage` (%). |
 | Producto_Modificador_Rel | `ProductModifier` | Which modifiers a product allows. |
 | Tickets_Cabecera | `Ticket` | An order. Folio_Interno → `Folio`; Order_ID_Publico → `PublicOrderId`; Saldo_Pendiente → `BalanceDue`. |
-| Ticket_Items_Pulverizado | `Garment` | One row per physical garment. Item_Pulverizado_ID → `Code`; Ubicacion_Fisica → `Location`. |
+| Ticket_Items_Pulverizado | `Garment` | One row per physical garment. Item_Pulverizado_ID → `Code` (`BRANCH-YYYYMMDD-FOLIO-SEQ`); Precio_Lista → `ListPrice`; Precio_Cobrado → `PriceCharged`; Ubicacion_Fisica → `Location`. |
 | Ticket_Items_Modificadores | `GarmentModifier` | Extras sold on that exact garment. Cargo_Aplicado → `ChargeApplied`. |
 | Transacciones_Pagos | `Payment` | Naturaleza → `Type`; Metodo_Pago → `Method`. |
 | Cajas_Turnos | `Shift` | A cashier shift. Fondo_Inicial → `OpeningCash`. |
@@ -56,5 +56,8 @@ The client documents are in Spanish; the code is in English. Use this table to t
 | CFDI | Mexican electronic invoice | |
 | Desglose de IVA | Showing the IVA contained in a price that already includes it (never adding it) | [ADR 0010](decisions/0010-prices-include-iva.md) |
 | Marcador | The garment's label ID, printed and scanned | `Garment.Code` |
+| Folio | Internal sequential ticket number per branch | `Ticket.Folio` |
+| Número de orden | The code the customer receives (8 characters, no look-alikes) | `Ticket.PublicOrderId` |
+| Captura / wizard de captura | Creating a ticket at the counter, step by step | `TicketService`, `/tickets/new` |
 | Facilitador | The cashier's supervisor; receives reports of missing items | |
 | Depósito | Cash the branch deposits the day after the shift close | `Shift` (planned) |

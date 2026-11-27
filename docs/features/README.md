@@ -8,7 +8,7 @@ One file per business area, written **when the feature is built** (not before). 
 | [PIN login](pin-login.md) | Built |
 | [Guests](guests.md) (search and register) | Built |
 | [Price lists](price-lists.md) (per zone, IVA breakdown) | Built |
-| Ticket capture wizard | Planned |
+| [Ticket capture wizard](ticket-wizard.md) | Built (no discounts or payment yet) |
 | Payments and deposits | Planned |
 | Shift open / close (Corte X/Z) | Planned |
 | Garment lifecycle | Planned |
