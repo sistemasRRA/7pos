@@ -90,7 +90,7 @@ SevenPos.Core/
 │                  PriceListService, CatalogImporter
 ├── Guests/        Guest, GuestAddress, PhoneNumber, GuestService
 ├── Tickets/       Ticket, Garment, GarmentModifier, TicketService
-├── Cash/          Shift, Payment, CashWithdrawal, ShiftService
+├── Cash/          Shift, Payment, CashWithdrawal, ShiftService, PaymentService
 ├── Data/          PosDbContext, PosDatabase, SeedData, Migrations
 └── GlobalUsings.cs  imports every area's namespace once for the whole project
 ```
@@ -105,10 +105,10 @@ A new business area gets its own folder plus a line in `GlobalUsings.cs`.
 
 ```
 SevenPos.UI/
-├── Tickets/   TicketWizard (page /tickets/new), GarmentCapture, ProductPicker, LineList, Totals, TicketLine
+├── Tickets/   TicketWizard (page /tickets/new), TicketDetails, GarmentCapture, ProductPicker, LineList, Totals, TicketLine
 ├── Guests/    GuestSearch (page /guests), GuestPicker, GuestForm, GuestCard
 ├── Catalog/   BranchCatalog (page /), Prices (page /prices)
-├── Cash/      CashDrawer (page /cash), Withdrawals
+├── Cash/      CashDrawer (page /cash), CollectPayment (page /pay), PaymentForm, PaymentList, Withdrawals
 ├── Login/     PinLogin (page /login), PinPad
 ├── Layout/    PosLayout, BlankLayout
 ├── Display.cs how values are shown (money, dates, extras)
