@@ -21,7 +21,7 @@ Each garment starts from a **base price** and the cashier adds **modifiers** (pa
 ## Code
 - Rule: [`PriceCalculator`](../../src/SevenPos.Core/Catalog/PriceCalculator.cs)
 - Tests: [`PriceCalculatorTests`](../../tests/SevenPos.Core.Tests/PriceCalculatorTests.cs)
-- Demo screen: [`Catalog.razor`](../../src/SevenPos.UI/Pages/Catalog.razor)
+- Demo screen: [`BranchCatalog.razor`](../../src/SevenPos.UI/Catalog/BranchCatalog.razor)
 
 ## Coming next (ER revision 2)
 The full evaluation order is: list price from the zone's price list, then modifiers, item promotions, ticket promotions, coupon, and points redemption. There is **no manual discount** ([ADR 0013](../decisions/0013-no-manual-discounts.md)). Only the first two steps exist today.

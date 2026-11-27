@@ -61,11 +61,11 @@ The desktop shell is needed for what a browser cannot do: work fully offline, re
 
 ## How a request flows (example: pricing a garment)
 
-1. `Pages/Catalog.razor` loads categories, products and modifiers through `IDbContextFactory<PosDbContext>`.
-2. The cashier picks a product and its modifiers.
-3. The page calls `PriceCalculator.Calculate(basePrice, modifiers)` in Core.
-4. The calculator applies the modifiers in `SortOrder` and returns the total and each charge.
-5. The page displays the result.
+1. `Catalog/BranchCatalog.razor` asks `PriceListService.GetBranchCatalogAsync` for what the branch sells, with its list prices.
+2. The cashier picks a product (`Tickets/ProductPicker.razor`) and answers its modifier groups step by step (`Tickets/GarmentCapture.razor`).
+3. The component calls `PriceCalculator.Calculate(listPrice, modifiers)` in Core.
+4. The calculator applies the modifiers in step order, every percentage on the list price, and returns the total and each charge.
+5. The component displays the result. When the ticket is saved, `TicketService` prices it again from the database; the screen's numbers are only a preview.
 
 ## Technology
 
@@ -90,7 +90,7 @@ SevenPos.Core/
 │                  PriceListService, CatalogImporter
 ├── Guests/        Guest, GuestAddress, PhoneNumber, GuestService
 ├── Tickets/       Ticket, Garment, GarmentModifier, TicketService
-├── Cash/          Shift, Payment, CashWithdrawal
+├── Cash/          Shift, Payment, CashWithdrawal, ShiftService
 ├── Data/          PosDbContext, PosDatabase, SeedData, Migrations
 └── GlobalUsings.cs  imports every area's namespace once for the whole project
 ```
@@ -98,3 +98,21 @@ SevenPos.Core/
 The namespace matches the folder (`SevenPos.Core.Tickets`). When you work on shift closing, everything you need is in `Cash/`. This "modular monolith" keeps each area easy to find and change, and makes it easy to split out later if that is ever needed.
 
 A new business area gets its own folder plus a line in `GlobalUsings.cs`.
+
+## Folder conventions inside UI
+
+`SevenPos.UI` uses **the same areas as Core**. Each folder holds that area's pages and the components they use, side by side:
+
+```
+SevenPos.UI/
+├── Tickets/   TicketWizard (page /tickets/new), GarmentCapture, ProductPicker, LineList, Totals, TicketLine
+├── Guests/    GuestSearch (page /guests), GuestPicker, GuestForm, GuestCard
+├── Catalog/   BranchCatalog (page /), Prices (page /prices)
+├── Cash/      CashDrawer (page /cash), Withdrawals
+├── Login/     PinLogin (page /login), PinPad
+├── Layout/    PosLayout, BlankLayout
+├── Display.cs how values are shown (money, dates, extras)
+└── _Imports.razor  one @using per area
+```
+
+A component used by several areas stays in the area it belongs to (`GuestPicker` lives in `Guests/` and the ticket wizard uses it). Each component's scoped CSS (`X.razor.css`) sits next to it; VS Code nests it under the `.razor` file (`.vscode/settings.json`).

@@ -37,7 +37,7 @@ Source: [client answers, third round](../specs/2026-11-26-modifier-groups-and-fu
 - Model: [`ServiceLine`](../../src/SevenPos.Core/Catalog/ServiceLine.cs), [`ModifierGroup`](../../src/SevenPos.Core/Catalog/ModifierGroup.cs), [`Modifier`](../../src/SevenPos.Core/Catalog/Modifier.cs), [`ProductModifier`](../../src/SevenPos.Core/Catalog/ProductModifier.cs)
 - Rules: [`CatalogImporter`](../../src/SevenPos.Core/Catalog/CatalogImporter.cs), [`TicketService`](../../src/SevenPos.Core/Tickets/TicketService.cs), [`PriceListService`](../../src/SevenPos.Core/Catalog/PriceListService.cs)
 - Tests: [`CatalogImporterTests`](../../tests/SevenPos.Core.Tests/CatalogImporterTests.cs), [`TicketServiceTests`](../../tests/SevenPos.Core.Tests/TicketServiceTests.cs), [`PriceListServiceTests`](../../tests/SevenPos.Core.Tests/PriceListServiceTests.cs), [`DatabaseTests`](../../tests/SevenPos.Core.Tests/DatabaseTests.cs)
-- Screens: [`ProductPicker`](../../src/SevenPos.UI/Components/ProductPicker.razor), [`GarmentCapture`](../../src/SevenPos.UI/Components/GarmentCapture.razor), [`TicketWizard.razor`](../../src/SevenPos.UI/Pages/TicketWizard.razor), [`Catalog.razor`](../../src/SevenPos.UI/Pages/Catalog.razor), [`Prices.razor`](../../src/SevenPos.UI/Pages/Prices.razor)
+- Screens: [`ProductPicker`](../../src/SevenPos.UI/Tickets/ProductPicker.razor), [`GarmentCapture`](../../src/SevenPos.UI/Tickets/GarmentCapture.razor), [`TicketWizard.razor`](../../src/SevenPos.UI/Tickets/TicketWizard.razor), [`BranchCatalog.razor`](../../src/SevenPos.UI/Catalog/BranchCatalog.razor), [`Prices.razor`](../../src/SevenPos.UI/Catalog/Prices.razor)
 
 ## Not built yet
 - **Sastrería, 7shoes and Lavandería** (waiting for the client, see below).

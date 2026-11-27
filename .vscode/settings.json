@@ -1,0 +1,8 @@
+{
+  // Show each component's scoped CSS (and code-behind, if any) nested under its .razor file.
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "*.razor": "${capture}.razor.css, ${capture}.razor.cs"
+  }
+}
