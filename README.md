@@ -14,7 +14,7 @@ dotnet test                              # run the tests
 dotnet run --project src/SevenPos.Web    # open http://localhost:5175
 ```
 
-Log in with the sample user **Admin**, PIN **1234**.
+Log in with the sample users **Admin** (PIN **1234**) or **Mercadotecnia** (PIN **5678**, can manage prices). Sample data is loaded only in Development.
 
 ## Documentation
 

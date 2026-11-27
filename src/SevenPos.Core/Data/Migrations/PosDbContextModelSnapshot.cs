@@ -267,6 +267,98 @@ namespace SevenPos.Core.Data.Migrations
                     b.ToTable("modifiers", (string)null);
                 });
 
+            modelBuilder.Entity("SevenPos.Core.Catalog.PriceList", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime>("LastModifiedUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_utc");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("SyncStatus")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sync_status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_price_lists");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_price_lists_name");
+
+                    b.ToTable("price_lists", (string)null);
+                });
+
+            modelBuilder.Entity("SevenPos.Core.Catalog.PriceListItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("EffectiveFromUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("effective_from_utc");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime>("LastModifiedUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_utc");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("price");
+
+                    b.Property<Guid>("PriceListId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("price_list_id");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<Guid>("SetByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("set_by_user_id");
+
+                    b.Property<string>("SyncStatus")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sync_status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_price_list_items");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_price_list_items_product_id");
+
+                    b.HasIndex("SetByUserId")
+                        .HasDatabaseName("ix_price_list_items_set_by_user_id");
+
+                    b.HasIndex("PriceListId", "ProductId", "EffectiveFromUtc")
+                        .IsUnique()
+                        .HasDatabaseName("ix_price_list_items_price_list_id_product_id_effective_from_utc");
+
+                    b.ToTable("price_list_items", (string)null);
+                });
+
             modelBuilder.Entity("SevenPos.Core.Catalog.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -603,6 +695,10 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<Guid?>("PriceListId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("price_list_id");
+
                     b.Property<string>("SyncStatus")
                         .IsRequired()
                         .HasColumnType("text")
@@ -610,6 +706,9 @@ namespace SevenPos.Core.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_branches");
+
+                    b.HasIndex("PriceListId")
+                        .HasDatabaseName("ix_branches_price_list_id");
 
                     b.ToTable("branches", (string)null);
                 });
@@ -940,6 +1039,32 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_shifts_users_user_id");
                 });
 
+            modelBuilder.Entity("SevenPos.Core.Catalog.PriceListItem", b =>
+                {
+                    b.HasOne("SevenPos.Core.Catalog.PriceList", null)
+                        .WithMany("Items")
+                        .HasForeignKey("PriceListId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_price_list_items_price_lists_price_list_id");
+
+                    b.HasOne("SevenPos.Core.Catalog.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_price_list_items_products_product_id");
+
+                    b.HasOne("SevenPos.Core.Organization.User", null)
+                        .WithMany()
+                        .HasForeignKey("SetByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_price_list_items_users_set_by_user_id");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("SevenPos.Core.Catalog.Product", b =>
                 {
                     b.HasOne("SevenPos.Core.Catalog.Category", "Category")
@@ -1012,6 +1137,17 @@ namespace SevenPos.Core.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_audit_logs_users_user_id");
+                });
+
+            modelBuilder.Entity("SevenPos.Core.Organization.Branch", b =>
+                {
+                    b.HasOne("SevenPos.Core.Catalog.PriceList", "PriceList")
+                        .WithMany()
+                        .HasForeignKey("PriceListId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_branches_price_lists_price_list_id");
+
+                    b.Navigation("PriceList");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Organization.User", b =>
@@ -1104,6 +1240,11 @@ namespace SevenPos.Core.Data.Migrations
             modelBuilder.Entity("SevenPos.Core.Catalog.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("SevenPos.Core.Catalog.PriceList", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Catalog.Product", b =>

@@ -31,9 +31,39 @@ public class DatabaseTests : IDisposable
 
         Assert.Equal(1, await _db.Branches.CountAsync());
         Assert.True(await _db.Products.CountAsync() > 5);
-        var admin = await _db.Users.SingleAsync();
+        var admin = await _db.Users.SingleAsync(u => u.Role == UserRole.Admin);
         Assert.True(PinHasher.Verify("1234", admin.PinHash));
         Assert.False(PinHasher.Verify("0000", admin.PinHash));
+    }
+
+    [Fact]
+    public async Task SeedData_GivesTheBranchAPriceList_AndAMarketingUser()
+    {
+        await SeedData.LoadAsync(_db);
+
+        var branch = await _db.Branches.SingleAsync();
+        Assert.NotNull(branch.PriceListId);
+        Assert.Equal(await _db.Products.CountAsync(p => p.IsActive), await _db.PriceListItems.CountAsync());
+        var marketing = await _db.Users.SingleAsync(u => u.Role == UserRole.Marketing);
+        Assert.True(PinHasher.Verify("5678", marketing.PinHash));
+    }
+
+    [Fact]
+    public async Task SeedData_CompletesADatabaseFromAnOlderVersion()
+    {
+        // An older version seeded the branch and catalog, but had no price lists or Marketing role.
+        var branch = new Branch { Name = "Sucursal Demo" };
+        var category = new Category { Name = "Camisas" };
+        _db.Branches.Add(branch);
+        _db.Categories.Add(category);
+        _db.Products.Add(new Product { Name = "Camisa de vestir", BasePrice = 50, CategoryId = category.Id });
+        await _db.SaveChangesAsync();
+
+        await SeedData.LoadAsync(_db);
+
+        Assert.Equal(1, await _db.Branches.CountAsync());
+        Assert.NotNull((await _db.Branches.SingleAsync()).PriceListId);
+        Assert.Equal(50m, (await _db.PriceListItems.SingleAsync()).Price);
     }
 
     [Fact]

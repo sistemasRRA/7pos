@@ -1,6 +1,7 @@
 namespace SevenPos.Core.Organization;
 
-public enum UserRole { Cashier, Manager, Admin }
+/// <summary>Marketing manages the catalog and prices (ADR 0011).</summary>
+public enum UserRole { Cashier, Manager, Admin, Marketing }
 
 public class User : SyncEntity
 {

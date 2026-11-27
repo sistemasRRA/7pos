@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SevenPos.Core.Catalog;
 using SevenPos.Core.Data;
 using SevenPos.Core.Guests;
 using SevenPos.Core.Organization;
@@ -22,6 +23,7 @@ builder.Services.AddDbContextFactory<PosDbContext>(o => PosDatabase.Configure(o,
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<GuestService>();
+builder.Services.AddScoped<PriceListService>();
 // Who is logged in. Scoped = one per browser connection (Blazor Server circuit).
 builder.Services.AddScoped<PosSession>();
 
@@ -32,7 +34,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<PosDbContext>>().CreateDbContext();
     db.Database.Migrate();
-    await SeedData.LoadAsync(db);
+    // Sample branch, users (Admin 1234, Mercadotecnia 5678) and catalog: never in production.
+    if (app.Environment.IsDevelopment()) await SeedData.LoadAsync(db);
 }
 
 // Configure the HTTP request pipeline.

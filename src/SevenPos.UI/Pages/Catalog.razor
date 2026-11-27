@@ -1,25 +1,32 @@
 @page "/"
 @layout PosLayout
-@inject IDbContextFactory<PosDbContext> DbFactory
+@inject PriceListService PriceListService
+@inject PosSession Session
 
-<h1>7Pos · Catálogo</h1>
-<p class="hint">Prueba del cálculo de precios: elige una prenda y sus modificadores.</p>
+<PageTitle>Catálogo · 7Pos</PageTitle>
 
-@if (_categories is null)
+<h1>Catálogo</h1>
+<p class="hint">Precios de esta sucursal (IVA incluido). Elige una prenda y sus servicios adicionales para ver el total.</p>
+
+@if (_catalog is null)
 {
     <p>Cargando…</p>
+}
+else if (_catalog.Count == 0)
+{
+    <p class="notice">Esta sucursal no tiene precios asignados. Avísale a Mercadotecnia.</p>
 }
 else
 {
     <div class="columns">
         <section>
-            @foreach (var category in _categories)
+            @foreach (var category in _catalog.GroupBy(e => e.Product.Category!.Name))
             {
-                <h2>@category.Name</h2>
-                @foreach (var product in category.Products.OrderBy(p => p.Name))
+                <h2>@category.Key</h2>
+                @foreach (var entry in category)
                 {
-                    <button class="product @(product == _selected ? "active" : "")" @onclick="() => Select(product)">
-                        <span>@product.Name</span><span>@product.BasePrice.ToString("C")</span>
+                    <button class="product @(entry == _selected ? "active" : "")" @onclick="() => Select(entry)">
+                        <span>@entry.Product.Name</span><span>@Display.Money(entry.Price)</span>
                     </button>
                 }
             }
@@ -32,10 +39,11 @@ else
             }
             else
             {
-                var price = CalculatePrice();
-                <h2>@_selected.Name</h2>
-                <p>Precio base: <strong>@_selected.BasePrice.ToString("C")</strong></p>
-                @foreach (var modifier in _selected.Modifiers.Select(x => x.Modifier!).OrderBy(m => m.SortOrder))
+                var price = PriceCalculator.Calculate(_selected.Price, _chosen);
+                var tax = TaxCalculator.Breakdown(price.Total);
+                <h2>@_selected.Product.Name</h2>
+                <p>Precio: <strong>@Display.Money(_selected.Price)</strong></p>
+                @foreach (var modifier in _selected.Product.Modifiers.Select(x => x.Modifier!).OrderBy(m => m.SortOrder))
                 {
                     <label class="modifier">
                         <input type="checkbox" checked="@_chosen.Contains(modifier)" @onchange="() => Toggle(modifier)" />
@@ -45,38 +53,35 @@ else
                 <ul>
                     @foreach (var charge in price.Charges)
                     {
-                        <li>@charge.Modifier.Name: +@charge.Amount.ToString("C")</li>
+                        <li>@charge.Modifier.Name: +@Display.Money(charge.Amount)</li>
                     }
                 </ul>
-                <p class="total">Total: @price.Total.ToString("C")</p>
+                <dl class="tax">
+                    <dt>Subtotal</dt><dd>@Display.Money(tax.Subtotal)</dd>
+                    <dt>IVA (16%)</dt><dd>@Display.Money(tax.Iva)</dd>
+                    <dt class="total">Total</dt><dd class="total">@Display.Money(tax.Total)</dd>
+                </dl>
             }
         </section>
     </div>
 }
 
 @code {
-    private List<Category>? _categories;
-    private Product? _selected;
+    private List<CatalogEntry>? _catalog;
+    private CatalogEntry? _selected;
     private readonly HashSet<Modifier> _chosen = [];
 
     protected override async Task OnInitializedAsync()
     {
-        await using var db = await DbFactory.CreateDbContextAsync();
-        _categories = await db.Categories
-            .Where(c => c.IsActive)
-            .Include(c => c.Products).ThenInclude(p => p.Modifiers).ThenInclude(pm => pm.Modifier)
-            .OrderBy(c => c.Name)
-            .AsNoTracking()
-            .ToListAsync();
+        if (Session.CurrentUser is { } user)
+            _catalog = await PriceListService.GetBranchCatalogAsync(user.BranchId);
     }
 
-    private void Select(Product product) { _selected = product; _chosen.Clear(); }
+    private void Select(CatalogEntry entry) { _selected = entry; _chosen.Clear(); }
 
     private void Toggle(Modifier modifier) { if (!_chosen.Remove(modifier)) _chosen.Add(modifier); }
 
-    private PriceResult CalculatePrice() => PriceCalculator.Calculate(_selected!.BasePrice, _chosen);
-
     private static string ChargeLabel(Modifier m) => m.ChargeType == ChargeType.Fixed
-        ? "+" + m.ChargeValue.ToString("C")
+        ? "+" + Display.Money(m.ChargeValue)
         : "+" + m.ChargeValue.ToString("0.##") + "%";
 }

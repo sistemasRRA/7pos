@@ -7,6 +7,7 @@ One file per business area, written **when the feature is built** (not before). 
 | [Pricing](pricing.md) | Built (base price + modifiers) |
 | [PIN login](pin-login.md) | Built |
 | [Guests](guests.md) (search and register) | Built |
+| [Price lists](price-lists.md) (per zone, IVA breakdown) | Built |
 | Ticket capture wizard | Planned |
 | Payments and deposits | Planned |
 | Shift open / close (Corte X/Z) | Planned |
