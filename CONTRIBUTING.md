@@ -12,7 +12,7 @@
 |---|---|
 | A table / entity | `src/SevenPos.Core/<Area>/` — e.g. `Tickets/Garment.cs`, one type per file |
 | A business rule (prices, validations, totals) | `src/SevenPos.Core/<Area>/` next to its entities, e.g. `Catalog/PriceCalculator.cs`. **Never** inside a `.razor` file |
-| A screen or reusable component | `src/SevenPos.UI/Pages` or `src/SevenPos.UI/Components` |
+| A screen or reusable component | `src/SevenPos.UI/<Area>/`, the same areas as Core, e.g. `Tickets/TicketWizard.razor` |
 | Startup and configuration | `src/SevenPos.Web/Program.cs` |
 | Tests | `tests/SevenPos.Core.Tests` |
 
@@ -20,9 +20,11 @@ See [architecture](docs/architecture.md) for the reasoning.
 
 ### Razor conventions
 
-- Name injected services after their type: `@inject GuestService GuestService`. A shorter name such as `Guests` can clash with the page's own class name (`Guests.razor` → error CS0542).
+- Name injected services after their type: `@inject GuestService GuestService`. A shorter name can clash with the page's own class name (error CS0542).
 - Do not name a page after a type it uses. `NewTicket.razor` would compile to a class `NewTicket` and hide the `NewTicket` record from Core; the page is `TicketWizard.razor`.
-- Pages own their state and layout. Pieces a future screen will reuse (a form, a card, a keypad) go in `Components/` and talk to the page through `[Parameter]` values and `EventCallback`s.
+- Do not name a page after its folder. `Guests/Guests.razor` would compile to `SevenPos.UI.Guests.Guests`, a class with the same name as its namespace; the page is `Guests/GuestSearch.razor`.
+- Pages own their state and layout. Pieces a screen reuses (a form, a card, a keypad) are components in the same area folder and talk to the page through `[Parameter]` values and `EventCallback`s. A page is whatever has an `@page "/…"` line.
+- A new area folder needs one `@using SevenPos.UI.<Area>` line in `src/SevenPos.UI/_Imports.razor`.
 - Spanish text lives in the `.razor` file. The service returns codes (`GuestError.InvalidPhone`) and the component turns them into messages.
 
 ## Building a feature
