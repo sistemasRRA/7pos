@@ -14,9 +14,9 @@ At the counter, the cashier creates a ticket for a customer in three steps: **Cl
 4. Every price is read again from the **branch's price list at that moment**, never taken from the screen ([ADR 0011](../decisions/0011-only-marketing-controls-catalog-and-prices.md)). The screen only shows a preview.
 5. A product without a price in the branch list, or an inactive one, is refused.
 6. A modifier the product does not offer (or an inactive one) is refused. The same modifier sent twice is charged once.
-7. Modifiers apply in `Modifier.SortOrder`, whatever order the screen sends. A percentage applies to the running price, so Express (+50%) applies after fixed extras such as Almidón. **To confirm with the client.**
+7. A percentage extra is a percentage of the **list price**, never of the price with other extras: $100 + Almidón 10% + Express 50% = $160 ([ADR 0012](../decisions/0012-percentage-modifiers-on-list-price.md)). Charges are stored in `Modifier.SortOrder`.
 8. Each garment stores its list price (`ListPrice`), its final price (`PriceCharged`) and each extra's charge (`GarmentModifier.ChargeApplied`). Later price changes never change a saved ticket ([data rules](../data-rules.md#3-freeze-prices-at-the-moment-of-sale)).
-9. `Subtotal` = sum of the garment prices; `Discounts` = 0 for now; `Total = Subtotal − Discounts`; `BalanceDue = Total` until payments exist.
+9. `Subtotal` = sum of the garment prices; `Discounts` = 0 until promotions exist, because there are **no manual discounts** ([ADR 0013](../decisions/0013-no-manual-discounts.md)); `Total = Subtotal − Discounts`; `BalanceDue = Total` until payments exist.
 10. Prices include IVA. The screen breaks the ticket total down, per ticket ([ADR 0010](../decisions/0010-prices-include-iva.md)).
 
 **Numbers**
@@ -48,13 +48,12 @@ At the counter, the cashier creates a ticket for a customer in three steps: **Cl
 - Screen: [`TicketWizard.razor`](../../src/SevenPos.UI/Pages/TicketWizard.razor), components [`GuestPicker`](../../src/SevenPos.UI/Components/GuestPicker.razor), [`LineList`](../../src/SevenPos.UI/Components/LineList.razor), [`Totals`](../../src/SevenPos.UI/Components/Totals.razor)
 
 ## Not built yet
-- **Manual discounts** (waiting for the client's policy) and promotions (roadmap 1b).
+- Promotions and coupons (roadmap 1b), the only source of discounts.
+- Modifier groups and the real 2026 price lists A, AA, B and C ([client answers](../specs/2026-11-26-modifiers-discounts-price-lists.md)).
 - Payment at the end of the wizard (roadmap step 6), printing the ticket and labels, the photo step (Phase 2).
 - Searching and opening existing tickets; cancelling a ticket.
 - Editing branch codes.
 
 ## Open questions
-- **Modifier order:** does Express apply on top of fixed extras (current behavior) or only on the list price?
-- **Manual discounts:** allowed with a supervisor PIN, or not at all?
 - Is a promised delivery date captured on the ticket?
 - IVA breakdown per ticket (current) or per garment? They can differ by cents.

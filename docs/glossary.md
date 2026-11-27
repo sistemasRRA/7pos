@@ -12,7 +12,7 @@ The client documents are in Spanish; the code is in English. Use this table to t
 | Usuario | `User` | Staff member. Logs in with a PIN. |
 | Familia | `Category` | Group of products (Camisas, Blancos, Tenis). |
 | Producto | `Product` | A garment type with a base price. |
-| Modificador | `Modifier` | Paid extra on a garment (Almidón, Express). `ChargeType`: `Fixed` ($) or `Percentage` (%). |
+| Modificador | `Modifier` | Paid extra on a garment (Almidón, Express). `ChargeType`: `Fixed` ($) or `Percentage` (% of the list price, ADR 0012). |
 | Producto_Modificador_Rel | `ProductModifier` | Which modifiers a product allows. |
 | Tickets_Cabecera | `Ticket` | An order. Folio_Interno → `Folio`; Order_ID_Publico → `PublicOrderId`; Saldo_Pendiente → `BalanceDue`. |
 | Ticket_Items_Pulverizado | `Garment` | One row per physical garment. Item_Pulverizado_ID → `Code` (`BRANCH-YYYYMMDD-FOLIO-SEQ`); Precio_Lista → `ListPrice`; Precio_Cobrado → `PriceCharged`; Ubicacion_Fisica → `Location`. |
@@ -59,5 +59,8 @@ The client documents are in Spanish; the code is in English. Use this table to t
 | Folio | Internal sequential ticket number per branch | `Ticket.Folio` |
 | Número de orden | The code the customer receives (8 characters, no look-alikes) | `Ticket.PublicOrderId` |
 | Captura / wizard de captura | Creating a ticket at the counter, step by step | `TicketService`, `/tickets/new` |
+| Urgente / Exprés | Express service, +50% of the list price | a `Modifier` |
+| Lista A / AA / B / C | Marketing's 2026 price lists | `PriceList` |
+| Política de calidad | $0 items (paid with a service, repeated cleaning); use still to be explained | |
 | Facilitador | The cashier's supervisor; receives reports of missing items | |
 | Depósito | Cash the branch deposits the day after the shift close | `Shift` (planned) |

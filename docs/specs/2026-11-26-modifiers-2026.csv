@@ -1,0 +1,22 @@
+step,group,option,percent,lists
+1,Tamaño,Mediano,15,AA B C
+1,Tamaño,Grande / Largo,20,AA B C
+1,Tamaño,Extra largo,30,AA B C
+1,Tamaño,Matrimonial,15,AA B C
+1,Tamaño,Queen / King,20,AA B C
+2,Textil,Lino,15,A AA B C
+2,Textil,Seda,20,A AA B C
+2,Textil,Vini piel,25,A AA B C
+3,Suciedad,Media,15,A AA B C
+3,Suciedad,Pesada,20,A AA B C
+4,Relleno,Seda,10,AA B C
+4,Relleno,Pluma,20,AA B C
+5,Espesor,Medio,15,A AA B C
+5,Espesor,Grueso,20,A AA B C
+5,Espesor,Extra grueso,25,A AA B C
+6,Almidón,Ligero,5,A AA B C
+6,Almidón,Medio,10,A AA B C
+6,Almidón,Rígido,15,A AA B C
+7,Extra,Aplicaciones,30,A AA B C
+7,Extra,Prenda delicada,50,A AA B C
+8,Urgente,Urgente,50,A AA B C

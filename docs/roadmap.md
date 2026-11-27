@@ -19,7 +19,8 @@ Phase 1 as specified is large for one developer, so it is split:
 2. ✅ Users and PIN login ([feature doc](features/pin-login.md))
 3. ✅ Catalog with price lists per zone ([feature doc](features/price-lists.md))
 4. ✅ Guests: search by phone and register ([feature doc](features/guests.md))
-5. ✅ Ticket capture wizard, one row per garment ([feature doc](features/ticket-wizard.md)). Manual discounts wait for the client.
+5. ✅ Ticket capture wizard, one row per garment ([feature doc](features/ticket-wizard.md))
+   ⬜ Real catalog: modifier groups (Tamaño, Textil, Almidón…) and the 2026 price lists A, AA, B, C ([client answers](specs/2026-11-26-modifiers-discounts-price-lists.md))
 6. ⬜ Payments: deposits and settlements
 7. ⬜ Shift open / close (Corte X/Z), cash withdrawals, blind count
 8. ⬜ Garment lifecycle with status history
@@ -43,10 +44,17 @@ Answers received are recorded in [specs](specs/README.md) with the client's orig
 - **Cash withdrawals:** shown in the shift close, which states how much cash to deposit the next day.
 - **Garment status history:** records ticket, guest and garment label per change. Detailed explanation pending.
 
+### Answered (2026-11-26, second round) → [answers](specs/2026-11-26-modifiers-discounts-price-lists.md)
+- **Modifier order:** percentages apply to the list price, never compound: $100 + 10% + 50% = $160 ([ADR 0012](decisions/0012-percentage-modifiers-on-list-price.md)).
+- **Manual discounts:** not allowed; discounts come only from promotions ([ADR 0013](decisions/0013-no-manual-discounts.md)).
+- **Price lists:** Marketing's 2026 lists A, AA, B and C, with extras in groups. New follow-ups are in the answers file.
+
 ### Still open
-Blocking the **ticket wizard**:
-1. **Modifier order:** does Express (+50%) apply on top of fixed extras such as starch?
-2. **Manual discounts:** allowed with a supervisor PIN, or not at all?
+Blocking the **real catalog** (see the [answers](specs/2026-11-26-modifiers-discounts-price-lists.md#3-the-2026-price-lists) for details):
+1. **Modifier groups:** question order, one option per group, which groups apply to which products, list A without Tamaño and Relleno, the $0 "Política de calidad" items, which branches use which list.
+
+Not blocking, but needed before going live:
+2. *(Answered: no manual discounts, see above.)*
 3. **IVA details:** confirm `IVA = Total − round(Total / 1.16, 2)`, per ticket; any 8% border-zone branch; are CFDI invoices needed?
 
 Blocking the **shift close** and **garment lifecycle**:

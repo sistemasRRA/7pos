@@ -21,3 +21,6 @@ The client reported that branch staff abuse the ability to create items and chan
 - `UserRole` needs a `Marketing` value, and the catalog screens must check the role in the service layer, not only in the UI.
 - Manual discounts are a separate decision, still to be confirmed with the client. Until then, the POS offers none.
 - Branches depend on Marketing to add missing items quickly. A "report missing item" flow may be worth adding later.
+
+## Update (2026-11-26)
+The client answered the manual discounts question: there are none. See [ADR 0013](0013-no-manual-discounts.md).
