@@ -309,4 +309,66 @@ public class PriceListServiceTests : IDisposable
 
         Assert.Equal(["Lista Norte", "Lista Sur"], lists.Select(l => l.Name));
     }
+
+    // ---------- Which list (area) each branch sells from ----------
+
+    [Fact]
+    public async Task Branches_ListsActiveBranches_WithTheirList()
+    {
+        var branches = await _prices.GetBranchesAsync();
+
+        Assert.Equal(["Norte 1/Lista Norte", "Nueva/", "Sur 1/Lista Sur"],
+            branches.Select(b => $"{b.Name}/{b.PriceList?.Name}"));
+    }
+
+    [Fact]
+    public async Task AssignList_ByMarketing_ChangesWhatTheBranchSells()
+    {
+        AddPrice(_north, _shirt, 55, Now.AddDays(-1));
+        AddPrice(_south, _shirt, 48, Now.AddDays(-1));
+
+        var result = await _prices.AssignBranchListAsync(_marketing.Id, _northBranch.Id, _south.Id);
+
+        Assert.Null(result);
+        Assert.Equal(48m, (await _prices.GetBranchCatalogAsync(_northBranch.Id)).Single().Price);
+    }
+
+    [Fact]
+    public async Task AssignList_ByAnyoneButMarketing_IsRefused()
+    {
+        Assert.Equal(BranchListError.NotAllowed, await _prices.AssignBranchListAsync(_cashier.Id, _northBranch.Id, _south.Id));
+
+        await using var db = _database.CreateDbContext();
+        Assert.Equal(_north.Id, (await db.Branches.SingleAsync(b => b.Id == _northBranch.Id)).PriceListId);
+    }
+
+    [Fact]
+    public async Task AssignList_UnknownBranchOrInactiveList_IsRefused()
+    {
+        var closed = new PriceList { Name = "Lista vieja", IsActive = false };
+        await using (var db = _database.CreateDbContext())
+        {
+            db.PriceLists.Add(closed);
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Equal(BranchListError.BranchNotFound, await _prices.AssignBranchListAsync(_marketing.Id, Guid.NewGuid(), _south.Id));
+        Assert.Equal(BranchListError.PriceListNotFound, await _prices.AssignBranchListAsync(_marketing.Id, _northBranch.Id, closed.Id));
+    }
+
+    [Fact]
+    public async Task AssignList_IsAudited_WithTheOldAndNewList()
+    {
+        await _prices.AssignBranchListAsync(_marketing.Id, _branchWithoutList.Id, _north.Id);
+        await _prices.AssignBranchListAsync(_marketing.Id, _branchWithoutList.Id, _south.Id);
+
+        await using var db = _database.CreateDbContext();
+        var changes = await db.AuditLogs.Where(a => a.Action == "BRANCH_PRICE_LIST_CHANGED").ToListAsync();
+        Assert.Equal(2, changes.Count);
+        var last = changes.Single(a => a.OldValue is not null);
+        Assert.Equal(_marketing.Id, last.UserId);
+        Assert.Equal(_branchWithoutList.Id, last.BranchId);
+        Assert.Contains("Lista Norte", last.OldValue);
+        Assert.Contains("Lista Sur", last.NewValue);
+    }
 }
