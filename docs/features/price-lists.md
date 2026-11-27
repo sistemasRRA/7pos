@@ -31,7 +31,7 @@ Marketing sets the price of every product per **price list** ("Lista Norte", "Li
 - Rules: [`PriceListService`](../../src/SevenPos.Core/Catalog/PriceListService.cs), [`TaxCalculator`](../../src/SevenPos.Core/Catalog/TaxCalculator.cs)
 - Model: [`PriceList`](../../src/SevenPos.Core/Catalog/PriceList.cs), [`PriceListItem`](../../src/SevenPos.Core/Catalog/PriceListItem.cs), `Branch.PriceListId`, `UserRole.Marketing`
 - Tests: [`PriceListServiceTests`](../../tests/SevenPos.Core.Tests/PriceListServiceTests.cs), [`TaxCalculatorTests`](../../tests/SevenPos.Core.Tests/TaxCalculatorTests.cs)
-- Screens: [`Catalog.razor`](../../src/SevenPos.UI/Pages/Catalog.razor) (branch prices with IVA), [`Prices.razor`](../../src/SevenPos.UI/Pages/Prices.razor) (Marketing)
+- Screens: [`BranchCatalog.razor`](../../src/SevenPos.UI/Catalog/BranchCatalog.razor) (branch prices with IVA), [`Prices.razor`](../../src/SevenPos.UI/Catalog/Prices.razor) (Marketing)
 
 ## Not built yet
 - Creating or renaming price lists. Assigning a branch its list is built: Precios → Sucursales ([real catalog](real-catalog.md)).

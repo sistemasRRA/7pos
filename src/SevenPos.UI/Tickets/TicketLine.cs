@@ -1,6 +1,6 @@
 using SevenPos.Core.Catalog;
 
-namespace SevenPos.UI.Components;
+namespace SevenPos.UI.Tickets;
 
 /// <summary>
 /// Garments of the same kind with the same extras, captured together in the wizard

@@ -44,7 +44,7 @@ Source: ER rev. 2 (`Cajas_Turnos`, `Salidas de efectivo`) and the [client answer
 - Model: [`Shift`](../../src/SevenPos.Core/Cash/Shift.cs), [`CashWithdrawal`](../../src/SevenPos.Core/Cash/CashWithdrawal.cs), [`Payment`](../../src/SevenPos.Core/Cash/Payment.cs)
 - Rules: [`ShiftService`](../../src/SevenPos.Core/Cash/ShiftService.cs), [`TicketService`](../../src/SevenPos.Core/Tickets/TicketService.cs) (shift link)
 - Tests: [`ShiftServiceTests`](../../tests/SevenPos.Core.Tests/ShiftServiceTests.cs), [`TicketServiceTests`](../../tests/SevenPos.Core.Tests/TicketServiceTests.cs), [`DatabaseTests`](../../tests/SevenPos.Core.Tests/DatabaseTests.cs)
-- Screens: [`CashDrawer.razor`](../../src/SevenPos.UI/Pages/CashDrawer.razor) (`/cash`, "Caja"), [`Withdrawals.razor`](../../src/SevenPos.UI/Components/Withdrawals.razor)
+- Screens: [`CashDrawer.razor`](../../src/SevenPos.UI/Cash/CashDrawer.razor) (`/cash`, "Caja"), [`Withdrawals.razor`](../../src/SevenPos.UI/Cash/Withdrawals.razor)
 
 ## Not built yet
 - **Corte X** (see the open questions).

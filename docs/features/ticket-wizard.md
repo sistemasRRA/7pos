@@ -45,7 +45,7 @@ At the counter, the cashier creates a ticket for a customer in three steps: **Cl
 - Rules: [`TicketService`](../../src/SevenPos.Core/Tickets/TicketService.cs), [`BusinessTime`](../../src/SevenPos.Core/Common/BusinessTime.cs)
 - Model: [`Ticket`](../../src/SevenPos.Core/Tickets/Ticket.cs), [`Garment`](../../src/SevenPos.Core/Tickets/Garment.cs) (`ListPrice`), [`GarmentModifier`](../../src/SevenPos.Core/Tickets/GarmentModifier.cs), `Branch.Code`
 - Tests: [`TicketServiceTests`](../../tests/SevenPos.Core.Tests/TicketServiceTests.cs), [`BusinessTimeTests`](../../tests/SevenPos.Core.Tests/BusinessTimeTests.cs)
-- Screen: [`TicketWizard.razor`](../../src/SevenPos.UI/Pages/TicketWizard.razor), components [`GuestPicker`](../../src/SevenPos.UI/Components/GuestPicker.razor), [`LineList`](../../src/SevenPos.UI/Components/LineList.razor), [`Totals`](../../src/SevenPos.UI/Components/Totals.razor)
+- Screen: [`TicketWizard.razor`](../../src/SevenPos.UI/Tickets/TicketWizard.razor), components [`GuestPicker`](../../src/SevenPos.UI/Guests/GuestPicker.razor), [`LineList`](../../src/SevenPos.UI/Tickets/LineList.razor), [`Totals`](../../src/SevenPos.UI/Tickets/Totals.razor)
 
 ## Not built yet
 - Promotions and coupons (roadmap 1b), the only source of discounts.

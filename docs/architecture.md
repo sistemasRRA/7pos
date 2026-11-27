@@ -61,7 +61,7 @@ The desktop shell is needed for what a browser cannot do: work fully offline, re
 
 ## How a request flows (example: pricing a garment)
 
-1. `Pages/Catalog.razor` loads categories, products and modifiers through `IDbContextFactory<PosDbContext>`.
+1. `Catalog/BranchCatalog.razor` loads categories, products and modifiers through `IDbContextFactory<PosDbContext>`.
 2. The cashier picks a product and its modifiers.
 3. The page calls `PriceCalculator.Calculate(basePrice, modifiers)` in Core.
 4. The calculator applies the modifiers in `SortOrder` and returns the total and each charge.

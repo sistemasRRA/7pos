@@ -30,7 +30,7 @@ Cashiers find a customer ("invitado") by phone or name, or register a new one in
 ## Code
 - Rules: [`GuestService`](../../src/SevenPos.Core/Guests/GuestService.cs), [`PhoneNumber`](../../src/SevenPos.Core/Guests/PhoneNumber.cs)
 - Tests: [`GuestServiceTests`](../../tests/SevenPos.Core.Tests/GuestServiceTests.cs) (integration), [`PhoneNumberTests`](../../tests/SevenPos.Core.Tests/PhoneNumberTests.cs) (unit)
-- Screens: [`Guests.razor`](../../src/SevenPos.UI/Pages/Guests.razor), [`GuestForm.razor`](../../src/SevenPos.UI/Components/GuestForm.razor), [`GuestCard.razor`](../../src/SevenPos.UI/Components/GuestCard.razor)
+- Screens: [`GuestSearch.razor`](../../src/SevenPos.UI/Guests/GuestSearch.razor), [`GuestForm.razor`](../../src/SevenPos.UI/Guests/GuestForm.razor), [`GuestCard.razor`](../../src/SevenPos.UI/Guests/GuestCard.razor)
 
 ## Open questions
 - Editing a guest's name, email or birth date: which roles may do it?

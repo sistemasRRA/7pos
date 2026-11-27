@@ -26,7 +26,7 @@ Limits are constants in `LoginService`: `MaxFailedAttempts = 3`, `LockoutDuratio
 ## Code
 - Rules: [`LoginService`](../../src/SevenPos.Core/Organization/LoginService.cs), [`PinHasher`](../../src/SevenPos.Core/Organization/PinHasher.cs), [`PosSession`](../../src/SevenPos.Core/Organization/PosSession.cs)
 - Tests: [`LoginServiceTests`](../../tests/SevenPos.Core.Tests/LoginServiceTests.cs). They use `FakeTimeProvider` to move time forward without waiting.
-- Screens: [`Login.razor`](../../src/SevenPos.UI/Pages/Login.razor), [`PinPad.razor`](../../src/SevenPos.UI/Components/PinPad.razor), [`PosLayout.razor`](../../src/SevenPos.UI/Layout/PosLayout.razor)
+- Screens: [`PinLogin.razor`](../../src/SevenPos.UI/Login/PinLogin.razor), [`PinPad.razor`](../../src/SevenPos.UI/Login/PinPad.razor), [`PosLayout.razor`](../../src/SevenPos.UI/Layout/PosLayout.razor)
 
 ## Open questions
 - **Automatic logout after inactivity** (the brief requires it): how many minutes?
