@@ -48,6 +48,7 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Modifier>().HasIndex(x => new { x.ModifierGroupId, x.Name }).IsUnique();
         b.Entity<Product>().HasIndex(x => new { x.ServiceLineId, x.Name }).IsUnique();
         b.Entity<Payment>().HasIndex(x => x.ShiftId);
+        b.Entity<Payment>().ToTable(t => t.HasCheckConstraint("ck_payments_amount_positive", "amount > 0"));
         // Shifts by branch (reports), and the rule "one cash drawer per branch: at most one open shift".
         b.Entity<Shift>().HasIndex(x => x.BranchId, "ix_shifts_branch_id").HasDatabaseName("ix_shifts_branch_id");
         b.Entity<Shift>().HasIndex(x => x.BranchId, "ix_shifts_open_per_branch").HasDatabaseName("ix_shifts_open_per_branch")
@@ -78,6 +79,7 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Shift>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
         b.Entity<Shift>().HasOne<User>().WithMany().HasForeignKey(x => x.ClosedByUserId);
         b.Entity<CashWithdrawal>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
+        b.Entity<Payment>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
 
         b.Entity<AuditLog>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
         b.Entity<AuditLog>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);

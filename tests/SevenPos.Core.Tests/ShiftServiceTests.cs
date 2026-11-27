@@ -56,7 +56,7 @@ public class ShiftServiceTests : IDisposable
         };
         db.Guests.Add(guest);
         db.Tickets.Add(ticket);
-        db.Payments.Add(new Payment { TicketId = ticket.Id, ShiftId = shift.Id, Amount = amount, Method = method, Type = PaymentType.Advance });
+        db.Payments.Add(new Payment { TicketId = ticket.Id, ShiftId = shift.Id, UserId = _cashier.Id, Amount = amount, Method = method, Type = PaymentType.Advance });
         db.SaveChanges();
     }
 
