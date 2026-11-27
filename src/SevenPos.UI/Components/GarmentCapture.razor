@@ -1,0 +1,113 @@
+@* Captures one garment, step by step: asks each modifier group the product offers, in the step
+   order of Marketing's lists (1 Tamaño, 2 Textil…), one option or "Ninguno" each, then the quantity.
+   Without OnAdd it only shows the price breakdown (Catálogo). *@
+
+@{ var price = Price; }
+<div class="capture">
+    <h2>@Entry.Product.Name <span class="line">@Entry.Product.ServiceLine?.Name</span></h2>
+    <p class="running">Precio de lista @Display.Money(Entry.Price) · Ahora <strong>@Display.Money(price.Total)</strong></p>
+
+    @if (_answers.Count > 0)
+    {
+        <ol class="answers">
+            @for (var i = 0; i < _answers.Count; i++)
+            {
+                var answer = _answers[i];
+                <li>@_steps[i].Group.Name: <strong>@(answer?.Name ?? "Ninguno")</strong>
+                    @if (answer is not null) { <span class="charge">@Display.Charge(answer)</span> }</li>
+            }
+        </ol>
+    }
+
+    @if (CurrentStep is { } step)
+    {
+        <p class="progress">Pregunta @(_answers.Count + 1) de @_steps.Count</p>
+        <p class="question">@step.Group.Name</p>
+        <div class="options">
+            <button type="button" class="option none" @onclick="() => Answer(null)">Ninguno</button>
+            @foreach (var option in step.Options)
+            {
+                <button type="button" class="option" @onclick="() => Answer(option)">
+                    @option.Name <span class="charge">@Display.Charge(option)</span>
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <ul class="charges">
+            @foreach (var charge in price.Charges)
+            {
+                <li>@Display.Option(charge.Modifier): <strong>+@Display.Money(charge.Amount)</strong></li>
+            }
+        </ul>
+        @if (OnAdd.HasDelegate)
+        {
+            <p>Precio por prenda: <strong>@Display.Money(price.Total)</strong></p>
+            <div class="quantity">
+                <span>Cantidad</span>
+                <button type="button" class="step-button" @onclick="() => ChangeQuantity(-1)" disabled="@(_quantity <= 1)" aria-label="Una menos">−</button>
+                <strong>@_quantity</strong>
+                <button type="button" class="step-button" @onclick="() => ChangeQuantity(1)" disabled="@(_quantity >= MaxQuantity)" aria-label="Una más">+</button>
+            </div>
+            <button type="button" class="primary" @onclick="AddAsync">Agregar al ticket</button>
+        }
+        else
+        {
+            <Totals Total="price.Total" />
+        }
+    }
+
+    <div class="nav">
+        @if (_answers.Count > 0)
+        {
+            <button type="button" class="link" @onclick="Back">Atrás</button>
+        }
+        <button type="button" class="link" @onclick="() => OnCancel.InvokeAsync()">@(OnAdd.HasDelegate ? "Cancelar esta prenda" : "Elegir otra prenda")</button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CatalogEntry Entry { get; set; } = default!;
+    /// <summary>The finished garment(s). Without a handler the component only previews the price.</summary>
+    [Parameter] public EventCallback<TicketLine> OnAdd { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    public const int MaxQuantity = 50;
+
+    /// <summary>One question: a group and the options this product offers in it.</summary>
+    private sealed record StepInfo(ModifierGroup Group, List<Modifier> Options);
+
+    private List<StepInfo> _steps = [];
+    /// <summary>One answer per question asked so far; null = "Ninguno".</summary>
+    private readonly List<Modifier?> _answers = [];
+    private int _quantity = 1;
+    private CatalogEntry? _loadedFor;
+
+    private StepInfo? CurrentStep => _answers.Count < _steps.Count ? _steps[_answers.Count] : null;
+    private List<Modifier> Chosen => _answers.OfType<Modifier>().ToList();
+    private PriceResult Price => PriceCalculator.Calculate(Entry.Price, Chosen);
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(_loadedFor, Entry)) return;
+        _loadedFor = Entry;
+        // Group by id: the catalog is read without tracking, so equal groups can be different objects.
+        _steps = Entry.Product.Modifiers
+            .Select(pm => pm.Modifier!)
+            .GroupBy(m => m.ModifierGroupId)
+            .Select(g => new StepInfo(g.First().Group!, g.OrderBy(m => m.SortOrder).ToList()))
+            .OrderBy(s => s.Group.SortOrder)
+            .ToList();
+        _answers.Clear();
+        _quantity = 1;
+    }
+
+    private void Answer(Modifier? option) => _answers.Add(option);
+
+    private void Back() => _answers.RemoveAt(_answers.Count - 1);
+
+    private void ChangeQuantity(int delta) => _quantity = Math.Clamp(_quantity + delta, 1, MaxQuantity);
+
+    private Task AddAsync() => OnAdd.InvokeAsync(new TicketLine(Entry, Chosen, _quantity));
+}

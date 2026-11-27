@@ -18,4 +18,10 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Marketing's 2026 price lists, as transcribed in docs/specs, loaded by CatalogImporter.Import2026Async. -->
+    <EmbeddedResource Include="..\..\docs\specs\2026-11-26-price-lists-2026.csv" LogicalName="catalog-2026-products.csv" />
+    <EmbeddedResource Include="..\..\docs\specs\2026-11-26-modifiers-2026.csv" LogicalName="catalog-2026-modifiers.csv" />
+  </ItemGroup>
+
 </Project>

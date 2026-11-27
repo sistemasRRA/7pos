@@ -3,6 +3,7 @@ using SevenPos.Core.Catalog;
 using SevenPos.Core.Data;
 using SevenPos.Core.Guests;
 using SevenPos.Core.Organization;
+using SevenPos.Core.Tickets;
 using SevenPos.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<GuestService>();
 builder.Services.AddScoped<PriceListService>();
+builder.Services.AddScoped<TicketService>();
 // Who is logged in. Scoped = one per browser connection (Blazor Server circuit).
 builder.Services.AddScoped<PosSession>();
 
@@ -32,10 +34,10 @@ var app = builder.Build();
 // Create/update tables and load sample data on startup.
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<PosDbContext>>().CreateDbContext();
-    db.Database.Migrate();
-    // Sample branch, users (Admin 1234, Mercadotecnia 5678) and catalog: never in production.
-    if (app.Environment.IsDevelopment()) await SeedData.LoadAsync(db);
+    var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<PosDbContext>>();
+    using (var db = dbFactory.CreateDbContext()) db.Database.Migrate();
+    // Sample branch, users (Admin 1234, Mercadotecnia 5678) and the 2026 catalog: never in production.
+    if (app.Environment.IsDevelopment()) await SeedData.LoadAsync(dbFactory, TimeProvider.System);
 }
 
 // Configure the HTTP request pipeline.

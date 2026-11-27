@@ -3,7 +3,7 @@
 ## Language
 
 - **Code is English:** files, folders, classes, variables, database tables and columns, comments, test names, commit messages and docs.
-- **The UI is Spanish:** labels, messages, printed tickets, and catalog data such as "Camisa de vestir".
+- **The UI is Spanish:** labels, messages, printed tickets, and catalog data such as "CAMISA" or "Almidón: Rígido".
 - New business concept from the client specs? Pick an English name and **add it to the [glossary](docs/glossary.md)** in the same commit.
 
 ## Where code goes
@@ -21,6 +21,7 @@ See [architecture](docs/architecture.md) for the reasoning.
 ### Razor conventions
 
 - Name injected services after their type: `@inject GuestService GuestService`. A shorter name such as `Guests` can clash with the page's own class name (`Guests.razor` → error CS0542).
+- Do not name a page after a type it uses. `NewTicket.razor` would compile to a class `NewTicket` and hide the `NewTicket` record from Core; the page is `TicketWizard.razor`.
 - Pages own their state and layout. Pieces a future screen will reuse (a form, a card, a keypad) go in `Components/` and talk to the page through `[Parameter]` values and `EventCallback`s.
 - Spanish text lives in the `.razor` file. The service returns codes (`GuestError.InvalidPhone`) and the component turns them into messages.
 

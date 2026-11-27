@@ -1,0 +1,23 @@
+@* The garments captured so far in the ticket wizard. With OnRemove, each line gets a "Quitar" button. *@
+
+<ul class="lines">
+    @foreach (var line in Lines)
+    {
+        <li>
+            <div class="what">
+                <span class="name">@line.Quantity × @line.Entry.Product.Name <small>(@line.Entry.Product.ServiceLine?.Name)</small></span>
+                <span class="extras">@(line.Modifiers.Count == 0 ? "Sin servicios adicionales" : string.Join(" · ", line.UnitPrice.Charges.Select(c => Display.Option(c.Modifier))))</span>
+            </div>
+            <span class="money">@Display.Money(line.Total)</span>
+            @if (OnRemove.HasDelegate)
+            {
+                <button type="button" class="remove" @onclick="() => OnRemove.InvokeAsync(line)" aria-label="Quitar @line.Entry.Product.Name">Quitar</button>
+            }
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<TicketLine> Lines { get; set; } = [];
+    [Parameter] public EventCallback<TicketLine> OnRemove { get; set; }
+}

@@ -14,6 +14,8 @@ public record PriceHistoryEntry(decimal Price, DateTime EffectiveFromUtc, string
 
 public enum PriceChangeError { NotAllowed, PriceListNotFound, ProductNotFound, InvalidPrice, EffectiveDateInPast }
 
+public enum BranchListError { NotAllowed, BranchNotFound, PriceListNotFound }
+
 public record PriceChangeResult(PriceListItem? Item, PriceChangeError? Error)
 {
     public bool Succeeded => Item is not null;
@@ -35,13 +37,16 @@ public class PriceListService(IDbContextFactory<PosDbContext> dbFactory, TimePro
         var prices = await CurrentPricesAsync(db, priceListId.Value);
         var products = await db.Products
             .Where(p => p.IsActive && prices.Keys.Contains(p.Id))
+            .Include(p => p.ServiceLine)
             .Include(p => p.Category)
-            .Include(p => p.Modifiers).ThenInclude(pm => pm.Modifier)
+            .Include(p => p.Modifiers.Where(pm => pm.IsActive && pm.Modifier!.IsActive && pm.Modifier.Group!.IsActive))
+                .ThenInclude(pm => pm.Modifier).ThenInclude(m => m!.Group)
             .AsNoTracking()
+            .AsSplitQuery()
             .ToListAsync();
 
         return products
-            .OrderBy(p => p.Category!.Name).ThenBy(p => p.Name)
+            .OrderBy(p => p.ServiceLine!.SortOrder).ThenBy(p => p.Category!.Name).ThenBy(p => p.Name)
             .Select(p => new CatalogEntry(p, prices[p.Id]))
             .ToList();
     }
@@ -66,8 +71,9 @@ public class PriceListService(IDbContextFactory<PosDbContext> dbFactory, TimePro
             .ToDictionaryAsync(i => i.ProductId);
         var products = await db.Products
             .Where(p => p.IsActive)
+            .Include(p => p.ServiceLine)
             .Include(p => p.Category)
-            .OrderBy(p => p.Name)
+            .OrderBy(p => p.ServiceLine!.SortOrder).ThenBy(p => p.Name)
             .AsNoTracking()
             .ToListAsync();
 
@@ -76,6 +82,46 @@ public class PriceListService(IDbContextFactory<PosDbContext> dbFactory, TimePro
             current.TryGetValue(p.Id, out var price) ? price : null,
             upcoming.GetValueOrDefault(p.Id)?.Price,
             upcoming.GetValueOrDefault(p.Id)?.EffectiveFromUtc)).ToList();
+    }
+
+    /// <summary>Active branches with the list (area) each one sells from, by name.</summary>
+    public async Task<List<Branch>> GetBranchesAsync()
+    {
+        await using var db = await dbFactory.CreateDbContextAsync();
+        return await db.Branches.Where(b => b.IsActive).Include(b => b.PriceList)
+            .OrderBy(b => b.Name).AsNoTracking().ToListAsync();
+    }
+
+    /// <summary>
+    /// Sets which price list a branch sells from: the list of the area where it is located.
+    /// Only an active Marketing user; written to the audit log as BRANCH_PRICE_LIST_CHANGED.
+    /// Returns null when it worked.
+    /// </summary>
+    public async Task<BranchListError?> AssignBranchListAsync(Guid actorUserId, Guid branchId, Guid priceListId)
+    {
+        await using var db = await dbFactory.CreateDbContextAsync();
+        var actor = await db.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == actorUserId);
+        if (actor is not { IsActive: true, Role: UserRole.Marketing }) return BranchListError.NotAllowed;
+
+        var branch = await db.Branches.Include(b => b.PriceList).SingleOrDefaultAsync(b => b.Id == branchId && b.IsActive);
+        if (branch is null) return BranchListError.BranchNotFound;
+
+        var list = await db.PriceLists.SingleOrDefaultAsync(l => l.Id == priceListId && l.IsActive);
+        if (list is null) return BranchListError.PriceListNotFound;
+        if (branch.PriceListId == list.Id) return null;
+
+        db.AuditLogs.Add(new AuditLog
+        {
+            UserId = actor.Id,
+            BranchId = branch.Id,
+            Action = "BRANCH_PRICE_LIST_CHANGED",
+            OldValue = branch.PriceList is null ? null : JsonSerializer.Serialize(new { branch = branch.Name, priceList = branch.PriceList.Name }),
+            NewValue = JsonSerializer.Serialize(new { branch = branch.Name, priceList = list.Name }),
+            CreatedAtUtc = clock.GetUtcNow().UtcDateTime,
+        });
+        branch.PriceListId = list.Id;
+        await db.SaveChangesAsync();
+        return null;
     }
 
     /// <summary>All prices a product has had in a list, newest first, with who set each one.</summary>

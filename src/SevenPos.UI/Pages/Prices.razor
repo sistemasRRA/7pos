@@ -31,18 +31,29 @@ else
             }
         </select>
     </label>
+    <label class="list-picker">
+        Línea
+        <select @bind="_lineFilter">
+            <option value="">Todas</option>
+            @foreach (var line in (_rows ?? []).Select(r => r.Product.ServiceLine?.Name).Distinct())
+            {
+                <option value="@line">@line</option>
+            }
+        </select>
+    </label>
     <p class="hint">Precios con IVA incluido. Un cambio nunca borra el precio anterior: queda en el historial.</p>
 
     <div class="layout">
         <table>
             <thead>
-                <tr><th>Prenda</th><th>Categoría</th><th class="num">Precio actual</th><th>Próximo cambio</th><th></th></tr>
+                <tr><th>Prenda</th><th>Línea</th><th>Categoría</th><th class="num">Precio actual</th><th>Próximo cambio</th><th></th></tr>
             </thead>
             <tbody>
-                @foreach (var row in _rows ?? [])
+                @foreach (var row in (_rows ?? []).Where(r => string.IsNullOrEmpty(_lineFilter) || r.Product.ServiceLine?.Name == _lineFilter))
                 {
                     <tr class="@(row.Product.Id == _editing?.Product.Id ? "editing" : "")">
                         <td>@row.Product.Name</td>
+                        <td>@row.Product.ServiceLine?.Name</td>
                         <td>@row.Product.Category?.Name</td>
                         <td class="num">@(row.CurrentPrice is { } price ? Display.Money(price) : "Sin precio")</td>
                         <td>@(row.NextPrice is { } next ? $"{Display.Money(next)} desde {Display.DateTime(row.NextEffectiveFromUtc!.Value)}" : "—")</td>
@@ -55,7 +66,7 @@ else
         @if (_editing is not null)
         {
             <aside class="editor">
-                <h2>@_editing.Product.Name</h2>
+                <h2>@_editing.Product.Name <small>· @_editing.Product.ServiceLine?.Name</small></h2>
                 <form @onsubmit="SaveAsync">
                     <label>
                         Nuevo precio
@@ -90,11 +101,39 @@ else
             </aside>
         }
     </div>
+
+    <section class="branches">
+        <h2>Sucursales</h2>
+        <p class="hint">Cada sucursal vende con la lista de la zona donde está.</p>
+        <table>
+            <thead><tr><th>Sucursal</th><th>Lista</th></tr></thead>
+            <tbody>
+                @foreach (var branch in _branches ?? [])
+                {
+                    <tr>
+                        <td>@branch.Name <span class="code">@branch.Code</span></td>
+                        <td>
+                            <select value="@branch.PriceListId" @onchange="e => AssignAsync(branch, e)" aria-label="Lista de @branch.Name">
+                                @if (branch.PriceListId is null) { <option value="">Sin lista</option> }
+                                @foreach (var list in _lists)
+                                {
+                                    <option value="@list.Id">@list.Name</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (_branchMessage is not null) { <p class="ok" role="status">@_branchMessage</p> }
+    </section>
 }
 
 @code {
     private List<PriceList>? _lists;
     private Guid _listId;
+    private string? _lineFilter, _branchMessage;
+    private List<Branch>? _branches;
     private List<ListPrice>? _rows;
     private ListPrice? _editing;
     private List<PriceHistoryEntry>? _history;
@@ -107,11 +146,22 @@ else
     {
         if (Session.CurrentUser?.Role != UserRole.Marketing) return;
         _lists = await PriceListService.GetPriceListsAsync();
+        _branches = await PriceListService.GetBranchesAsync();
         if (_lists.Count > 0)
         {
             _listId = _lists[0].Id;
             await LoadRowsAsync();
         }
+    }
+
+    private async Task AssignAsync(Branch branch, ChangeEventArgs e)
+    {
+        if (!Guid.TryParse(e.Value as string, out var listId)) return;
+        var error = await PriceListService.AssignBranchListAsync(Session.CurrentUser!.Id, branch.Id, listId);
+        _branches = await PriceListService.GetBranchesAsync();
+        _branchMessage = error is null
+            ? $"{branch.Name} ahora vende con {_lists!.Single(l => l.Id == listId).Name}."
+            : "No se pudo cambiar la lista. Recarga la página e inténtalo de nuevo.";
     }
 
     private async Task OnListChangedAsync(ChangeEventArgs e)

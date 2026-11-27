@@ -23,47 +23,54 @@ public class DatabaseTests : IDisposable
         _database.Dispose();
     }
 
+    private Task SeedAsync() => SeedData.LoadAsync(_database, TimeProvider.System);
+
     [Fact]
-    public async Task SeedData_LoadsCatalogAndUser_OnlyOnce()
+    public async Task SeedData_LoadsBranchUsersAndThe2026Catalog_OnlyOnce()
     {
-        await SeedData.LoadAsync(_db);
-        await SeedData.LoadAsync(_db);
+        await SeedAsync();
+        await SeedAsync();
 
         Assert.Equal(1, await _db.Branches.CountAsync());
-        Assert.True(await _db.Products.CountAsync() > 5);
+        Assert.Equal(136, await _db.Products.CountAsync());
+        Assert.Equal(307, await _db.PriceListItems.CountAsync());
         var admin = await _db.Users.SingleAsync(u => u.Role == UserRole.Admin);
         Assert.True(PinHasher.Verify("1234", admin.PinHash));
         Assert.False(PinHasher.Verify("0000", admin.PinHash));
-    }
-
-    [Fact]
-    public async Task SeedData_GivesTheBranchAPriceList_AndAMarketingUser()
-    {
-        await SeedData.LoadAsync(_db);
-
-        var branch = await _db.Branches.SingleAsync();
-        Assert.NotNull(branch.PriceListId);
-        Assert.Equal(await _db.Products.CountAsync(p => p.IsActive), await _db.PriceListItems.CountAsync());
         var marketing = await _db.Users.SingleAsync(u => u.Role == UserRole.Marketing);
         Assert.True(PinHasher.Verify("5678", marketing.PinHash));
     }
 
     [Fact]
-    public async Task SeedData_CompletesADatabaseFromAnOlderVersion()
+    public async Task SeedData_TheBranchSellsFromListA()
     {
-        // An older version seeded the branch and catalog, but had no price lists or Marketing role.
-        var branch = new Branch { Name = "Sucursal Demo" };
+        await SeedAsync();
+
+        var branch = await _db.Branches.Include(b => b.PriceList).SingleAsync();
+        Assert.Equal("Lista A", branch.PriceList!.Name);
+    }
+
+    [Fact]
+    public async Task SeedData_RetiresTheFirstSampleCatalog_FromAnOlderDatabase()
+    {
+        // An older version had the first sample catalog (moved to the "General" line by the migration).
+        var branch = new Branch { Name = "Sucursal Demo", Code = "DEMO" };
         var category = new Category { Name = "Camisas" };
-        _db.Branches.Add(branch);
-        _db.Categories.Add(category);
-        _db.Products.Add(new Product { Name = "Camisa de vestir", BasePrice = 50, CategoryId = category.Id });
+        var line = new ServiceLine { Name = "General" };
+        var oldList = new PriceList { Name = "Lista General" };
+        _db.AddRange(branch, category, line, oldList);
+        _db.Products.Add(new Product { ServiceLineId = line.Id, Name = "Camisa de vestir", BasePrice = 50, CategoryId = category.Id });
+        branch.PriceListId = oldList.Id;
         await _db.SaveChangesAsync();
 
-        await SeedData.LoadAsync(_db);
+        await SeedAsync();
 
-        Assert.Equal(1, await _db.Branches.CountAsync());
-        Assert.NotNull((await _db.Branches.SingleAsync()).PriceListId);
-        Assert.Equal(50m, (await _db.PriceListItems.SingleAsync()).Price);
+        await using var db = _database.CreateDbContext();
+        Assert.False((await db.Products.SingleAsync(p => p.Name == "Camisa de vestir")).IsActive);
+        Assert.False((await db.ServiceLines.SingleAsync(l => l.Name == "General")).IsActive);
+        Assert.False((await db.PriceLists.SingleAsync(l => l.Name == "Lista General")).IsActive);
+        Assert.Equal("Lista A", (await db.Branches.Include(b => b.PriceList).SingleAsync()).PriceList!.Name);
+        Assert.Equal(136, await db.Products.CountAsync(p => p.IsActive));
     }
 
     [Fact]
@@ -86,7 +93,7 @@ public class DatabaseTests : IDisposable
     [Fact]
     public async Task Ticket_WithBranchThatDoesNotExist_IsRejected()
     {
-        await SeedData.LoadAsync(_db);
+        await SeedAsync();
         var guest = new Guest { Phone = "5511111111", FullName = "Cliente" };
         _db.Guests.Add(guest);
         _db.Tickets.Add(new Ticket
@@ -101,7 +108,7 @@ public class DatabaseTests : IDisposable
     [Fact]
     public async Task Branch_WithUsers_CannotBeDeleted()
     {
-        await SeedData.LoadAsync(_db);
+        await SeedAsync();
 
         // Forget everything EF has in memory (the seeded users), so EF sends the
         // DELETE and it is PostgreSQL itself that has to refuse it.
@@ -116,7 +123,7 @@ public class DatabaseTests : IDisposable
     [Fact]
     public async Task Money_KeepsExactCents()
     {
-        await SeedData.LoadAsync(_db);
+        await SeedAsync();
         var product = await _db.Products.FirstAsync();
         product.BasePrice = 0.1m + 0.2m;
         await _db.SaveChangesAsync();

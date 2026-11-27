@@ -6,7 +6,7 @@
 <PageTitle>Catálogo · 7Pos</PageTitle>
 
 <h1>Catálogo</h1>
-<p class="hint">Precios de esta sucursal (IVA incluido). Elige una prenda y sus servicios adicionales para ver el total.</p>
+<p class="hint">Precios de esta sucursal (IVA incluido). Elige una prenda y responde sus preguntas para ver el desglose.</p>
 
 @if (_catalog is null)
 {
@@ -16,72 +16,24 @@ else if (_catalog.Count == 0)
 {
     <p class="notice">Esta sucursal no tiene precios asignados. Avísale a Mercadotecnia.</p>
 }
+else if (_selected is null)
+{
+    <ProductPicker Catalog="_catalog" OnSelected="entry => _selected = entry" />
+}
 else
 {
-    <div class="columns">
-        <section>
-            @foreach (var category in _catalog.GroupBy(e => e.Product.Category!.Name))
-            {
-                <h2>@category.Key</h2>
-                @foreach (var entry in category)
-                {
-                    <button class="product @(entry == _selected ? "active" : "")" @onclick="() => Select(entry)">
-                        <span>@entry.Product.Name</span><span>@Display.Money(entry.Price)</span>
-                    </button>
-                }
-            }
-        </section>
-
-        <section class="detail">
-            @if (_selected is null)
-            {
-                <p class="hint">Selecciona una prenda.</p>
-            }
-            else
-            {
-                var price = PriceCalculator.Calculate(_selected.Price, _chosen);
-                var tax = TaxCalculator.Breakdown(price.Total);
-                <h2>@_selected.Product.Name</h2>
-                <p>Precio: <strong>@Display.Money(_selected.Price)</strong></p>
-                @foreach (var modifier in _selected.Product.Modifiers.Select(x => x.Modifier!).OrderBy(m => m.SortOrder))
-                {
-                    <label class="modifier">
-                        <input type="checkbox" checked="@_chosen.Contains(modifier)" @onchange="() => Toggle(modifier)" />
-                        ¿@modifier.Name? (@ChargeLabel(modifier))
-                    </label>
-                }
-                <ul>
-                    @foreach (var charge in price.Charges)
-                    {
-                        <li>@charge.Modifier.Name: +@Display.Money(charge.Amount)</li>
-                    }
-                </ul>
-                <dl class="tax">
-                    <dt>Subtotal</dt><dd>@Display.Money(tax.Subtotal)</dd>
-                    <dt>IVA (16%)</dt><dd>@Display.Money(tax.Iva)</dd>
-                    <dt class="total">Total</dt><dd class="total">@Display.Money(tax.Total)</dd>
-                </dl>
-            }
-        </section>
+    <div class="preview">
+        <GarmentCapture Entry="_selected" OnCancel="() => _selected = null" />
     </div>
 }
 
 @code {
     private List<CatalogEntry>? _catalog;
     private CatalogEntry? _selected;
-    private readonly HashSet<Modifier> _chosen = [];
 
     protected override async Task OnInitializedAsync()
     {
         if (Session.CurrentUser is { } user)
             _catalog = await PriceListService.GetBranchCatalogAsync(user.BranchId);
     }
-
-    private void Select(CatalogEntry entry) { _selected = entry; _chosen.Clear(); }
-
-    private void Toggle(Modifier modifier) { if (!_chosen.Remove(modifier)) _chosen.Add(modifier); }
-
-    private static string ChargeLabel(Modifier m) => m.ChargeType == ChargeType.Fixed
-        ? "+" + Display.Money(m.ChargeValue)
-        : "+" + m.ChargeValue.ToString("0.##") + "%";
 }

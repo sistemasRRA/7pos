@@ -247,6 +247,10 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_modified_utc");
 
+                    b.Property<Guid>("ModifierGroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modifier_group_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -264,7 +268,54 @@ namespace SevenPos.Core.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_modifiers");
 
+                    b.HasIndex("ModifierGroupId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_modifiers_modifier_group_id_name");
+
                     b.ToTable("modifiers", (string)null);
+                });
+
+            modelBuilder.Entity("SevenPos.Core.Catalog.ModifierGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime>("LastModifiedUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_utc");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("ServiceLineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_line_id");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("SyncStatus")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sync_status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_modifier_groups");
+
+                    b.HasIndex("ServiceLineId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_modifier_groups_service_line_id_name");
+
+                    b.ToTable("modifier_groups", (string)null);
                 });
 
             modelBuilder.Entity("SevenPos.Core.Catalog.PriceList", b =>
@@ -388,6 +439,10 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<Guid>("ServiceLineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_line_id");
+
                     b.Property<string>("SyncStatus")
                         .IsRequired()
                         .HasColumnType("text")
@@ -398,6 +453,10 @@ namespace SevenPos.Core.Data.Migrations
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_products_category_id");
+
+                    b.HasIndex("ServiceLineId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_products_service_line_id_name");
 
                     b.ToTable("products", (string)null);
                 });
@@ -441,6 +500,45 @@ namespace SevenPos.Core.Data.Migrations
                         .HasDatabaseName("ix_product_modifiers_product_id_modifier_id");
 
                     b.ToTable("product_modifiers", (string)null);
+                });
+
+            modelBuilder.Entity("SevenPos.Core.Catalog.ServiceLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime>("LastModifiedUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_utc");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("SyncStatus")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sync_status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_service_lines");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_service_lines_name");
+
+                    b.ToTable("service_lines", (string)null);
                 });
 
             modelBuilder.Entity("SevenPos.Core.Guests.Guest", b =>
@@ -682,6 +780,12 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("alert_emails");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("code");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -706,6 +810,10 @@ namespace SevenPos.Core.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_branches");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_branches_code");
 
                     b.HasIndex("PriceListId")
                         .HasDatabaseName("ix_branches_price_list_id");
@@ -792,6 +900,11 @@ namespace SevenPos.Core.Data.Migrations
                     b.Property<DateTime>("LastModifiedUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_modified_utc");
+
+                    b.Property<decimal>("ListPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("list_price");
 
                     b.Property<string>("Location")
                         .HasColumnType("text")
@@ -1039,6 +1152,28 @@ namespace SevenPos.Core.Data.Migrations
                         .HasConstraintName("fk_shifts_users_user_id");
                 });
 
+            modelBuilder.Entity("SevenPos.Core.Catalog.Modifier", b =>
+                {
+                    b.HasOne("SevenPos.Core.Catalog.ModifierGroup", "Group")
+                        .WithMany("Modifiers")
+                        .HasForeignKey("ModifierGroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_modifiers_modifier_groups_modifier_group_id");
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("SevenPos.Core.Catalog.ModifierGroup", b =>
+                {
+                    b.HasOne("SevenPos.Core.Catalog.ServiceLine", null)
+                        .WithMany("ModifierGroups")
+                        .HasForeignKey("ServiceLineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_modifier_groups_service_lines_service_line_id");
+                });
+
             modelBuilder.Entity("SevenPos.Core.Catalog.PriceListItem", b =>
                 {
                     b.HasOne("SevenPos.Core.Catalog.PriceList", null)
@@ -1074,7 +1209,16 @@ namespace SevenPos.Core.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_products_categories_category_id");
 
+                    b.HasOne("SevenPos.Core.Catalog.ServiceLine", "ServiceLine")
+                        .WithMany()
+                        .HasForeignKey("ServiceLineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_products_service_lines_service_line_id");
+
                     b.Navigation("Category");
+
+                    b.Navigation("ServiceLine");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Catalog.ProductModifier", b =>
@@ -1190,12 +1334,14 @@ namespace SevenPos.Core.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_garment_modifiers_garments_garment_id");
 
-                    b.HasOne("SevenPos.Core.Catalog.Modifier", null)
+                    b.HasOne("SevenPos.Core.Catalog.Modifier", "Modifier")
                         .WithMany()
                         .HasForeignKey("ModifierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_garment_modifiers_modifiers_modifier_id");
+
+                    b.Navigation("Modifier");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Tickets.Ticket", b =>
@@ -1242,6 +1388,11 @@ namespace SevenPos.Core.Data.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("SevenPos.Core.Catalog.ModifierGroup", b =>
+                {
+                    b.Navigation("Modifiers");
+                });
+
             modelBuilder.Entity("SevenPos.Core.Catalog.PriceList", b =>
                 {
                     b.Navigation("Items");
@@ -1250,6 +1401,11 @@ namespace SevenPos.Core.Data.Migrations
             modelBuilder.Entity("SevenPos.Core.Catalog.Product", b =>
                 {
                     b.Navigation("Modifiers");
+                });
+
+            modelBuilder.Entity("SevenPos.Core.Catalog.ServiceLine", b =>
+                {
+                    b.Navigation("ModifierGroups");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Guests.Guest", b =>

@@ -1,4 +1,4 @@
-.list-picker { display: inline-flex; gap: .6rem; align-items: center; font-weight: 500; }
+.list-picker { display: inline-flex; gap: .6rem; align-items: center; font-weight: 500; margin-right: 1.2rem; }
 .list-picker select { padding: .5rem .7rem; font-size: 1rem; border: 1px solid #ccd; border-radius: 8px; }
 .hint { color: #4a6079; }
 .notice { padding: .8rem 1rem; border-radius: 8px; background: #fff4e5; color: #7a4a00; }
@@ -24,3 +24,7 @@ input { padding: .5rem .7rem; font-size: 1rem; border: 1px solid #ccd; border-ra
 .primary { background: #1a75a8; color: #fff; border: 0; border-radius: 8px; padding: .6rem 1.1rem; font-size: 1rem; cursor: pointer; }
 .primary:disabled { opacity: .6; }
 .secondary { background: #fff; border: 1px solid #ccd; border-radius: 8px; padding: .4rem .8rem; cursor: pointer; }
+.branches { margin-top: 2rem; max-width: 640px; }
+.branches h2 { font-size: 1.2rem; }
+.branches select { padding: .4rem .6rem; font-size: 1rem; border: 1px solid #ccd; border-radius: 8px; }
+.code { color: #4a6079; font-size: .85rem; margin-left: .4rem; }

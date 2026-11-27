@@ -14,6 +14,8 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
     public DbSet<GuestAddress> GuestAddresses => Set<GuestAddress>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<ServiceLine> ServiceLines => Set<ServiceLine>();
+    public DbSet<ModifierGroup> ModifierGroups => Set<ModifierGroup>();
     public DbSet<Modifier> Modifiers => Set<Modifier>();
     public DbSet<ProductModifier> ProductModifiers => Set<ProductModifier>();
     public DbSet<PriceList> PriceLists => Set<PriceList>();
@@ -32,6 +34,8 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder b)
     {
+        b.Entity<Branch>().HasIndex(x => x.Code).IsUnique();
+        b.Entity<Branch>().Property(x => x.Code).HasMaxLength(10);
         b.Entity<Guest>().HasIndex(x => x.Phone).IsUnique();
         // Rows created before this column existed get the migration time, not year 1.
         b.Entity<Guest>().Property(x => x.CreatedAtUtc).HasDefaultValueSql("now()");
@@ -39,6 +43,10 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Ticket>().HasIndex(x => x.PublicOrderId).IsUnique();
         b.Entity<Garment>().HasIndex(x => x.Code).IsUnique();
         b.Entity<ProductModifier>().HasIndex(x => new { x.ProductId, x.ModifierId }).IsUnique();
+        b.Entity<ServiceLine>().HasIndex(x => x.Name).IsUnique();
+        b.Entity<ModifierGroup>().HasIndex(x => new { x.ServiceLineId, x.Name }).IsUnique();
+        b.Entity<Modifier>().HasIndex(x => new { x.ModifierGroupId, x.Name }).IsUnique();
+        b.Entity<Product>().HasIndex(x => new { x.ServiceLineId, x.Name }).IsUnique();
         b.Entity<Payment>().HasIndex(x => x.ShiftId);
         b.Entity<PriceList>().HasIndex(x => x.Name).IsUnique();
         // One price per product per moment; also the index used to find the current price.
@@ -71,8 +79,6 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Ticket>().HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId);
         b.Entity<Ticket>().HasOne<User>().WithMany().HasForeignKey(x => x.CashierId);
         b.Entity<Ticket>().HasOne<Shift>().WithMany().HasForeignKey(x => x.ShiftId);
-
-        b.Entity<GarmentModifier>().HasOne<Modifier>().WithMany().HasForeignKey(x => x.ModifierId);
 
         b.Entity<PriceListItem>().HasOne<User>().WithMany().HasForeignKey(x => x.SetByUserId);
     }

@@ -1,32 +1,28 @@
-
 namespace SevenPos.Core.Catalog;
 
 public record AppliedCharge(Modifier Modifier, decimal Amount);
 public record PriceResult(decimal BasePrice, IReadOnlyList<AppliedCharge> Charges, decimal Total);
 
 /// <summary>
-/// Incremental pricing ("Starbucks model"): base price + modifiers.
-/// Modifiers are applied by Modifier.SortOrder; a percentage is calculated
-/// on the running subtotal at that step.
-/// E.g. Shirt $50 → Starch +$10 = $60 → Express +50% = $90.
+/// Incremental pricing ("Starbucks model"): list price + modifiers.
+/// A percentage modifier is always a percentage of the list price, never of the
+/// price with other extras (ADR 0012), so charges simply add up and the order
+/// does not change the total. Charges are listed in the wizard's order: group step,
+/// then option order.
+/// E.g. Shirt $100 → Almidón 10% = +$10 → Urgente 50% = +$50 → $160.
 /// </summary>
 public static class PriceCalculator
 {
     public static PriceResult Calculate(decimal basePrice, IEnumerable<Modifier> modifiers)
     {
-        var subtotal = basePrice;
-        var charges = new List<AppliedCharge>();
-
-        foreach (var m in modifiers.OrderBy(m => m.SortOrder))
-        {
-            var amount = m.ChargeType == ChargeType.Fixed
+        var charges = modifiers
+            .OrderBy(m => m.Group?.SortOrder ?? 0).ThenBy(m => m.SortOrder)
+            .Select(m => new AppliedCharge(m, m.ChargeType == ChargeType.Fixed
                 ? m.ChargeValue
-                : Round(subtotal * m.ChargeValue / 100m);
-            charges.Add(new AppliedCharge(m, amount));
-            subtotal += amount;
-        }
+                : Round(basePrice * m.ChargeValue / 100m)))
+            .ToList();
 
-        return new PriceResult(basePrice, charges, subtotal);
+        return new PriceResult(basePrice, charges, basePrice + charges.Sum(c => c.Amount));
     }
 
     public static decimal Round(decimal amount) =>

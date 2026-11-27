@@ -15,6 +15,8 @@ public class PriceListServiceTests : IDisposable
     private readonly PriceList _north = new() { Name = "Lista Norte" };
     private readonly PriceList _south = new() { Name = "Lista Sur" };
     private readonly Branch _northBranch, _southBranch, _branchWithoutList;
+    private readonly ServiceLine _line = new() { Name = "Tintorería" };
+    private readonly ModifierGroup _extras;
     private readonly Category _shirts = new() { Name = "Camisas" };
     private readonly Product _shirt, _jeans, _oldCoat;
     private readonly User _marketing, _cashier;
@@ -24,18 +26,21 @@ public class PriceListServiceTests : IDisposable
     public PriceListServiceTests()
     {
         _prices = new PriceListService(_database, _clock);
-        _northBranch = new Branch { Name = "Norte 1", PriceListId = _north.Id };
-        _southBranch = new Branch { Name = "Sur 1", PriceListId = _south.Id };
-        _branchWithoutList = new Branch { Name = "Nueva" };
-        _shirt = new Product { Name = "Camisa", BasePrice = 50, CategoryId = _shirts.Id };
-        _jeans = new Product { Name = "Jeans", BasePrice = 60, CategoryId = _shirts.Id };
-        _oldCoat = new Product { Name = "Abrigo viejo", BasePrice = 90, CategoryId = _shirts.Id, IsActive = false };
+        _northBranch = new Branch { Name = "Norte 1", Code = "N1", PriceListId = _north.Id };
+        _southBranch = new Branch { Name = "Sur 1", Code = "S1", PriceListId = _south.Id };
+        _branchWithoutList = new Branch { Name = "Nueva", Code = "NVA" };
+        _extras = new ModifierGroup { ServiceLineId = _line.Id, Name = "Extras", SortOrder = 1 };
+        _shirt = new Product { ServiceLineId = _line.Id, Name = "Camisa", BasePrice = 50, CategoryId = _shirts.Id };
+        _jeans = new Product { ServiceLineId = _line.Id, Name = "Jeans", BasePrice = 60, CategoryId = _shirts.Id };
+        _oldCoat = new Product { ServiceLineId = _line.Id, Name = "Abrigo viejo", BasePrice = 90, CategoryId = _shirts.Id, IsActive = false };
         _marketing = new User { Name = "Mónica", PinHash = "x", Role = UserRole.Marketing, BranchId = _northBranch.Id };
         _cashier = new User { Name = "Carlos", PinHash = "x", Role = UserRole.Cashier, BranchId = _northBranch.Id };
 
         using var db = _database.CreateDbContext();
         db.PriceLists.AddRange(_north, _south);
         db.Branches.AddRange(_northBranch, _southBranch, _branchWithoutList);
+        db.ServiceLines.Add(_line);
+        db.ModifierGroups.Add(_extras);
         db.Categories.Add(_shirts);
         db.Products.AddRange(_shirt, _jeans, _oldCoat);
         db.Users.AddRange(_marketing, _cashier);
@@ -119,12 +124,34 @@ public class PriceListServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task BranchCatalog_HidesInactiveModifiers()
+    {
+        await using (var db = _database.CreateDbContext())
+        {
+            var starch = new Modifier { ModifierGroupId = _extras.Id, Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
+            var oldExtra = new Modifier { ModifierGroupId = _extras.Id, Name = "Perfume", ChargeType = ChargeType.Fixed, ChargeValue = 5, SortOrder = 2, IsActive = false };
+            var removedLink = new Modifier { ModifierGroupId = _extras.Id, Name = "Doblado", ChargeType = ChargeType.Fixed, ChargeValue = 8, SortOrder = 3 };
+            db.Modifiers.AddRange(starch, oldExtra, removedLink);
+            db.ProductModifiers.AddRange(
+                new ProductModifier { ProductId = _shirt.Id, ModifierId = starch.Id },
+                new ProductModifier { ProductId = _shirt.Id, ModifierId = oldExtra.Id },
+                new ProductModifier { ProductId = _shirt.Id, ModifierId = removedLink.Id, IsActive = false });
+            await db.SaveChangesAsync();
+        }
+        AddPrice(_north, _shirt, 55, Now.AddDays(-1));
+
+        var shirt = (await _prices.GetBranchCatalogAsync(_northBranch.Id)).Single().Product;
+
+        Assert.Equal(["Almidón"], shirt.Modifiers.Select(pm => pm.Modifier!.Name));
+    }
+
+    [Fact]
     public async Task BranchCatalog_IncludesCategoryAndModifiers_SortedByCategoryThenName()
     {
         await using (var db = _database.CreateDbContext())
         {
             var pants = new Category { Name = "Pantalones" };
-            var starch = new Modifier { Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
+            var starch = new Modifier { ModifierGroupId = _extras.Id, Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
             db.Categories.Add(pants);
             db.Modifiers.Add(starch);
             db.ProductModifiers.Add(new ProductModifier { ProductId = _shirt.Id, ModifierId = starch.Id });
@@ -138,6 +165,8 @@ public class PriceListServiceTests : IDisposable
 
         Assert.Equal(["Camisas/Camisa", "Pantalones/Jeans"], catalog.Select(e => $"{e.Product.Category!.Name}/{e.Product.Name}"));
         Assert.Equal("Almidón", catalog[0].Product.Modifiers.Single().Modifier!.Name);
+        Assert.Equal("Extras", catalog[0].Product.Modifiers.Single().Modifier!.Group!.Name);
+        Assert.Equal("Tintorería", catalog[0].Product.ServiceLine!.Name);
     }
 
     // ---------- What Marketing manages ----------
@@ -279,5 +308,67 @@ public class PriceListServiceTests : IDisposable
         var lists = await _prices.GetPriceListsAsync();
 
         Assert.Equal(["Lista Norte", "Lista Sur"], lists.Select(l => l.Name));
+    }
+
+    // ---------- Which list (area) each branch sells from ----------
+
+    [Fact]
+    public async Task Branches_ListsActiveBranches_WithTheirList()
+    {
+        var branches = await _prices.GetBranchesAsync();
+
+        Assert.Equal(["Norte 1/Lista Norte", "Nueva/", "Sur 1/Lista Sur"],
+            branches.Select(b => $"{b.Name}/{b.PriceList?.Name}"));
+    }
+
+    [Fact]
+    public async Task AssignList_ByMarketing_ChangesWhatTheBranchSells()
+    {
+        AddPrice(_north, _shirt, 55, Now.AddDays(-1));
+        AddPrice(_south, _shirt, 48, Now.AddDays(-1));
+
+        var result = await _prices.AssignBranchListAsync(_marketing.Id, _northBranch.Id, _south.Id);
+
+        Assert.Null(result);
+        Assert.Equal(48m, (await _prices.GetBranchCatalogAsync(_northBranch.Id)).Single().Price);
+    }
+
+    [Fact]
+    public async Task AssignList_ByAnyoneButMarketing_IsRefused()
+    {
+        Assert.Equal(BranchListError.NotAllowed, await _prices.AssignBranchListAsync(_cashier.Id, _northBranch.Id, _south.Id));
+
+        await using var db = _database.CreateDbContext();
+        Assert.Equal(_north.Id, (await db.Branches.SingleAsync(b => b.Id == _northBranch.Id)).PriceListId);
+    }
+
+    [Fact]
+    public async Task AssignList_UnknownBranchOrInactiveList_IsRefused()
+    {
+        var closed = new PriceList { Name = "Lista vieja", IsActive = false };
+        await using (var db = _database.CreateDbContext())
+        {
+            db.PriceLists.Add(closed);
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Equal(BranchListError.BranchNotFound, await _prices.AssignBranchListAsync(_marketing.Id, Guid.NewGuid(), _south.Id));
+        Assert.Equal(BranchListError.PriceListNotFound, await _prices.AssignBranchListAsync(_marketing.Id, _northBranch.Id, closed.Id));
+    }
+
+    [Fact]
+    public async Task AssignList_IsAudited_WithTheOldAndNewList()
+    {
+        await _prices.AssignBranchListAsync(_marketing.Id, _branchWithoutList.Id, _north.Id);
+        await _prices.AssignBranchListAsync(_marketing.Id, _branchWithoutList.Id, _south.Id);
+
+        await using var db = _database.CreateDbContext();
+        var changes = await db.AuditLogs.Where(a => a.Action == "BRANCH_PRICE_LIST_CHANGED").ToListAsync();
+        Assert.Equal(2, changes.Count);
+        var last = changes.Single(a => a.OldValue is not null);
+        Assert.Equal(_marketing.Id, last.UserId);
+        Assert.Equal(_branchWithoutList.Id, last.BranchId);
+        Assert.Contains("Lista Norte", last.OldValue);
+        Assert.Contains("Lista Sur", last.NewValue);
     }
 }

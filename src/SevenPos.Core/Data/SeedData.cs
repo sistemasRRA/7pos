@@ -9,56 +9,29 @@ namespace SevenPos.Core.Data;
 /// </summary>
 public static class SeedData
 {
-    /// <summary>Sample PINs: Admin 1234, Mercadotecnia 5678.</summary>
-    public static async Task LoadAsync(PosDbContext db)
+    /// <summary>The line the first sample catalog lived in (and where the migration put older catalogs).</summary>
+    private const string OldSampleLine = "General";
+
+    /// <summary>Sample PINs: Admin 1234, Mercadotecnia 5678. Catalog: Marketing's 2026 lists; every branch sells from Lista A.</summary>
+    public static async Task LoadAsync(IDbContextFactory<PosDbContext> dbFactory, TimeProvider clock)
     {
-        await LoadBranchAndCatalogAsync(db);
+        await using var db = await dbFactory.CreateDbContextAsync();
+        await LoadBranchAndAdminAsync(db);
         await EnsureMarketingUserAsync(db);
-        await EnsureDefaultPriceListAsync(db);
+        await EnsureCatalog2026Async(db, new CatalogImporter(dbFactory, clock));
     }
 
-    private static async Task LoadBranchAndCatalogAsync(PosDbContext db)
+    private static async Task LoadBranchAndAdminAsync(PosDbContext db)
     {
         if (await db.Branches.AnyAsync()) return;
 
-        var branch = new Branch { Name = "Sucursal Demo" };
+        var branch = new Branch { Name = "Sucursal Demo", Code = "DEMO" };
         db.Branches.Add(branch);
         db.Users.Add(new User
         {
             Name = "Admin", Role = UserRole.Admin,
             PinHash = PinHasher.Hash("1234"), BranchId = branch.Id,
         });
-
-        // Display names stay in Spanish: they are what the cashier sees.
-        var starch = new Modifier { Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
-        var stainRemoval = new Modifier { Name = "Desmanchado profundo", ChargeType = ChargeType.Fixed, ChargeValue = 25, SortOrder = 2 };
-        var whiteSole = new Modifier { Name = "Suela blanca", ChargeType = ChargeType.Fixed, ChargeValue = 40, SortOrder = 3 };
-        var express = new Modifier { Name = "Servicio Express", ChargeType = ChargeType.Percentage, ChargeValue = 50, SortOrder = 100 };
-
-        Category NewCategory(string name, params (string name, decimal price, Modifier[] modifiers)[] products) => new()
-        {
-            Name = name,
-            Products = products.Select(p => new Product
-            {
-                Name = p.name, BasePrice = p.price,
-                Modifiers = p.modifiers.Select(m => new ProductModifier { ModifierId = m.Id }).ToList(),
-            }).ToList(),
-        };
-
-        db.Modifiers.AddRange(starch, stainRemoval, whiteSole, express);
-        db.Categories.AddRange(
-            NewCategory("Camisas",
-                ("Camisa de vestir", 50, [starch, stainRemoval, express]),
-                ("Blusa", 55, [starch, stainRemoval, express])),
-            NewCategory("Pantalones",
-                ("Pantalón de vestir", 65, [starch, stainRemoval, express]),
-                ("Jeans", 60, [stainRemoval, express])),
-            NewCategory("Blancos",
-                ("Edredón matrimonial", 180, [stainRemoval, express]),
-                ("Cobija", 150, [express])),
-            NewCategory("Tenis",
-                ("Tenis", 120, [whiteSole, stainRemoval, express])));
-
         await db.SaveChangesAsync();
     }
 
@@ -74,21 +47,31 @@ public static class SeedData
         await db.SaveChangesAsync();
     }
 
-    /// <summary>A "Lista General" with every product at its base price, used by every branch without a list.</summary>
-    private static async Task EnsureDefaultPriceListAsync(PosDbContext db)
+    /// <summary>
+    /// Loads Marketing's 2026 catalog once. A database from an older version has the first
+    /// sample catalog (Camisa de vestir, Almidón…) in the "General" line: it is deactivated,
+    /// never deleted, and every branch moves to Lista A.
+    /// </summary>
+    private static async Task EnsureCatalog2026Async(PosDbContext db, CatalogImporter importer)
     {
-        if (await db.PriceLists.AnyAsync()) return;
-        var marketing = await db.Users.FirstAsync(u => u.Role == UserRole.Marketing);
-        var list = new PriceList { Name = "Lista General" };
-        var now = DateTime.UtcNow;
-        list.Items = await db.Products
-            .Where(p => p.IsActive)
-            .Select(p => new PriceListItem { ProductId = p.Id, Price = p.BasePrice, EffectiveFromUtc = now, SetByUserId = marketing.Id })
-            .ToListAsync();
-        db.PriceLists.Add(list);
+        if (await db.ServiceLines.AnyAsync(l => l.Name == "Tintorería")) return;
 
-        foreach (var branch in await db.Branches.Where(b => b.PriceListId == null).ToListAsync())
-            branch.PriceListId = list.Id;
+        var oldLine = await db.ServiceLines.SingleOrDefaultAsync(l => l.Name == OldSampleLine);
+        if (oldLine is not null)
+        {
+            oldLine.IsActive = false;
+            await db.Products.Where(p => p.ServiceLineId == oldLine.Id).ForEachAsync(p => p.IsActive = false);
+            await db.ModifierGroups.Where(g => g.ServiceLineId == oldLine.Id).Include(g => g.Modifiers)
+                .ForEachAsync(g => { g.IsActive = false; g.Modifiers.ForEach(m => m.IsActive = false); });
+            await db.PriceLists.Where(l => l.Name == "Lista General").ForEachAsync(l => l.IsActive = false);
+            await db.SaveChangesAsync();
+        }
+
+        var marketing = await db.Users.FirstAsync(u => u.Role == UserRole.Marketing);
+        await importer.Import2026Async(marketing.Id);
+
+        var listA = await db.PriceLists.SingleAsync(l => l.Name == "Lista A");
+        await db.Branches.ForEachAsync(b => b.PriceListId = listA.Id);
         await db.SaveChangesAsync();
     }
 }

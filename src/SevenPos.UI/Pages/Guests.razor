@@ -1,20 +1,11 @@
 @page "/guests"
 @layout PosLayout
-@inject GuestService GuestService
 
 <PageTitle>Clientes · 7Pos</PageTitle>
 
 <h1>Clientes</h1>
 
-@if (_registering)
-{
-    <h2>Registrar cliente nuevo</h2>
-    <GuestForm InitialPhone="@_registerPhone"
-               OnRegistered="OnRegistered"
-               OnSelectExisting="Select"
-               OnCancel="() => _registering = false" />
-}
-else if (_selected is not null)
+@if (_selected is not null)
 {
     @if (_justRegistered) { <p class="notice" role="status">Cliente registrado.</p> }
     <GuestCard Guest="_selected" />
@@ -22,85 +13,19 @@ else if (_selected is not null)
 }
 else
 {
-    <form class="search" @onsubmit="SearchAsync">
-        <input type="search" @bind="_query" @ref="_searchInput" placeholder="Celular o nombre" autocomplete="off" aria-label="Buscar cliente" />
-        <button type="submit" class="primary">Buscar</button>
-        <button type="button" class="secondary" @onclick="StartRegistering">Registrar cliente nuevo</button>
-    </form>
-    <p class="hint">Escribe el celular completo, sus últimos 4 dígitos o parte del nombre, y presiona Enter.</p>
-
-    @if (_results is { Count: 0 })
-    {
-        <p>No encontramos clientes con «@_searched».</p>
-        <button type="button" class="primary" @onclick="StartRegistering">Registrar cliente nuevo</button>
-    }
-    else if (_results is not null)
-    {
-        <ul class="results">
-            @foreach (var guest in _results)
-            {
-                <li>
-                    <button type="button" @onclick="() => Select(guest)">
-                        <span class="name">@guest.FullName</span>
-                        <span class="phone">@PhoneNumber.Format(guest.Phone)</span>
-                    </button>
-                </li>
-            }
-        </ul>
-        @if (_results.Count == GuestService.MaxSearchResults)
-        {
-            <p class="hint">Mostrando los primeros @GuestService.MaxSearchResults. Escribe más para afinar la búsqueda.</p>
-        }
-    }
+    <GuestPicker OnSelected="guest => Select(guest, isNew: false)"
+                 OnRegistered="guest => Select(guest, isNew: true)" />
 }
 
 @code {
-    private string? _query, _searched, _registerPhone;
-    private List<Guest>? _results;
     private Guest? _selected;
-    private bool _registering, _justRegistered, _focusSearch = true;
-    private ElementReference _searchInput;
+    private bool _justRegistered;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_focusSearch && _selected is null && !_registering)
-        {
-            _focusSearch = false;
-            await _searchInput.FocusAsync();
-        }
-    }
-
-    private async Task SearchAsync()
-    {
-        _searched = _query?.Trim();
-        _results = await GuestService.SearchAsync(_query);
-    }
-
-    private void StartRegistering()
-    {
-        // If the cashier searched for a number, start the form with it.
-        _registerPhone = PhoneNumber.TryNormalize(_query, out var phone) ? phone : null;
-        _registering = true;
-    }
-
-    private void OnRegistered(Guest guest)
-    {
-        Select(guest);
-        _justRegistered = true;
-    }
-
-    private void Select(Guest guest)
+    private void Select(Guest guest, bool isNew)
     {
         _selected = guest;
-        _registering = false;
-        _justRegistered = false;
+        _justRegistered = isNew;
     }
 
-    private void NewSearch()
-    {
-        _selected = null;
-        _results = null;
-        _query = null;
-        _focusSearch = true;
-    }
+    private void NewSearch() => _selected = null;
 }

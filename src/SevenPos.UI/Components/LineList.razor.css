@@ -1,0 +1,6 @@
+.lines { list-style: none; padding: 0; margin: 0 0 .8rem; display: grid; gap: .4rem; }
+.lines li { display: flex; align-items: center; gap: .8rem; padding: .5rem 0; border-bottom: 1px solid #eef; }
+.what { flex: 1; display: grid; }
+.extras { color: #667; font-size: .9rem; }
+.money { font-variant-numeric: tabular-nums; }
+.remove { background: none; border: 0; color: #a12; cursor: pointer; text-decoration: underline; font-size: .9rem; }

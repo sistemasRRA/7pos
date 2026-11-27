@@ -1,0 +1,90 @@
+@* Find a guest by phone or name, or register a new one. Used by Clientes and by the ticket wizard. *@
+@inject GuestService GuestService
+
+@if (_registering)
+{
+    <h2>Registrar cliente nuevo</h2>
+    <GuestForm InitialPhone="@_registerPhone"
+               OnRegistered="Registered"
+               OnSelectExisting="Select"
+               OnCancel="CancelRegistering" />
+}
+else
+{
+    <form class="search" @onsubmit="SearchAsync">
+        <input type="search" @bind="_query" @ref="_searchInput" placeholder="Celular o nombre" autocomplete="off" aria-label="Buscar cliente" />
+        <button type="submit" class="primary">Buscar</button>
+        <button type="button" class="secondary" @onclick="StartRegistering">Registrar cliente nuevo</button>
+    </form>
+    <p class="hint">Escribe el celular completo, sus últimos 4 dígitos o parte del nombre, y presiona Enter.</p>
+
+    @if (_results is { Count: 0 })
+    {
+        <p>No encontramos clientes con «@_searched».</p>
+        <button type="button" class="primary" @onclick="StartRegistering">Registrar cliente nuevo</button>
+    }
+    else if (_results is not null)
+    {
+        <ul class="results">
+            @foreach (var guest in _results)
+            {
+                <li>
+                    <button type="button" @onclick="() => Select(guest)">
+                        <span class="name">@guest.FullName</span>
+                        <span class="phone">@PhoneNumber.Format(guest.Phone)</span>
+                    </button>
+                </li>
+            }
+        </ul>
+        @if (_results.Count == GuestService.MaxSearchResults)
+        {
+            <p class="hint">Mostrando los primeros @GuestService.MaxSearchResults. Escribe más para afinar la búsqueda.</p>
+        }
+    }
+}
+
+@code {
+    /// <summary>An existing guest was chosen (from the results, or "Usar este cliente" on a duplicate phone).</summary>
+    [Parameter, EditorRequired] public EventCallback<Guest> OnSelected { get; set; }
+
+    /// <summary>A new guest was registered. Without a handler, OnSelected is used.</summary>
+    [Parameter] public EventCallback<Guest> OnRegistered { get; set; }
+
+    private string? _query, _searched, _registerPhone;
+    private List<Guest>? _results;
+    private bool _registering, _focusSearch = true;
+    private ElementReference _searchInput;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusSearch && !_registering)
+        {
+            _focusSearch = false;
+            await _searchInput.FocusAsync();
+        }
+    }
+
+    private async Task SearchAsync()
+    {
+        _searched = _query?.Trim();
+        _results = await GuestService.SearchAsync(_query);
+    }
+
+    private void StartRegistering()
+    {
+        // If the cashier searched for a number, start the form with it.
+        _registerPhone = PhoneNumber.TryNormalize(_query, out var phone) ? phone : null;
+        _registering = true;
+    }
+
+    private void CancelRegistering()
+    {
+        _registering = false;
+        _focusSearch = true;
+    }
+
+    private Task Registered(Guest guest) =>
+        OnRegistered.HasDelegate ? OnRegistered.InvokeAsync(guest) : OnSelected.InvokeAsync(guest);
+
+    private Task Select(Guest guest) => OnSelected.InvokeAsync(guest);
+}
