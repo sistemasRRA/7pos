@@ -123,6 +123,10 @@ namespace SevenPos.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("type");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id")
                         .HasName("pk_payments");
 
@@ -132,7 +136,13 @@ namespace SevenPos.Core.Data.Migrations
                     b.HasIndex("TicketId")
                         .HasDatabaseName("ix_payments_ticket_id");
 
-                    b.ToTable("payments", (string)null);
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_payments_user_id");
+
+                    b.ToTable("payments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payments_amount_positive", "amount > 0");
+                        });
                 });
 
             modelBuilder.Entity("SevenPos.Core.Cash.Shift", b =>
@@ -1159,6 +1169,13 @@ namespace SevenPos.Core.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_payments_tickets_ticket_id");
+
+                    b.HasOne("SevenPos.Core.Organization.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_users_user_id");
                 });
 
             modelBuilder.Entity("SevenPos.Core.Cash.Shift", b =>

@@ -8,10 +8,10 @@ One file per business area, written **when the feature is built** (not before). 
 | [PIN login](pin-login.md) | Built |
 | [Guests](guests.md) (search and register) | Built |
 | [Price lists](price-lists.md) (per zone, IVA breakdown) | Built |
-| [Ticket capture wizard](ticket-wizard.md) | Built (no discounts or payment yet) |
+| [Ticket capture wizard](ticket-wizard.md) | Built (no discounts yet) |
 | [Real catalog](real-catalog.md) (service lines, groups step by step, 2026 lists, branch areas) | Built for Tintorería, Planchado, 7PLUS |
 | [Shifts](shifts.md) (open, withdrawals, Corte Z with blind count) | Built (Corte X and deposit wait for the client) |
-| Payments (advance and settlement) | Planned |
+| [Payments](payments.md) (advance, settlement, Cobrar page) | Built for cash and card |
 | Garment lifecycle | Planned |
 
 Use this outline for new feature docs:

@@ -9,9 +9,17 @@ namespace SevenPos.Core.Tickets;
 /// <summary>One physical garment the cashier received, with the extras the customer chose.</summary>
 public record NewGarment(Guid ProductId, IReadOnlyCollection<Guid> ModifierIds);
 
-public record NewTicket(Guid CashierId, Guid GuestId, IReadOnlyList<NewGarment> Garments);
+/// <summary>Money the customer pays when the ticket is created (cobro anticipado): part or all of the total.</summary>
+public record NewPayment(decimal Amount, PaymentMethod Method);
 
-public enum TicketError { NotAllowed, GuestNotFound, NoGarments, ProductNotAvailable, ModifierNotAllowed, MoreThanOneOptionPerGroup }
+/// <summary>A ticket to create. Without an advance the customer pays everything later.</summary>
+public record NewTicket(Guid CashierId, Guid GuestId, IReadOnlyList<NewGarment> Garments, NewPayment? Advance = null);
+
+public enum TicketError
+{
+    NotAllowed, GuestNotFound, NoGarments, ProductNotAvailable, ModifierNotAllowed, MoreThanOneOptionPerGroup,
+    InvalidPayment, PaymentMethodNotAccepted, PaymentExceedsTotal, NoOpenShift,
+}
 
 public record TicketCreation(Ticket? Ticket, TicketError? Error)
 {
@@ -85,15 +93,23 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
             priced.Add((entry.Product.Id, PriceCalculator.Calculate(entry.Price, chosen)));
         }
 
+        // Discounts arrive with roadmap 1b; until then the customer owes the full total.
+        var total = priced.Sum(g => g.Price.Total);
+        if (request.Advance is { } advance)
+        {
+            if (!PaymentService.IsValidAmount(advance.Amount)) return new(null, TicketError.InvalidPayment);
+            if (!PaymentService.AcceptedMethods.Contains(advance.Method)) return new(null, TicketError.PaymentMethodNotAccepted);
+            if (advance.Amount > total) return new(null, TicketError.PaymentExceedsTotal);
+        }
+
+        // One transaction: the ticket, its advance and the shift lock (see PaymentService.LockOpenShiftAsync).
+        await using var transaction = await db.Database.BeginTransactionAsync();
+        var shift = await PaymentService.LockOpenShiftAsync(db, cashier.BranchId);
+        if (request.Advance is not null && shift is null) return new(null, TicketError.NoOpenShift);
+
         var now = clock.GetUtcNow().UtcDateTime;
         var branchCode = await db.Branches.Where(b => b.Id == cashier.BranchId).Select(b => b.Code).SingleAsync();
         var folio = (await db.Tickets.Where(t => t.BranchId == cashier.BranchId).MaxAsync(t => (int?)t.Folio) ?? 0) + 1;
-
-        // The shift whose drawer is open when the ticket is created (none yet: payments will require one).
-        var shiftId = await db.Shifts
-            .Where(s => s.BranchId == cashier.BranchId && s.ClosedAtUtc == null)
-            .Select(s => (Guid?)s.Id)
-            .SingleOrDefaultAsync();
 
         var ticket = new Ticket
         {
@@ -102,7 +118,8 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
             BranchId = cashier.BranchId,
             GuestId = guest.Id,
             CashierId = cashier.Id,
-            ShiftId = shiftId,
+            // The shift whose drawer is open when the ticket is created; none if the drawer is closed and nothing is paid.
+            ShiftId = shift?.Id,
             CreatedAtUtc = now,
             Garments = priced.Select((g, index) => new Garment
             {
@@ -115,13 +132,14 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
                     .ToList(),
             }).ToList(),
         };
-        // Discounts arrive with roadmap 1b; until then the customer owes the full total.
-        ticket.Subtotal = ticket.Garments.Sum(g => g.PriceCharged);
+        ticket.Subtotal = total;
         ticket.Discounts = 0;
         ticket.Total = ticket.Subtotal - ticket.Discounts;
         ticket.BalanceDue = ticket.Total;
 
         db.Tickets.Add(ticket);
+        if (request.Advance is { } paid)
+            PaymentService.Record(db, ticket, shift!.Id, cashier, paid.Amount, paid.Method, PaymentType.Advance, now);
         guest.LastVisitUtc = now;
         db.AuditLogs.Add(new AuditLog
         {
@@ -135,15 +153,17 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
             CreatedAtUtc = now,
         });
         await db.SaveChangesAsync();
+        await transaction.CommitAsync();
         return new(ticket, null);
     }
 
-    /// <summary>The ticket with its guest, and its garments in label order with their products and extras.</summary>
+    /// <summary>The ticket with its guest, its payments (oldest first), and its garments in label order with their products and extras.</summary>
     public async Task<Ticket?> GetAsync(Guid ticketId)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var ticket = await db.Tickets
             .Include(t => t.Guest)
+            .Include(t => t.Payments.OrderBy(p => p.PaidAtUtc))
             .Include(t => t.Garments).ThenInclude(g => g.Product)
             .Include(t => t.Garments).ThenInclude(g => g.Modifiers).ThenInclude(m => m.Modifier).ThenInclude(m => m!.Group)
             .AsNoTracking()
@@ -155,6 +175,34 @@ public class TicketService(IDbContextFactory<PosDbContext> dbFactory, PriceListS
         foreach (var garment in ticket.Garments)
             garment.Modifiers = garment.Modifiers.OrderBy(m => m.Modifier!.Group!.SortOrder).ThenBy(m => m.Modifier!.SortOrder).ToList();
         return ticket;
+    }
+
+    /// <summary>
+    /// The branch's tickets matching what the cashier typed: the order number (any case),
+    /// the folio (with or without leading zeros) or the guest's phone. Newest first, at most 20.
+    /// </summary>
+    public async Task<List<Ticket>> FindAsync(Guid branchId, string query)
+    {
+        query = query.Trim();
+        if (query.Length == 0) return [];
+
+        await using var db = await dbFactory.CreateDbContextAsync();
+        var tickets = db.Tickets.Where(t => t.BranchId == branchId);
+        var code = query.ToUpperInvariant();
+        if (PhoneNumber.TryNormalize(query, out var phone))
+            tickets = tickets.Where(t => t.Guest!.Phone == phone);
+        else if (int.TryParse(query, out var folio))
+            // An order number can be all digits too ("23456789"), so check both.
+            tickets = tickets.Where(t => t.Folio == folio || t.PublicOrderId == code);
+        else
+            tickets = tickets.Where(t => t.PublicOrderId == code);
+
+        return await tickets
+            .Include(t => t.Guest)
+            .OrderByDescending(t => t.CreatedAtUtc)
+            .Take(20)
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     /// <summary>

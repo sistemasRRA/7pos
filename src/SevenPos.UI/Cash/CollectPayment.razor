@@ -1,0 +1,163 @@
+@page "/pay"
+@layout PosLayout
+@inject TicketService TicketService
+@inject PaymentService PaymentService
+@inject ShiftService ShiftService
+@inject PosSession Session
+
+@* Cobrar: find a ticket and pay part or all of its balance (usually at pickup). Rules: docs/features/payments.md. *@
+
+<PageTitle>Cobrar · 7Pos</PageTitle>
+
+<h1>Cobrar</h1>
+
+@if (Session.CurrentUser?.Role == UserRole.Marketing)
+{
+    <p class="notice">Mercadotecnia no cobra tickets. Entra con un usuario de sucursal.</p>
+}
+else if (_ticket is not null)
+{
+    <p><button type="button" class="link" @onclick="BackToSearch">← Buscar otro ticket</button></p>
+
+    @if (_paid is { } paid)
+    {
+        <p class="success" role="status">Pago de @Display.Money(paid) registrado.</p>
+        @if (_change is > 0)
+        {
+            <p class="change" role="status">Entrega de cambio: <strong>@Display.Money(_change.Value)</strong></p>
+        }
+    }
+
+    <TicketDetails Ticket="_ticket" />
+    <PaymentList Payments="_ticket.Payments" BalanceDue="_ticket.BalanceDue" />
+
+    @if (_ticket.Status == TicketStatus.Cancelled)
+    {
+        <p class="notice">Este ticket está cancelado; no se le puede cobrar.</p>
+    }
+    else if (_ticket.BalanceDue > 0)
+    {
+        @if (_error is { } error)
+        {
+            <p class="error" role="alert">@ErrorMessage(error)</p>
+        }
+        <PaymentForm @key="(_ticket.BalanceDue, _shiftOpen)" Title="Cobrar" Balance="_ticket.BalanceDue" ShiftOpen="_shiftOpen"
+                     Saving="_saving" SubmitLabel="Cobrar" OnSubmit="PayAsync" />
+    }
+}
+else
+{
+    <form class="search" @onsubmit="SearchAsync">
+        <label for="query">Número de orden, folio o teléfono del cliente</label>
+        <div class="row">
+            <input id="query" @bind="_query" placeholder="Ej. 7K2M9QXA, 42 o 55 1234 5678" autofocus />
+            <button type="submit" class="primary" disabled="@_searching">Buscar</button>
+        </div>
+    </form>
+
+    @if (_results is { Count: 0 })
+    {
+        <p class="hint">No hay tickets de esta sucursal con “@_lastQuery”.</p>
+    }
+    else if (_results is not null)
+    {
+        <table class="results">
+            <thead><tr><th>Folio</th><th>Orden</th><th>Cliente</th><th>Fecha</th><th class="money">Total</th><th class="money">Saldo</th></tr></thead>
+            <tbody>
+                @foreach (var ticket in _results)
+                {
+                    <tr @onclick="() => OpenAsync(ticket.Id)" class="clickable">
+                        <td>@ticket.Folio.ToString("D6")</td>
+                        <td class="code">@ticket.PublicOrderId</td>
+                        <td>@ticket.Guest!.FullName</td>
+                        <td>@Display.DateTime(ticket.CreatedAtUtc)</td>
+                        <td class="money">@Display.Money(ticket.Total)</td>
+                        <td class="money @(ticket.BalanceDue > 0 ? "owed" : "")">@Display.Money(ticket.BalanceDue)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p class="hint">Toca un ticket para verlo y cobrarlo.</p>
+    }
+}
+
+@code {
+    private string _query = "";
+    private string _lastQuery = "";
+    private bool _searching;
+    private List<Ticket>? _results;
+
+    private Ticket? _ticket;
+    private bool _shiftOpen;
+    private bool _saving;
+    private PaymentError? _error;
+    private decimal? _paid;
+    private decimal? _change;
+
+    private async Task SearchAsync()
+    {
+        _searching = true;
+        _lastQuery = _query.Trim();
+        _results = await TicketService.FindAsync(Session.CurrentUser!.BranchId, _query);
+        _searching = false;
+        // One match: go straight to it.
+        if (_results.Count == 1) await OpenAsync(_results[0].Id);
+    }
+
+    private async Task OpenAsync(Guid ticketId)
+    {
+        _paid = null;
+        _change = null;
+        _error = null;
+        await LoadAsync(ticketId);
+    }
+
+    private async Task LoadAsync(Guid ticketId)
+    {
+        _ticket = await TicketService.GetAsync(ticketId);
+        _shiftOpen = await ShiftService.GetOpenShiftAsync(Session.CurrentUser!.BranchId) is not null;
+    }
+
+    private async Task PayAsync(PaymentInput input)
+    {
+        if (input.Payment is not { } payment) return;
+        _saving = true;
+        _error = null;
+        var result = await PaymentService.PayAsync(Session.CurrentUser!.Id, _ticket!.Id, payment.Amount, payment.Method);
+        if (result.Succeeded)
+        {
+            _paid = payment.Amount;
+            _change = input.Change;
+        }
+        else
+        {
+            _error = result.Error;
+            _paid = null;
+            _change = null;
+        }
+        // Reload either way: the balance or the drawer may have changed on another terminal.
+        await LoadAsync(_ticket.Id);
+        _saving = false;
+    }
+
+    private void BackToSearch()
+    {
+        _ticket = null;
+        _paid = null;
+        _change = null;
+        _error = null;
+    }
+
+    private static string ErrorMessage(PaymentError error) => error switch
+    {
+        PaymentError.NotAllowed => "Tu usuario no puede cobrar.",
+        PaymentError.TicketNotFound => "Este ticket ya no existe.",
+        PaymentError.OtherBranch => "Este ticket es de otra sucursal.",
+        PaymentError.TicketCancelled => "Este ticket está cancelado.",
+        PaymentError.NoOpenShift => "La caja está cerrada. Abre la caja para cobrar.",
+        PaymentError.InvalidAmount => "Escribe un monto válido.",
+        PaymentError.AmountExceedsBalance => "El monto es mayor que el saldo. Alguien pudo haber cobrado este ticket en otra caja; revisa el saldo.",
+        PaymentError.MethodNotAccepted => "Esa forma de pago todavía no se acepta.",
+        _ => "No se pudo registrar el pago.",
+    };
+}

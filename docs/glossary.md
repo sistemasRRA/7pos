@@ -33,8 +33,8 @@ The client documents are in Spanish; the code is in English. Use this table to t
 |---|---|
 | Recibido / En Proceso / Listo / En Ruta / Entregado | `TicketStatus.Received / InProcess / Ready / OutForDelivery / Delivered` |
 | Sucio / Lavado / Planchado / Armado / Entregado | `GarmentStatus.Dirty / Washed / Ironed / Assembled / Delivered` (plus `InTransit`) |
-| Cobro anticipado / Liquidación | `PaymentType.Advance / Settlement` |
-| Efectivo / Tarjeta / Wallet / Liga de pago | `PaymentMethod.Cash / Card / Wallet / PaymentLink` |
+| Cobro anticipado (anticipo) / Liquidación | `PaymentType.Advance / Settlement`: paid when the ticket is created / paid later, usually at pickup |
+| Efectivo / Tarjeta / Wallet / Liga de pago | `PaymentMethod.Cash / Card / Wallet / PaymentLink` (only cash and card accepted today) |
 | Mostrador / App Logística / 7Wash / 7clean dark | `TicketOrigin.Counter / CleanCom / SevenWash / SevenCleanDark` |
 | Entrada / Inicio comida / Fin comida / Salida | `AttendanceType.ClockIn / LunchStart / LunchEnd / ClockOut` |
 

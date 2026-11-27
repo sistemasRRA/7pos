@@ -1,0 +1,7 @@
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; }
+.facts dd { margin: 0; }
+.order-id { font-size: 1.4rem; font-weight: bold; letter-spacing: .1em; font-family: ui-monospace, monospace; }
+.labels { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.labels th, .labels td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #eef; }
+.labels .money { text-align: right; font-variant-numeric: tabular-nums; }
+.code { font-family: ui-monospace, monospace; }

@@ -1,0 +1,22 @@
+.hint { color: #667; }
+.notice { padding: .8rem 1rem; border-radius: 8px; background: #fff4e5; color: #7a4a00; }
+.success { padding: .6rem .8rem; border-radius: 8px; background: #e7f5e1; color: #2f5a12; }
+.error { padding: .6rem .8rem; border-radius: 8px; background: #fdecec; color: #8a1c1c; }
+.change { padding: .8rem 1rem; border-radius: 8px; background: #e7f5e1; color: #2f5a12; font-size: 1.4rem; }
+
+.search { display: flex; flex-direction: column; gap: .4rem; max-width: 560px; margin: 0 0 1rem; }
+.search label { font-weight: bold; }
+.row { display: flex; gap: .6rem; }
+.row input { flex: 1; padding: .6rem .8rem; font-size: 1.1rem; border: 1px solid #ccd; border-radius: 8px; }
+
+.results { width: 100%; border-collapse: collapse; }
+.results th, .results td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid #eef; }
+.results .money { text-align: right; font-variant-numeric: tabular-nums; }
+.results .owed { color: #8a1c1c; font-weight: bold; }
+.clickable { cursor: pointer; }
+.clickable:hover { background: #eaf2fb; }
+.code { font-family: ui-monospace, monospace; }
+
+.primary { background: #1a75a8; color: #fff; border: 0; border-radius: 8px; padding: .7rem 1.2rem; font-size: 1rem; cursor: pointer; }
+.primary:disabled { background: #9bb8cc; cursor: default; }
+.link { background: none; border: 0; color: #1a75a8; text-decoration: underline; cursor: pointer; padding: 0; font-size: 1rem; }

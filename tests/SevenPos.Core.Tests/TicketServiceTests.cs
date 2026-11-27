@@ -337,6 +337,171 @@ public class TicketServiceTests : IDisposable
         Assert.False(await db.AuditLogs.AnyAsync());
     }
 
+    // ---------- Advance payment ----------
+
+    private Shift OpenShift(Branch? branch = null)
+    {
+        using var db = _database.CreateDbContext();
+        var shift = new Shift { BranchId = (branch ?? _branch).Id, UserId = _cashier.Id, OpeningCash = 500 };
+        db.Shifts.Add(shift);
+        db.SaveChanges();
+        return shift;
+    }
+
+    private Task<TicketCreation> CreateWithAdvanceAsync(decimal amount, PaymentMethod method = PaymentMethod.Cash) =>
+        _tickets.CreateAsync(new NewTicket(_cashier.Id, _guest.Id, [Garment(_shirt), Garment(_jeans)], new NewPayment(amount, method)));
+
+    [Fact]
+    public async Task Create_WithAnAdvance_RecordsItOnTheOpenShift_AndLowersTheBalance()
+    {
+        var shift = OpenShift();
+
+        var ticket = (await CreateWithAdvanceAsync(50, PaymentMethod.Card)).Ticket!; // total 55 + 60 = 115
+
+        Assert.Equal(115m, ticket.Total);
+        Assert.Equal(65m, ticket.BalanceDue);
+        Assert.Equal(shift.Id, ticket.ShiftId);
+        await using var db = _database.CreateDbContext();
+        var payment = await db.Payments.SingleAsync();
+        Assert.Equal(ticket.Id, payment.TicketId);
+        Assert.Equal(shift.Id, payment.ShiftId);
+        Assert.Equal(_cashier.Id, payment.UserId);
+        Assert.Equal(50m, payment.Amount);
+        Assert.Equal(PaymentMethod.Card, payment.Method);
+        Assert.Equal(PaymentType.Advance, payment.Type);
+        Assert.Equal(Now, payment.PaidAtUtc);
+        Assert.Equal(65m, (await db.Tickets.SingleAsync()).BalanceDue);
+        Assert.Single(await db.AuditLogs.Where(a => a.Action == "PAYMENT_RECEIVED").ToListAsync());
+    }
+
+    [Fact]
+    public async Task Create_PaidInFull_OwesNothing()
+    {
+        OpenShift();
+
+        Assert.Equal(0m, (await CreateWithAdvanceAsync(115)).Ticket!.BalanceDue);
+    }
+
+    [Fact]
+    public async Task Create_WithoutAPayment_NeedsNoShift()
+    {
+        Assert.True((await CreateAsync(Garment(_shirt))).Succeeded);
+    }
+
+    [Fact]
+    public async Task Create_WithAnAdvance_WithoutAnOpenShift_IsRefused_AndNothingIsSaved()
+    {
+        OpenShift(_otherBranch); // another branch's drawer does not count
+
+        var result = await CreateWithAdvanceAsync(50);
+
+        Assert.Equal(TicketError.NoOpenShift, result.Error);
+        await using var db = _database.CreateDbContext();
+        Assert.Empty(await db.Tickets.ToListAsync());
+        Assert.Empty(await db.Payments.ToListAsync());
+    }
+
+    [Fact]
+    public async Task Create_WithAnAdvanceAboveTheTotal_IsRefused()
+    {
+        OpenShift();
+
+        Assert.Equal(TicketError.PaymentExceedsTotal, (await CreateWithAdvanceAsync(115.01m)).Error);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-5)]
+    [InlineData(10.001)]
+    public async Task Create_WithAnInvalidAdvance_IsRefused(decimal amount)
+    {
+        OpenShift();
+
+        Assert.Equal(TicketError.InvalidPayment, (await CreateWithAdvanceAsync(amount)).Error);
+    }
+
+    [Theory]
+    [InlineData(PaymentMethod.Wallet)]
+    [InlineData(PaymentMethod.PaymentLink)]
+    public async Task Create_WithAnAdvanceByAMethodNotAcceptedYet_IsRefused(PaymentMethod method)
+    {
+        OpenShift();
+
+        Assert.Equal(TicketError.PaymentMethodNotAccepted, (await CreateWithAdvanceAsync(50, method)).Error);
+    }
+
+    [Fact]
+    public async Task Get_IncludesThePayments_OldestFirst()
+    {
+        var shift = OpenShift();
+        var ticket = (await CreateWithAdvanceAsync(50)).Ticket!;
+        _clock.Advance(TimeSpan.FromDays(2));
+        await new PaymentService(_database, _clock).PayAsync(_cashier.Id, ticket.Id, 65, PaymentMethod.Card);
+
+        var saved = await _tickets.GetAsync(ticket.Id);
+
+        Assert.Equal([PaymentType.Advance, PaymentType.Settlement], saved!.Payments.Select(p => p.Type));
+        Assert.Equal(0m, saved.BalanceDue);
+    }
+
+    // ---------- Finding a ticket ----------
+
+    [Fact]
+    public async Task Find_ByOrderNumber_IgnoringCaseAndSpaces()
+    {
+        var ticket = (await CreateAsync(Garment(_shirt))).Ticket!;
+        await CreateAsync(Garment(_jeans));
+
+        var found = await _tickets.FindAsync(_branch.Id, $"  {ticket.PublicOrderId.ToLowerInvariant()} ");
+
+        Assert.Equal(ticket.Id, Assert.Single(found).Id);
+        Assert.Equal("Ana López", found[0].Guest!.FullName);
+    }
+
+    [Theory]
+    [InlineData("2")]
+    [InlineData("000002")]
+    public async Task Find_ByFolio(string query)
+    {
+        await CreateAsync(Garment(_shirt));
+        var second = (await CreateAsync(Garment(_jeans))).Ticket!;
+
+        Assert.Equal(second.Id, Assert.Single(await _tickets.FindAsync(_branch.Id, query)).Id);
+    }
+
+    [Fact]
+    public async Task Find_ByGuestPhone_ReturnsTheirTickets_NewestFirst()
+    {
+        var first = (await CreateAsync(Garment(_shirt))).Ticket!;
+        _clock.Advance(TimeSpan.FromHours(1));
+        var second = (await CreateAsync(Garment(_jeans))).Ticket!;
+
+        var found = await _tickets.FindAsync(_branch.Id, "55 1234 5678");
+
+        Assert.Equal([second.Id, first.Id], found.Select(t => t.Id));
+    }
+
+    [Fact]
+    public async Task Find_OnlyLooksInTheBranch()
+    {
+        var ticket = (await CreateAsync(Garment(_shirt))).Ticket!;
+
+        Assert.Empty(await _tickets.FindAsync(_otherBranch.Id, ticket.PublicOrderId));
+        Assert.Empty(await _tickets.FindAsync(_otherBranch.Id, "1"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("ZZZZZZZZ")]
+    [InlineData("99")]
+    public async Task Find_WithNoMatch_ReturnsNothing(string query)
+    {
+        await CreateAsync(Garment(_shirt));
+
+        Assert.Empty(await _tickets.FindAsync(_branch.Id, query));
+    }
+
     // ---------- Reading a ticket ----------
 
     [Fact]

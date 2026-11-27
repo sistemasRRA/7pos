@@ -1,0 +1,122 @@
+@using System.Globalization
+
+@* Takes a payment: method, amount and, for cash, what the customer hands over and the change.
+   The amounts are checked here only to help the cashier; PaymentService / TicketService check them again.
+   Rules: docs/features/payments.md. *@
+
+<div class="payment">
+    <h2>@Title</h2>
+
+    @if (!ShiftOpen)
+    {
+        <p class="notice">La caja está cerrada. Para cobrar, primero <a href="cash">abre la caja</a>.</p>
+    }
+
+    <div class="methods" role="radiogroup" aria-label="Forma de pago">
+        @if (AllowNoPayment)
+        {
+            <button type="button" class="method @(_method is null ? "chosen" : "")" @onclick="() => Choose(null)">Sin pago ahora</button>
+        }
+        @foreach (var method in PaymentService.AcceptedMethods)
+        {
+            <button type="button" class="method @(_method == method ? "chosen" : "")" disabled="@(!ShiftOpen)" @onclick="() => Choose(method)">
+                @Display.Method(method)
+            </button>
+        }
+    </div>
+
+    @if (_method is not null)
+    {
+        <div class="fields">
+            <label>Monto a cobrar
+                <input type="number" step="0.01" min="0.01" max="@Balance.ToString(CultureInfo.InvariantCulture)" @bind="_amount" />
+            </label>
+            <div class="quick">
+                <button type="button" class="link" @onclick="() => _amount = Balance">Todo (@Display.Money(Balance))</button>
+                @if (AllowNoPayment && Balance >= 2)
+                {
+                    <button type="button" class="link" @onclick="() => _amount = Math.Round(Balance / 2, 2)">Mitad (@Display.Money(Math.Round(Balance / 2, 2)))</button>
+                }
+            </div>
+
+            @if (_method == PaymentMethod.Cash)
+            {
+                <label>Recibido en efectivo
+                    <input type="number" step="0.01" min="0" placeholder="@(_amount?.ToString("0.00", CultureInfo.InvariantCulture) ?? "")" @bind="_received" />
+                </label>
+                @if (Change is { } change)
+                {
+                    <p class="change">Cambio: <strong>@Display.Money(change)</strong></p>
+                }
+            }
+
+            @if (_method is not null && _amount is > 0)
+            {
+                <p class="remaining">Quedará pendiente: <strong>@Display.Money(Math.Max(0, Balance - _amount.Value))</strong></p>
+            }
+        </div>
+    }
+
+    @if (Problem is { } problem)
+    {
+        <p class="error" role="alert">@problem</p>
+    }
+
+    <div class="choices">
+        @ChildContent
+        <button type="button" class="primary" disabled="@(Saving || Problem is not null || (_method is not null && !ShiftOpen))" @onclick="SubmitAsync">
+            @(Saving ? "Guardando…" : SubmitLabel)
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Pago";
+    /// <summary>The most the customer can pay now: the ticket's total or its balance.</summary>
+    [Parameter, EditorRequired] public decimal Balance { get; set; }
+    /// <summary>The ticket wizard allows creating a ticket without taking money.</summary>
+    [Parameter] public bool AllowNoPayment { get; set; }
+    [Parameter] public bool ShiftOpen { get; set; }
+    [Parameter] public bool Saving { get; set; }
+    [Parameter, EditorRequired] public string SubmitLabel { get; set; } = "";
+    /// <summary>Called with the payment (null = no payment now) and, for cash, the change to hand back.</summary>
+    [Parameter, EditorRequired] public EventCallback<PaymentInput> OnSubmit { get; set; }
+    /// <summary>Extra buttons shown before the submit button (e.g. "Regresar").</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private PaymentMethod? _method;
+    private decimal? _amount;
+    private decimal? _received;
+
+    protected override void OnInitialized()
+    {
+        // Paying everything is the usual case; the wizard starts without payment if the drawer is closed.
+        _method = AllowNoPayment && !ShiftOpen ? null : PaymentMethod.Cash;
+        _amount = Balance;
+    }
+
+    private void Choose(PaymentMethod? method)
+    {
+        _method = method;
+        _amount ??= Balance;
+        _received = null;
+    }
+
+    /// <summary>What the cashier hands back. Empty "Recibido" means the exact amount.</summary>
+    private decimal? Change => _method == PaymentMethod.Cash && _received is { } received && _amount is { } amount && received >= amount
+        ? received - amount
+        : null;
+
+    private string? Problem => _method is null ? null : _amount switch
+    {
+        null or <= 0 => "Escribe el monto a cobrar.",
+        { } amount when !PaymentService.IsValidAmount(amount) => "El monto solo puede tener centavos (dos decimales).",
+        { } amount when amount > Balance => $"El monto no puede ser mayor que {Display.Money(Balance)}.",
+        { } amount when _method == PaymentMethod.Cash && _received is { } received && received < amount => "Lo recibido es menos que el monto a cobrar.",
+        _ => null,
+    };
+
+    private Task SubmitAsync() => OnSubmit.InvokeAsync(_method is { } method && _amount is { } amount
+        ? new PaymentInput(new NewPayment(amount, method), Change)
+        : new PaymentInput(null, null));
+}

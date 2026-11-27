@@ -3,7 +3,7 @@
 ## What it does
 Each branch has one cash drawer. A cashier **opens the shift** with the cash already in the drawer (fondo inicial), records every **withdrawal** (cash taken out for suppliers, expenses or pickups), and **closes the shift (Corte Z)** by counting the cash **blind**, without first seeing how much should be there. The close then shows the expected cash, the counted cash and the difference (sobrante / faltante).
 
-Payments (the next feature) will require an open shift, so every peso that comes in belongs to one shift and shows up in its close.
+[Payments](payments.md) require an open shift, so every peso that comes in belongs to one shift and shows up in its close.
 
 Source: ER rev. 2 (`Cajas_Turnos`, `Salidas de efectivo`) and the [client answers](../specs/2026-11-26-client-answers.md#3-cash-withdrawals-appear-in-the-shift-close).
 
@@ -31,14 +31,14 @@ Source: ER rev. 2 (`Cajas_Turnos`, `Salidas de efectivo`) and the [client answer
 11. `SHIFT_OPENED` (opening cash), `CASH_WITHDRAWN` (amount, reason) and `SHIFT_CLOSED` (expected, counted, difference).
 
 **Tickets**
-12. A new ticket belongs to the branch's open shift (`Ticket.ShiftId`). Without an open shift it has none for now; payments will require one.
+12. A new ticket belongs to the branch's open shift (`Ticket.ShiftId`). Without an open shift it has none, and it cannot take an advance.
 
 ## Edge cases
 - **Shift change during the day:** the outgoing cashier closes (Corte Z) and the incoming one opens a new shift with the cash they find.
 - **Someone else closed the drawer** while the page was open: the next action says "La caja ya está cerrada." and the page reloads.
 - **Two terminals open at once:** one gets "Alguien más ya abrió la caja de esta sucursal."
 - **The withdrawal error hints at the expected cash** ("El retiro es mayor que el efectivo que debe haber en la caja."). That is the price of rule 5; the exact amount is never shown.
-- There are no payments yet, so today the expected cash is the opening cash minus the withdrawals.
+- A payment and the close at the same moment: the close waits for the payment, or the payment finds the drawer closed ([payments](payments.md), rule 15).
 
 ## Code
 - Model: [`Shift`](../../src/SevenPos.Core/Cash/Shift.cs), [`CashWithdrawal`](../../src/SevenPos.Core/Cash/CashWithdrawal.cs), [`Payment`](../../src/SevenPos.Core/Cash/Payment.cs)

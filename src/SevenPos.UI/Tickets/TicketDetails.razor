@@ -1,0 +1,31 @@
+@* A saved ticket: folio, order number, guest, and one row per garment with its label, extras and price. *@
+
+<dl class="facts">
+    <dt>Folio</dt><dd>@Ticket.Folio.ToString("D6")</dd>
+    <dt>Número de orden</dt><dd class="order-id">@Ticket.PublicOrderId</dd>
+    <dt>Cliente</dt><dd>@Ticket.Guest!.FullName · @PhoneNumber.Format(Ticket.Guest.Phone)</dd>
+    <dt>Fecha</dt><dd>@Display.DateTime(Ticket.CreatedAtUtc)</dd>
+    <dt>Estado</dt><dd>@Display.Status(Ticket.Status)</dd>
+</dl>
+
+<table class="labels">
+    <thead><tr><th>Etiqueta</th><th>Prenda</th><th>Servicios</th><th class="money">Precio</th></tr></thead>
+    <tbody>
+        @foreach (var garment in Ticket.Garments)
+        {
+            <tr>
+                <td class="code">@garment.Code</td>
+                <td>@garment.Product!.Name</td>
+                <td>@(garment.Modifiers.Count == 0 ? "—" : string.Join(" · ", garment.Modifiers.Select(m => Display.Option(m.Modifier!))))</td>
+                <td class="money">@Display.Money(garment.PriceCharged)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<Totals Total="Ticket.Total" Pieces="Ticket.Garments.Count" />
+
+@code {
+    /// <summary>A ticket loaded with TicketService.GetAsync (guest, garments, products and extras).</summary>
+    [Parameter, EditorRequired] public Ticket Ticket { get; set; } = default!;
+}

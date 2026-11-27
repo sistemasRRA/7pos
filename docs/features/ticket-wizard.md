@@ -1,7 +1,7 @@
 # Ticket capture wizard
 
 ## What it does
-At the counter, the cashier creates a ticket for a customer in three steps: **Cliente** (search or register), **Prendas** (each garment and its extras, asked one at a time, the "Starbucks model"), and **Confirmar**. The ticket is stored with **one row per physical garment**, each with its own label code, and every price is frozen at the moment of sale. Payment, printing and photos come in later steps.
+At the counter, the cashier creates a ticket for a customer in three steps: **Cliente** (search or register), **Prendas** (each garment and its extras, asked one at a time, the "Starbucks model"), and **Confirmar y cobrar** (an optional advance, [payments](payments.md)). The ticket is stored with **one row per physical garment**, each with its own label code, and every price is frozen at the moment of sale. Printing and photos come in later steps.
 
 ## Rules
 
@@ -16,7 +16,7 @@ At the counter, the cashier creates a ticket for a customer in three steps: **Cl
 6. A modifier the product does not offer (or an inactive one) is refused. The same modifier sent twice is charged once.
 7. A percentage extra is a percentage of the **list price**, never of the price with other extras: $100 + Almidón 10% + Express 50% = $160 ([ADR 0012](../decisions/0012-percentage-modifiers-on-list-price.md)). Charges are stored in `Modifier.SortOrder`.
 8. Each garment stores its list price (`ListPrice`), its final price (`PriceCharged`) and each extra's charge (`GarmentModifier.ChargeApplied`). Later price changes never change a saved ticket ([data rules](../data-rules.md#3-freeze-prices-at-the-moment-of-sale)).
-9. `Subtotal` = sum of the garment prices; `Discounts` = 0 until promotions exist, because there are **no manual discounts** ([ADR 0013](../decisions/0013-no-manual-discounts.md)); `Total = Subtotal − Discounts`; `BalanceDue = Total` until payments exist.
+9. `Subtotal` = sum of the garment prices; `Discounts` = 0 until promotions exist, because there are **no manual discounts** ([ADR 0013](../decisions/0013-no-manual-discounts.md)); `Total = Subtotal − Discounts`; `BalanceDue = Total − advance`.
 10. Prices include IVA. The screen breaks the ticket total down, per ticket ([ADR 0010](../decisions/0010-prices-include-iva.md)).
 
 **Numbers**
@@ -32,13 +32,13 @@ At the counter, the cashier creates a ticket for a customer in three steps: **Cl
 ## Screen
 - `/tickets/new`, header link "Nuevo ticket" (hidden for Marketing).
 - In Prendas, the cashier picks the service line and the garment, then answers each of its modifier groups in step order (1 Tamaño, 2 Textil…), one option or "Ninguno" each, then the quantity ([real catalog](real-catalog.md)). "3 × CAMISA, Almidón Medio" becomes 3 garment rows with 3 labels.
-- The result screen shows the folio, the public order number, each label code and the balance due.
+- The result screen shows the folio, the public order number, each label code, the payments, the balance due and the change for a cash advance.
 
 ## Edge cases
 - **A price changes while the cashier is capturing** (a scheduled price starts): the saved ticket uses the price at the moment it is created, and the result screen shows the saved prices.
 - **A product or extra is turned off meanwhile:** the ticket is refused with a message and the catalog reloads.
 - **Existing branches** got placeholder codes `S001`, `S002`… in the migration. Real codes must be set before labels are printed.
-- **Shift:** the ticket belongs to the branch's open shift. Without an open shift `ShiftId` stays empty for now; payments will require one ([shifts](shifts.md)).
+- **Shift:** the ticket belongs to the branch's open shift. Without an open shift it can still be created, but only without an advance ([payments](payments.md)).
 - **Several PCs offline** (Phase 2) cannot use "highest folio + 1". Folio generation will need a decision then (roadmap question 7).
 
 ## Code
@@ -49,8 +49,7 @@ At the counter, the cashier creates a ticket for a customer in three steps: **Cl
 
 ## Not built yet
 - Promotions and coupons (roadmap 1b), the only source of discounts.
-- Modifier groups and the real 2026 price lists A, AA, B and C ([client answers](../specs/2026-11-26-modifiers-discounts-price-lists.md)).
-- Payment at the end of the wizard (roadmap step 6), printing the ticket and labels, the photo step (Phase 2).
+- Printing the ticket and labels, the photo step (Phase 2).
 - Searching and opening existing tickets; cancelling a ticket.
 - Editing branch codes.
 

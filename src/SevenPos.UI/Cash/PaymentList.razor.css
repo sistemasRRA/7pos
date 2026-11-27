@@ -1,0 +1,7 @@
+h2 { font-size: 1.1rem; margin: 1.2rem 0 .4rem; }
+.hint { color: #667; }
+table { width: 100%; max-width: 720px; border-collapse: collapse; }
+th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #eef; }
+.money { text-align: right; font-variant-numeric: tabular-nums; }
+.balance { font-size: 1.15rem; margin: .6rem 0; }
+.balance.paid { color: #2f5a12; font-weight: bold; }

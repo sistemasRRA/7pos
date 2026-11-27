@@ -138,6 +138,23 @@ public class DatabaseTests : IDisposable
         Assert.Equal("ix_shifts_open_per_branch", postgresError.ConstraintName);
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-50)]
+    public async Task Payment_MustBePositive(decimal amount)
+    {
+        await SeedAsync();
+        var user = await _db.Users.FirstAsync(u => u.Role == UserRole.Admin);
+        var guest = new Guest { Phone = "5522222222", FullName = "Cliente" };
+        var shift = new Shift { BranchId = user.BranchId, UserId = user.Id };
+        var ticket = new Ticket { Folio = 1, PublicOrderId = "P1", GuestId = guest.Id, BranchId = user.BranchId, CashierId = user.Id };
+        _db.AddRange(guest, shift, ticket);
+        _db.Payments.Add(new Payment { TicketId = ticket.Id, ShiftId = shift.Id, UserId = user.Id, Amount = amount });
+
+        var error = await Assert.ThrowsAsync<DbUpdateException>(() => _db.SaveChangesAsync());
+        Assert.Equal(PostgresErrorCodes.CheckViolation, Assert.IsType<PostgresException>(error.InnerException).SqlState); // 23514
+    }
+
     [Fact]
     public async Task Money_KeepsExactCents()
     {
