@@ -1,0 +1,6 @@
+h2 { font-size: 1.1rem; margin: 1.2rem 0 .4rem; }
+.hint { color: #667; }
+table { width: 100%; max-width: 720px; border-collapse: collapse; }
+th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #eef; }
+tfoot th, tfoot td { font-weight: bold; border-bottom: 0; }
+.money { text-align: right; font-variant-numeric: tabular-nums; }

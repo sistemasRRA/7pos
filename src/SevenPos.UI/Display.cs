@@ -1,4 +1,5 @@
 using System.Globalization;
+using SevenPos.Core.Cash;
 using SevenPos.Core.Catalog;
 using SevenPos.Core.Common;
 
@@ -35,4 +36,13 @@ public static class Display
 
     /// <summary>The UTC moment a local calendar day starts (00:00 in Mexico City).</summary>
     public static DateTime StartOfLocalDayUtc(DateOnly day) => BusinessTime.StartOfDayUtc(day);
+
+    public static string Method(PaymentMethod method) => method switch
+    {
+        PaymentMethod.Cash => "Efectivo",
+        PaymentMethod.Card => "Tarjeta",
+        PaymentMethod.Wallet => "Wallet",
+        PaymentMethod.PaymentLink => "Liga de pago",
+        _ => method.ToString(),
+    };
 }

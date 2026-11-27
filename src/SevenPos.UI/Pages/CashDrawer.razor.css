@@ -1,0 +1,31 @@
+h2 { font-size: 1.1rem; margin: 1.2rem 0 .4rem; }
+.hint { color: #667; }
+.notice { padding: .8rem 1rem; border-radius: 8px; background: #fff4e5; color: #7a4a00; }
+.success { padding: .6rem .8rem; border-radius: 8px; background: #e7f5e1; color: #2f5a12; }
+.error { padding: .6rem .8rem; border-radius: 8px; background: #fdecec; color: #8a1c1c; }
+
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; }
+.facts dd { margin: 0; }
+
+.panel { display: flex; flex-direction: column; gap: .7rem; max-width: 420px; margin: 1.2rem 0; padding: 1rem 1.2rem;
+         border: 1px solid #ccd; border-radius: 10px; }
+.panel h2 { margin: 0; }
+.panel p { margin: 0; }
+label { display: flex; flex-direction: column; gap: .3rem; font-weight: bold; }
+input { padding: .5rem .7rem; font-size: 1.1rem; border: 1px solid #ccd; border-radius: 8px; font-weight: normal; }
+
+.report { max-width: 720px; }
+.amounts { width: 100%; max-width: 420px; border-collapse: collapse; margin: 1rem 0; }
+.amounts th { text-align: left; font-weight: normal; padding: .35rem .6rem; }
+.amounts td { padding: .35rem .6rem; }
+.amounts .total th, .amounts .total td { font-weight: bold; border-top: 1px solid #ccd; }
+.amounts .short th, .amounts .short td { font-weight: bold; color: #8a1c1c; }
+.amounts .over th, .amounts .over td { font-weight: bold; color: #7a4a00; }
+.amounts .even th, .amounts .even td { font-weight: bold; color: #2f5a12; }
+.money { text-align: right; font-variant-numeric: tabular-nums; }
+
+.choices { display: flex; gap: .6rem; }
+.primary { align-self: flex-start; background: #1a75a8; color: #fff; border: 0; border-radius: 8px; padding: .7rem 1.2rem; font-size: 1rem; cursor: pointer; }
+.primary:disabled { background: #9bb8cc; cursor: default; }
+.secondary { background: #fff; border: 1px solid #ccd; border-radius: 8px; padding: .7rem 1.2rem; font-size: 1rem; cursor: pointer; }
+.secondary:disabled { color: #aab; cursor: default; }
