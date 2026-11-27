@@ -8,6 +8,10 @@
     <header class="pos-header">
         <strong>7Pos</strong>
         <nav>
+            @if (Session.CurrentUser?.Role != UserRole.Marketing)
+            {
+                <NavLink href="tickets/new">Nuevo ticket</NavLink>
+            }
             <NavLink href="" Match="NavLinkMatch.All">Catálogo</NavLink>
             <NavLink href="guests">Clientes</NavLink>
             @if (Session.CurrentUser?.Role == UserRole.Marketing)

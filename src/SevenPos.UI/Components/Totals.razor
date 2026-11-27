@@ -1,0 +1,17 @@
+@* A ticket's totals. Prices already include IVA, so it is broken down, never added (ADR 0010). *@
+
+@{ var tax = TaxCalculator.Breakdown(Total); }
+<dl class="totals">
+    @if (Pieces is { } pieces)
+    {
+        <dt>Prendas</dt><dd>@pieces</dd>
+    }
+    <dt>Subtotal</dt><dd>@Display.Money(tax.Subtotal)</dd>
+    <dt>IVA (16%)</dt><dd>@Display.Money(tax.Iva)</dd>
+    <dt class="total">Total</dt><dd class="total">@Display.Money(tax.Total)</dd>
+</dl>
+
+@code {
+    [Parameter, EditorRequired] public decimal Total { get; set; }
+    [Parameter] public int? Pieces { get; set; }
+}

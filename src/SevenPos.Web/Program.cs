@@ -3,6 +3,7 @@ using SevenPos.Core.Catalog;
 using SevenPos.Core.Data;
 using SevenPos.Core.Guests;
 using SevenPos.Core.Organization;
+using SevenPos.Core.Tickets;
 using SevenPos.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<GuestService>();
 builder.Services.AddScoped<PriceListService>();
+builder.Services.AddScoped<TicketService>();
 // Who is logged in. Scoped = one per browser connection (Blazor Server circuit).
 builder.Services.AddScoped<PosSession>();
 
