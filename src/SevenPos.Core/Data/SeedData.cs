@@ -30,17 +30,25 @@ public static class SeedData
         });
 
         // Display names stay in Spanish: they are what the cashier sees.
-        var starch = new Modifier { Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
-        var stainRemoval = new Modifier { Name = "Desmanchado profundo", ChargeType = ChargeType.Fixed, ChargeValue = 25, SortOrder = 2 };
-        var whiteSole = new Modifier { Name = "Suela blanca", ChargeType = ChargeType.Fixed, ChargeValue = 40, SortOrder = 3 };
-        var express = new Modifier { Name = "Servicio Express", ChargeType = ChargeType.Percentage, ChargeValue = 50, SortOrder = 100 };
+        var line = new ServiceLine { Name = "General" };
+        db.ServiceLines.Add(line);
+        Modifier Extra(string name, ChargeType type, decimal value, int step)
+        {
+            var group = new ModifierGroup { ServiceLineId = line.Id, Name = name, SortOrder = step };
+            db.ModifierGroups.Add(group);
+            return new Modifier { ModifierGroupId = group.Id, Name = name, ChargeType = type, ChargeValue = value };
+        }
+        var starch = Extra("Almidón", ChargeType.Fixed, 10, 1);
+        var stainRemoval = Extra("Desmanchado profundo", ChargeType.Fixed, 25, 2);
+        var whiteSole = Extra("Suela blanca", ChargeType.Fixed, 40, 3);
+        var express = Extra("Servicio Express", ChargeType.Percentage, 50, 100);
 
         Category NewCategory(string name, params (string name, decimal price, Modifier[] modifiers)[] products) => new()
         {
             Name = name,
             Products = products.Select(p => new Product
             {
-                Name = p.name, BasePrice = p.price,
+                ServiceLineId = line.Id, Name = p.name, BasePrice = p.price,
                 Modifiers = p.modifiers.Select(m => new ProductModifier { ModifierId = m.Id }).ToList(),
             }).ToList(),
         };

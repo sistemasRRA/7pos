@@ -14,6 +14,8 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
     public DbSet<GuestAddress> GuestAddresses => Set<GuestAddress>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<ServiceLine> ServiceLines => Set<ServiceLine>();
+    public DbSet<ModifierGroup> ModifierGroups => Set<ModifierGroup>();
     public DbSet<Modifier> Modifiers => Set<Modifier>();
     public DbSet<ProductModifier> ProductModifiers => Set<ProductModifier>();
     public DbSet<PriceList> PriceLists => Set<PriceList>();
@@ -41,6 +43,10 @@ public class PosDbContext(DbContextOptions<PosDbContext> options) : DbContext(op
         b.Entity<Ticket>().HasIndex(x => x.PublicOrderId).IsUnique();
         b.Entity<Garment>().HasIndex(x => x.Code).IsUnique();
         b.Entity<ProductModifier>().HasIndex(x => new { x.ProductId, x.ModifierId }).IsUnique();
+        b.Entity<ServiceLine>().HasIndex(x => x.Name).IsUnique();
+        b.Entity<ModifierGroup>().HasIndex(x => new { x.ServiceLineId, x.Name }).IsUnique();
+        b.Entity<Modifier>().HasIndex(x => new { x.ModifierGroupId, x.Name }).IsUnique();
+        b.Entity<Product>().HasIndex(x => new { x.ServiceLineId, x.Name }).IsUnique();
         b.Entity<Payment>().HasIndex(x => x.ShiftId);
         b.Entity<PriceList>().HasIndex(x => x.Name).IsUnique();
         // One price per product per moment; also the index used to find the current price.

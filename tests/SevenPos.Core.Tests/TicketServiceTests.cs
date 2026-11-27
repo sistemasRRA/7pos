@@ -18,6 +18,8 @@ public class TicketServiceTests : IDisposable
 
     private readonly PriceList _north = new() { Name = "Lista Norte" };
     private readonly Branch _branch, _otherBranch;
+    private readonly ServiceLine _line = new() { Name = "Tintorería" };
+    private readonly ModifierGroup _starchGroup, _extraGroup, _urgentGroup;
     private readonly Category _shirts = new() { Name = "Camisas" };
     private readonly Product _shirt, _jeans, _unpriced, _oldCoat;
     private readonly Modifier _starch, _express, _whiteSole;
@@ -32,9 +34,12 @@ public class TicketServiceTests : IDisposable
 
         _branch = new Branch { Name = "Norte 1", Code = "N1", PriceListId = _north.Id };
         _otherBranch = new Branch { Name = "Norte 2", Code = "N2", PriceListId = _north.Id };
-        _starch = new Modifier { Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
-        _whiteSole = new Modifier { Name = "Suela blanca", ChargeType = ChargeType.Fixed, ChargeValue = 40, SortOrder = 3 };
-        _express = new Modifier { Name = "Servicio Express", ChargeType = ChargeType.Percentage, ChargeValue = 50, SortOrder = 100 };
+        _starchGroup = new ModifierGroup { ServiceLineId = _line.Id, Name = "Almidón", SortOrder = 6 };
+        _extraGroup = new ModifierGroup { ServiceLineId = _line.Id, Name = "Extra", SortOrder = 7 };
+        _urgentGroup = new ModifierGroup { ServiceLineId = _line.Id, Name = "Urgente", SortOrder = 8 };
+        _starch = new Modifier { ModifierGroupId = _starchGroup.Id, Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
+        _whiteSole = new Modifier { ModifierGroupId = _extraGroup.Id, Name = "Suela blanca", ChargeType = ChargeType.Fixed, ChargeValue = 40, SortOrder = 3 };
+        _express = new Modifier { ModifierGroupId = _urgentGroup.Id, Name = "Servicio Express", ChargeType = ChargeType.Percentage, ChargeValue = 50, SortOrder = 100 };
         _shirt = NewProduct("Camisa", 50, _starch, _express);
         _jeans = NewProduct("Jeans", 60, _express);
         _unpriced = NewProduct("Saco", 90);
@@ -51,6 +56,8 @@ public class TicketServiceTests : IDisposable
         using var db = _database.CreateDbContext();
         db.PriceLists.Add(_north);
         db.Branches.AddRange(_branch, _otherBranch);
+        db.ServiceLines.Add(_line);
+        db.ModifierGroups.AddRange(_starchGroup, _extraGroup, _urgentGroup);
         db.Categories.Add(_shirts);
         db.Modifiers.AddRange(_starch, _whiteSole, _express);
         db.Products.AddRange(_shirt, _jeans, _unpriced, _oldCoat);
@@ -71,7 +78,7 @@ public class TicketServiceTests : IDisposable
 
     private Product NewProduct(string name, decimal basePrice, params Modifier[] modifiers) => new()
     {
-        Name = name, BasePrice = basePrice, CategoryId = _shirts.Id,
+        ServiceLineId = _line.Id, Name = name, BasePrice = basePrice, CategoryId = _shirts.Id,
         Modifiers = modifiers.Select(m => new ProductModifier { ModifierId = m.Id }).ToList(),
     };
 

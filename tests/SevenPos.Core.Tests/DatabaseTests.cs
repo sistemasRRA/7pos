@@ -54,9 +54,11 @@ public class DatabaseTests : IDisposable
         // An older version seeded the branch and catalog, but had no price lists or Marketing role.
         var branch = new Branch { Name = "Sucursal Demo", Code = "DEMO" };
         var category = new Category { Name = "Camisas" };
+        var line = new ServiceLine { Name = "General" };
         _db.Branches.Add(branch);
         _db.Categories.Add(category);
-        _db.Products.Add(new Product { Name = "Camisa de vestir", BasePrice = 50, CategoryId = category.Id });
+        _db.ServiceLines.Add(line);
+        _db.Products.Add(new Product { ServiceLineId = line.Id, Name = "Camisa de vestir", BasePrice = 50, CategoryId = category.Id });
         await _db.SaveChangesAsync();
 
         await SeedData.LoadAsync(_db);

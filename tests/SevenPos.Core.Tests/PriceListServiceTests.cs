@@ -15,6 +15,8 @@ public class PriceListServiceTests : IDisposable
     private readonly PriceList _north = new() { Name = "Lista Norte" };
     private readonly PriceList _south = new() { Name = "Lista Sur" };
     private readonly Branch _northBranch, _southBranch, _branchWithoutList;
+    private readonly ServiceLine _line = new() { Name = "Tintorería" };
+    private readonly ModifierGroup _extras;
     private readonly Category _shirts = new() { Name = "Camisas" };
     private readonly Product _shirt, _jeans, _oldCoat;
     private readonly User _marketing, _cashier;
@@ -27,15 +29,18 @@ public class PriceListServiceTests : IDisposable
         _northBranch = new Branch { Name = "Norte 1", Code = "N1", PriceListId = _north.Id };
         _southBranch = new Branch { Name = "Sur 1", Code = "S1", PriceListId = _south.Id };
         _branchWithoutList = new Branch { Name = "Nueva", Code = "NVA" };
-        _shirt = new Product { Name = "Camisa", BasePrice = 50, CategoryId = _shirts.Id };
-        _jeans = new Product { Name = "Jeans", BasePrice = 60, CategoryId = _shirts.Id };
-        _oldCoat = new Product { Name = "Abrigo viejo", BasePrice = 90, CategoryId = _shirts.Id, IsActive = false };
+        _extras = new ModifierGroup { ServiceLineId = _line.Id, Name = "Extras", SortOrder = 1 };
+        _shirt = new Product { ServiceLineId = _line.Id, Name = "Camisa", BasePrice = 50, CategoryId = _shirts.Id };
+        _jeans = new Product { ServiceLineId = _line.Id, Name = "Jeans", BasePrice = 60, CategoryId = _shirts.Id };
+        _oldCoat = new Product { ServiceLineId = _line.Id, Name = "Abrigo viejo", BasePrice = 90, CategoryId = _shirts.Id, IsActive = false };
         _marketing = new User { Name = "Mónica", PinHash = "x", Role = UserRole.Marketing, BranchId = _northBranch.Id };
         _cashier = new User { Name = "Carlos", PinHash = "x", Role = UserRole.Cashier, BranchId = _northBranch.Id };
 
         using var db = _database.CreateDbContext();
         db.PriceLists.AddRange(_north, _south);
         db.Branches.AddRange(_northBranch, _southBranch, _branchWithoutList);
+        db.ServiceLines.Add(_line);
+        db.ModifierGroups.Add(_extras);
         db.Categories.Add(_shirts);
         db.Products.AddRange(_shirt, _jeans, _oldCoat);
         db.Users.AddRange(_marketing, _cashier);
@@ -123,9 +128,9 @@ public class PriceListServiceTests : IDisposable
     {
         await using (var db = _database.CreateDbContext())
         {
-            var starch = new Modifier { Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
-            var oldExtra = new Modifier { Name = "Perfume", ChargeType = ChargeType.Fixed, ChargeValue = 5, SortOrder = 2, IsActive = false };
-            var removedLink = new Modifier { Name = "Doblado", ChargeType = ChargeType.Fixed, ChargeValue = 8, SortOrder = 3 };
+            var starch = new Modifier { ModifierGroupId = _extras.Id, Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
+            var oldExtra = new Modifier { ModifierGroupId = _extras.Id, Name = "Perfume", ChargeType = ChargeType.Fixed, ChargeValue = 5, SortOrder = 2, IsActive = false };
+            var removedLink = new Modifier { ModifierGroupId = _extras.Id, Name = "Doblado", ChargeType = ChargeType.Fixed, ChargeValue = 8, SortOrder = 3 };
             db.Modifiers.AddRange(starch, oldExtra, removedLink);
             db.ProductModifiers.AddRange(
                 new ProductModifier { ProductId = _shirt.Id, ModifierId = starch.Id },
@@ -146,7 +151,7 @@ public class PriceListServiceTests : IDisposable
         await using (var db = _database.CreateDbContext())
         {
             var pants = new Category { Name = "Pantalones" };
-            var starch = new Modifier { Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
+            var starch = new Modifier { ModifierGroupId = _extras.Id, Name = "Almidón", ChargeType = ChargeType.Fixed, ChargeValue = 10, SortOrder = 1 };
             db.Categories.Add(pants);
             db.Modifiers.Add(starch);
             db.ProductModifiers.Add(new ProductModifier { ProductId = _shirt.Id, ModifierId = starch.Id });
